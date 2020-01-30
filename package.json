@@ -1,0 +1,19 @@
+{
+  "name": "lmaobotjs",
+  "version": "0.0.1",
+  "description": "Discord bot for Lmaocraft server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "discordjs",
+    "node.js"
+  ],
+  "author": "Alex Redden",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "npm": "^6.13.7"
+  }
+}
