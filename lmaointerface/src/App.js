@@ -22,6 +22,7 @@ export default class App extends Component {
             guildName:false,
             endpoint:'http://localhost:3001/',
             socket:false,
+            emojis:false,
         }
         this.onReady = this.onReady.bind(this);
         this.onMessage = this.onMessage.bind(this);
@@ -34,15 +35,26 @@ export default class App extends Component {
     }
 
     componentDidMount() {
+        const { endpoint } = this.state;
         this.socket.on("discordmessage", (message) => this.onMessage(message));
         this.socket.on("error",(err)=> this.onError(err))
-        axios.get(this.state.endpoint+"botguilds")
+        axios.get(endpoint+"botguilds")
         .then((response)=>this.onReady(response.data))
+
     }
 
+    // updateEmojis(){
+    //     axios.get(endpoint+"emojis")
+    //     .then(response=>this.onEmojis(response.data))
+    // }
+
+    onEmojis(emojiData) {
+        console.log(emojiData);
+        this.setState({emojis:emojiData})
+    }
 
     onReady = (data) => {
-        console.log(data)
+        console.log(data);
         var channelname = "general";
         var guildname="Lmaocraft";
         this.setState({

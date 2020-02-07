@@ -1,6 +1,15 @@
 import React, {Component} from 'react'
+import { TypeGuild, TypeTextChannel } from '../types/lmaotypes';
 
-export default class Sidebar extends Component {
+type TypeSidebar = {
+    ready:boolean,
+    guildList:Map<string,TypeGuild>,
+    guildName:string
+    guildChannels:Map<string,TypeTextChannel>,
+    onSwitchChannel:(e:React.MouseEvent,newChannelName:string)=>any,
+}
+
+export default class Sidebar extends Component<TypeSidebar,{}> {
     render() {
         let loginText;
         if (this.props.ready) {
@@ -13,15 +22,15 @@ export default class Sidebar extends Component {
                 <div className="sidebar-sticky">
                     <ul className="nav flex-column">
                         <li className="nav-item">
-                            <a href="/" className="nav-link">
+                            <div className="nav-link">
                                 <span data-feather="home"></span>
                                 {loginText}
                                 <span className="sr-only">(current)</span>
-                            </a>
+                            </div>
                         </li>
                         <li className="nav-item">
                             <h6
-                                className="sidebar-heading d-flex justify-content-between
+                                className="sidebar-heading d-flex justify-content-between justify-content-center
                                         align-items-center px-1 mt-4 mb-1 text-muted">
                                 <span>Servers</span>
                             </h6>
@@ -30,12 +39,12 @@ export default class Sidebar extends Component {
                             this.props.guildList ? Object.values(this.props.guildList).map((guild) => 
                                 {
                                 return (
-                                    <li className="nav-item" key={guild.id}>
-                                        <a href="/" className="nav-link text-bold" key={guild.id}>
+                                    <li className="nav-item d-flex justify-content-start btn btn-light" key={guild.id}>
+                                        <div className="nav-link text-bold" key={guild.id}>
                                             <span data-feather="file" key={guild.id}>
                                                 {guild.name}
                                             </span>
-                                        </a>
+                                        </div>
                                     </li>
                                 )}
                             ) : ""
@@ -50,11 +59,11 @@ export default class Sidebar extends Component {
                     <ul className="nav flex-column mb-2">
                         {this.props.guildChannels
                             ? Object.values(this.props.guildChannels).map((channel) => {
-                                    return <li className="nav-item" key={channel.id}>
-                                        <a className="nav-link" href="#"onClick={(e)=>this.props.onSwitchChannel(e,channel.name)} key={channel.id}>
+                                    return <li className="nav-item d-flex justify-content-start btn btn-light" key={channel.id}>
+                                        <div className="nav-link " onClick={(e)=>this.props.onSwitchChannel(e,channel.name)} key={channel.id}>
                                             <span data-feather="file-text" key={channel.id}></span>
                                             {channel.name}
-                                        </a>
+                                        </div>
                                     </li>
                                 })
                             : ""

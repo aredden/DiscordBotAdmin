@@ -6,7 +6,7 @@ import router from './routes/index';
 import DiscordBotSocketIo from './socket/DiscordBotSocket';
 import { LmaoBot } from './lmaobot/LmaoBot';
 import winston from 'winston';
-import { parseGuilds } from './lmaobot/LmaoBotParsingFunctions';
+import { parseGuilds, parseEmojis } from './lmaobot/LmaoBotParsingFunctions';
 const app = express();
 const port = 3001
 const server = http.createServer(app);
@@ -32,13 +32,16 @@ app.use(router)
 app.get('/botguilds', (req,res)=>{
   logger.info(`Client from ${req.url} requested 'botguilds'`);
   let data = parseGuilds(bot.client.guilds);
-  logger.info(data.toString())
+  logger.info(Object.values(data))
   res.write(JSON.stringify(data));
   res.send();
 })
 
 app.get('/emojis', (req,res)=>{
-
+    logger.info(`Client from ${req.originalUrl} requested 'emojis'`);
+    let data = parseEmojis(bot.client.emojis);
+    res.write(JSON.stringify(data))
+    res.send();
 })
 
 app.get('/', (req, res) => {
@@ -46,7 +49,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/status', (req,res) =>{
-    logger.info(`Client from ${req.url} requested 'status'`);
+    logger.info(`Client from ${req.originalUrl} requested 'status'`);
     res.send({status:bot.client.status}).status(200)
 })
 
