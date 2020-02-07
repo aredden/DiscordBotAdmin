@@ -28,7 +28,6 @@ export default class Message extends Component<{
                     contentArray = contentArray.filter((value)=>{
                         return value!==""
                     })
-                    console.log(contentArray)
                 }
             });
         }

@@ -55,12 +55,10 @@ export default class App extends Component<{},AppType> {
   }
 
   onEmojis(emojiData:Map<string,TypeEmoji>) {
-      console.log(emojiData);
       this.setState({emojis:emojiData})
   }
 
   onReady = (data:Map<string,TypeGuild>) => {
-      console.log(data);
       var channelname = "general";
       var guildname="Lmaocraft";
       this.setState({
@@ -87,12 +85,10 @@ export default class App extends Component<{},AppType> {
 
   onMessage = (message:string) => {
       const parsedMessage:TypeMessage = JSON.parse(message) as TypeMessage;
-      console.log(parsedMessage);
       var guildlist =  this.state.guildList;
       try{
         const tempGuild = guildlist[parsedMessage.guild] as TypeGuild;
         const channels = tempGuild.channels as Map<string,TypeTextChannel>;
-        console.log(channels);
         let channel = channels[parsedMessage.channel] as TypeTextChannel
         channel.messages.push(parsedMessage);
       }catch(error){

@@ -11,7 +11,7 @@ type TypeSidebar = {
 
 export default class Sidebar extends Component<TypeSidebar,{}> {
     render() {
-        let loginText;
+        let loginText:string;
         if (this.props.ready) {
             loginText = "Logged In"
         } else {
