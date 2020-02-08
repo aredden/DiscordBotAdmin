@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import './App.css';
-import 'jquery/dist/jquery.slim.min';
+import './css/App.css';
+import 'jquery';
 import 'popper.js';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+import 'bootstrap';
 import Nav from './components/Nav';
 import MessageList from './components/MessageList';
 import SideBar from './components/Sidebar';
@@ -85,6 +85,7 @@ export default class App extends Component<{},AppType> {
 
   onMessage = (message:string) => {
       const parsedMessage:TypeMessage = JSON.parse(message) as TypeMessage;
+      console.log(parsedMessage);
       var guildlist =  this.state.guildList;
       try{
         const tempGuild = guildlist[parsedMessage.guild] as TypeGuild;

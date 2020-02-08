@@ -1,1 +1,0 @@
-Old react App before adapted to typescript in /lmaointerface_ts

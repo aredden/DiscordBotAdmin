@@ -2,19 +2,12 @@ import { Message, Collection, Guild,
         Emoji, GuildChannel, TextChannel,
         GuildMember, User, Role,
         MessageMentions,
-        Attachment,
         MessageAttachment,
         MessageEmbed,
         MessageEmbedField} from "discord.js";
-import winston from "winston";
+import getLogger from "../Logger";
 
-const logger = winston.createLogger({
-	transports: [
-		new winston.transports.Console(),
-		new winston.transports.File({ filename: 'log' }),
-	],
-	format: winston.format.printf(log => `[LmaoBotParsingFunctions - ${log.level.toUpperCase()}] - ${log.message}`),
-});
+const logger = getLogger("LmaoBotParsingFunctions")
 
 export function parseGuilds(guilds:Collection<string,Guild>){
     let guildList = new Object()

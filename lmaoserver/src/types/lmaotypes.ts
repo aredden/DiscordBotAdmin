@@ -1,11 +1,11 @@
 export type TypeMessage = {
     message:string,
     author:TypeUser,
-    content:string, 
+    content:string,
     mentions:Map<string,TypeUser>,
     channel:string,
     guild:string,
-    createdAt:string, 
+    createdAt:string,
     member:TypeGuildMember,
     id:string,
     embeds:TypeEmbed[],
@@ -23,7 +23,7 @@ export type TypeEmoji = {
 export type TypeTextChannel = {
     name:string,
     type:string,
-    messages:Array<TypeMessage>,
+    messages:TypeMessage[],
     guild:string,
     id:string,
     nsfw:boolean
@@ -120,5 +120,7 @@ export type TypeMessageAttachment = {
 }
 
 export type TypeMessageData = {
-    
+    guild:string,
+    channel:string,
+    content:string
 }

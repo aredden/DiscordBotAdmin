@@ -1,20 +1,11 @@
 import { LmaoBot } from "./LmaoBot";
 import { parseGuilds, parseEmojis } from "./LmaoBotParsingFunctions";
-import winston = require("winston");
 import { TextChannel } from "discord.js";
+import getLogger from '../Logger';
 
-const logger = winston.createLogger({
-	transports: [
-		new winston.transports.Console(),
-		new winston.transports.File({ filename: 'log' }),
-	],
-    format: winston.format.printf(log =>
-        `[LmaoBotControl - ${log.level.toUpperCase()}] - ${log.message}`
-    ),
-});
+const logger = getLogger("LmaoBotControl");
 
 export default class LmaoBotControl{
- 
     public guilds:object;
     private bot:LmaoBot;
 
@@ -31,9 +22,9 @@ export default class LmaoBotControl{
         textchannel.send(content)
             .then(
                 success=>
-                logger.info(`Successfully sent message to ${textchannel.name}`),
+                logger.error(`Successfully sent message to ${textchannel.name}`),
                 failure=>
-                logger.info(`Failed to send message to ${textchannel.name}`)
+                logger.error(`Failed to send message to ${textchannel.name}`)
             );
     }
 }

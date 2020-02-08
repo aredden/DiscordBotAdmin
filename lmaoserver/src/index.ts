@@ -5,20 +5,14 @@ import http from 'http';
 import router from './routes/index';
 import DiscordBotSocketIo from './socket/DiscordBotSocket';
 import { LmaoBot } from './lmaobot/LmaoBot';
-import winston from 'winston';
-import { parseGuilds, parseEmojis } from './lmaobot/LmaoBotParsingFunctions';
+import getLogger from './Logger';
+
 const app = express();
 const port = 3001
 const server = http.createServer(app);
 const bot:LmaoBot = new LmaoBot();
 
-const logger = winston.createLogger({
-	transports: [
-		new winston.transports.Console(),
-		new winston.transports.File({ filename: 'log' }),
-	],
-	format: winston.format.printf(log => `[Index - ${log.level.toUpperCase()}] - ${log.message}`),
-});
+const logger = getLogger("index");
 
 app.use(cors({
     origin:"http://localhost:3000",
@@ -29,30 +23,8 @@ app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
 app.use(router)
 
-app.get('/botguilds', (req,res)=>{
-  logger.info(`Client from ${req.url} requested 'botguilds'`);
-  let data = parseGuilds(bot.client.guilds);
-  logger.info(Object.values(data))
-  res.write(JSON.stringify(data));
-  res.send();
-})
-
-app.get('/emojis', (req,res)=>{
-    logger.info(`Client from ${req.originalUrl} requested 'emojis'`);
-    let data = parseEmojis(bot.client.emojis);
-    res.write(JSON.stringify(data))
-    res.send();
-})
-
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
-
-app.get('/status', (req,res) =>{
-    logger.info(`Client from ${req.originalUrl} requested 'status'`);
-    res.send({status:bot.client.status}).status(200)
-})
-
 DiscordBotSocketIo(bot,server);
 server.listen(port,"127.0.0.1")
 bot.login()
+
+export default bot;
