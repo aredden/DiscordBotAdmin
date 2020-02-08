@@ -42,6 +42,7 @@
     "discord.js": "^11.5.1",
     "discord.js-typings": "github:discordjs/discord.js-typings",
     "eslint": "^6.8.0",
+    "mongodb": "^3.5.2",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"
   }

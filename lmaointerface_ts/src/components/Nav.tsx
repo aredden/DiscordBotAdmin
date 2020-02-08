@@ -11,11 +11,6 @@ export default class Nav extends Component {
                         <a className="nav-link" href="/">Sign out</a>
                     </li>
                 </ul>
-                <ul className="navbar-nav px-3">
-                    <li className="nav-item text-nowrap">
-                        <a className="nav-link" href="/">Sign out</a>
-                    </li>
-                </ul>
             </nav>
         )
     }

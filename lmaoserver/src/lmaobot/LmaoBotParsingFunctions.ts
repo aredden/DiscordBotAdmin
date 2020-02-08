@@ -1,7 +1,11 @@
 import { Message, Collection, Guild,
         Emoji, GuildChannel, TextChannel,
         GuildMember, User, Role,
-        MessageMentions } from "discord.js";
+        MessageMentions,
+        Attachment,
+        MessageAttachment,
+        MessageEmbed,
+        MessageEmbedField} from "discord.js";
 import winston from "winston";
 
 const logger = winston.createLogger({
@@ -87,7 +91,12 @@ export function parseMessage(message:Message){
         mentions:parseMentions(message.mentions),
         guild:txtchannel.guild.name,
         id:message.id,
-        createdAt:message.createdAt
+        createdAt:message.createdAt,
+        attachments:parseMessageAttachments(message.attachments),
+        embeds:parseEmbeds(message.embeds),
+        type:message.type,
+        hit:message.hit,
+        nonce:message.nonce
     })
 }
 
@@ -140,7 +149,8 @@ export function parseGuildRole(role:Role){
         id:role.id,
         permissions:role.permissions,
         mentionable:role.mentionable,
-        hexColor:role.hexColor
+        hexColor:role.hexColor,
+        calculatedPosition:role.calculatedPosition
     })
 }
 
@@ -154,4 +164,84 @@ export function parseUser(user:User){
         avatarURL:user.avatarURL,
         avatar:user.avatar
     })
+}
+
+export function parseMessageAttachments(attachments:Collection<string,MessageAttachment>){
+    let newMessageAttatchments = []
+    attachments.forEach((attachment,key,attmap)=>{
+        newMessageAttatchments.push(parseMessageAttachment(attachment))
+    })
+    return newMessageAttatchments;
+}
+
+export function parseMessageAttachment(attachment:MessageAttachment){
+    return({
+        filename:attachment.filename,
+        filesize:attachment.filesize,
+        height:attachment.height,
+        width:attachment.width,
+        url:attachment.url,
+        proxyURL:attachment.proxyURL,
+        id:attachment.id
+    })
+}
+
+export function parseEmbeds(embeds:MessageEmbed[]){
+    let embedArray = []
+    embeds.forEach((embed,idx,embedarray)=>{
+        embedArray.push(parseEmbed(embed))
+    })
+    return embedArray
+}
+
+export function parseEmbed(embed:MessageEmbed){
+    return({
+        type:embed.type,
+        video:embed.video?{
+            height:embed.video.height,
+            width:embed.video.width,
+            url:embed.video.url
+        }:{},
+        color:embed.color,
+        createdAt:embed.createdAt,
+        description:embed.description,
+        hexColor:embed.hexColor,
+        fields:embed.fields?parseEmbedFields(embed.fields):[],
+        footer:embed.footer?{
+            iconURL:embed.footer.iconURL,
+            proxyIconURL:embed.footer.proxyIconURL,
+            text:embed.footer.text
+        }:{},
+        image:embed.image?{
+            height:embed.image.height,
+            width:embed.image.width,
+            url:embed.image.url,
+            proxyURL:embed.image.proxyURL
+        }:{},
+        provider:embed.provider?{
+            name:embed.provider.name,
+            url:embed.provider.url
+        }:{},
+        thumbnail:embed.thumbnail?{
+            width:embed.thumbnail.width,
+            height:embed.thumbnail.height,
+            url:embed.thumbnail.url,
+            proxyURL:embed.thumbnail.proxyURL
+        }:{},
+        title:embed.title,
+        url:embed.url,
+        timestamp:embed.timestamp
+    })
+}
+
+export function parseEmbedFields(fields:MessageEmbedField[]){
+    let embedFields = []
+    fields.forEach((field,idx,fieldarr)=>{
+        embedFields.push({
+            inline:field.inline,
+            name:field.name,
+            value:field.value
+        })
+    })
+    return embedFields;
 }

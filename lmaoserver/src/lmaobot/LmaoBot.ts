@@ -9,5 +9,4 @@ export class LmaoBot{
     public login = () =>{
         this.client.login(this.token);
     }
-
 }

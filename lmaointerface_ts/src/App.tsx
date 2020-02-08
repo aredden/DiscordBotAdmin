@@ -113,7 +113,6 @@ export default class App extends Component<{},AppType> {
       if(guildlist.length > 0){
           let guildlist = this.state.guildList;
           let guildname = this.state.guildName;
-          console.log(guildlist);
           channels = (guildlist[guildname] as TypeGuild).channels;
           messages = (channels[this.state.channelName] as TypeTextChannel).messages;
           emojis = (this.state.guildList[this.state.guildName] as TypeGuild).emojis;
