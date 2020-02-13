@@ -6,7 +6,6 @@ export default function getLogger(clazz:string):Logger{
     return winston.createLogger({
         transports: [
             new winston.transports.Console(),
-            new winston.transports.File({ filename: 'lmaointerface.log' }),
         ],
         format: winston.format.printf(log => {
             const level = log.level;

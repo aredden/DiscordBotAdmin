@@ -17,7 +17,7 @@ type AppType = {
     channelName:string,
     guildName:string,
     endpoint:string,
-    emojis:Map<String,TypeEmoji>
+    emojis:Map<string,TypeEmoji>
 }
 
 export default class App extends Component<{},AppType> {
@@ -35,6 +35,7 @@ export default class App extends Component<{},AppType> {
           emojis:new Map<string,TypeEmoji>(),
       }
       this.socket = socketIOClient(endpoint);
+      this.onEmojis = this.onEmojis.bind(this);
       this.onReady = this.onReady.bind(this);
       this.onMessage = this.onMessage.bind(this);
       this.onError = this.onError.bind(this);
@@ -47,15 +48,24 @@ export default class App extends Component<{},AppType> {
       this.socket.on("error",(err:string)=> this.onError(err))
       axios.get(endpoint+"botguilds")
       .then((response)=>this.onReady(response.data))
+      .then((good)=>this.queryEmoji())
   }
 
-  queryEmoji(identifier:string){
+  queryEmoji(){
       axios.get(this.state.endpoint+"emojis")
       .then(response=>this.onEmojis(response.data))
   }
 
   onEmojis(emojiData:Map<string,TypeEmoji>) {
-      this.setState({emojis:emojiData})
+      if(this.state.emojis.size>0){
+        let {emojis} = this.state;
+        emojiData.forEach((emoji, name)=>{
+            if(!emojis[name]){
+                emojis.set(name,emoji);
+            }
+        })
+        this.setState({emojis:emojis});
+      }else this.setState({emojis:emojiData})
   }
 
   onReady = (data:Map<string,TypeGuild>) => {
@@ -95,9 +105,21 @@ export default class App extends Component<{},AppType> {
       }catch(error){
         console.log("Ran into error pushing message to array of messages.")
       }
+
+      let emojiMapFromState = this.state.emojis;
+      let emojiMapFromMessage = parsedMessage.newEmojis as Map<string,TypeEmoji>
+      if(emojiMapFromMessage){
+        Object.keys(emojiMapFromMessage).forEach((key) => {
+            if(!emojiMapFromState[key]){
+                emojiMapFromState[key]=emojiMapFromMessage[key];
+            }
+        });
+      }
+
       
       this.setState({
-          guildList:guildlist
+          guildList:guildlist,
+          emojis:emojiMapFromState
       })
   }
 
@@ -106,9 +128,9 @@ export default class App extends Component<{},AppType> {
   }
 
   render() {
-      let channels
-      let messages
-      let emojis
+      let channels:Map<string,TypeTextChannel>
+      let messages:Array<TypeMessage>
+      let emojis:Map<string,TypeEmoji>
       let ready = this.state.isReady
       let guildlist = Object.values(this.state.guildList)
       if(guildlist.length > 0){
@@ -116,7 +138,7 @@ export default class App extends Component<{},AppType> {
           let guildname = this.state.guildName;
           channels = (guildlist[guildname] as TypeGuild).channels;
           messages = (channels[this.state.channelName] as TypeTextChannel).messages;
-          emojis = (this.state.guildList[this.state.guildName] as TypeGuild).emojis;
+          emojis = this.state.emojis;
       }
       return (
           <div className="App">
@@ -132,7 +154,7 @@ export default class App extends Component<{},AppType> {
                       channelName={this.state.channelName}
                       guildName={this.state.guildName}
                       messages={messages as TypeMessage[]}
-                      emojis={emojis as Map<string,TypeEmoji>}/>
+                      emojis={emojis}/>
               </div>
           </div>
       );

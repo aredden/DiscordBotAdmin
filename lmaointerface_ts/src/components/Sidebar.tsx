@@ -41,7 +41,7 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                                 return (
                                     <li className="nav-item d-flex justify-content-start btn btn-light" key={guild.id}>
                                         <div className="nav-link text-bold" key={guild.id}>
-                                            <span data-feather="file" key={guild.id}>
+                                            <span data-feather="file" onClick={(e)=>this.props.onSwitchChannel(e,guild.name)} key={guild.id}>
                                                 {guild.name}
                                             </span>
                                         </div>

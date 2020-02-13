@@ -13,13 +13,12 @@ export default function getLogger(clazz:string):Logger{
             const sourceString = `[${clazz} - ${level.toUpperCase()}]`
             const messageString = ` - ${log.message}`;
             switch(level.toLowerCase()){
-                case "error":
+                case 'error':
                     return chalk.red(sourceString)+messageString;
-                case "debug":
+                case 'debug':
                     return chalk.yellow(sourceString)+messageString;
                 default:
                     return chalk.green(sourceString)+messageString;
-
             }
         }),
     });

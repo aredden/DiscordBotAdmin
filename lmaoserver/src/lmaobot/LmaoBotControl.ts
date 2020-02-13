@@ -1,9 +1,9 @@
-import { LmaoBot } from "./LmaoBot";
-import { parseGuilds, parseEmojis } from "./LmaoBotParsingFunctions";
-import { TextChannel } from "discord.js";
+import { LmaoBot } from './LmaoBot';
+import { parseGuilds, parseEmojis } from './LmaoBotTypeParsingFunctions';
+import { TextChannel } from 'discord.js';
 import getLogger from '../Logger';
 
-const logger = getLogger("LmaoBotControl");
+const logger = getLogger('LmaoBotControl');
 
 export default class LmaoBotControl{
     public guilds:object;
@@ -11,8 +11,8 @@ export default class LmaoBotControl{
 
     constructor(bot:LmaoBot){
         this.bot=bot;
-        this.bot.client.once("ready",()=>{
-            logger.info("LmaoBot Ready");
+        this.bot.client.once('ready',()=>{
+            logger.info('LmaoBot Ready');
         })
     }
 

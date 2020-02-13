@@ -1,7 +1,7 @@
-import { TypeMessageAttachment, TypeMessage } from "../../types/lmaotypes";
+import { TypeMessageAttachment, TypeMessage } from "../../../types/lmaotypes";
 
 export function parseattachments(attachments:TypeMessageAttachment[]):HTMLElement[]{
-return
+return;
 }
 
 export function hasattachment(message: TypeMessage){

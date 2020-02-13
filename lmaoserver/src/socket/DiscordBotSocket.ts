@@ -1,37 +1,35 @@
-import { Message, Guild, Collection, TextChannel, MessageAttachment, MessageEmbed } from "discord.js";
+import { Message, Guild, Collection, TextChannel, MessageAttachment, MessageEmbed } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { LmaoBot } from '../lmaobot/LmaoBot'
 import 'discord.js';
 import http from 'http';
-import { parseMessage } from '../lmaobot/LmaoBotParsingFunctions';
-import getLogger from "../Logger";
+import { parseNewMessage } from '../lmaobot/LmaoBotTypeParsingFunctions';
+import getLogger from '../Logger';
 import { TypeMessageData } from '../types/lmaotypes'
-const logger = getLogger("DiscordBotSocketIo");
+const logger = getLogger('DiscordBotSocketIo');
 
 export default function DiscordBotSocketIo(bot:LmaoBot,server:http.Server) {
-    let isReady:boolean=false;
     let io : socketio.Server;
-    let data: Collection<string,Guild>=new Collection<string,Guild>();
     let interval:NodeJS.Timeout;
-    io = socketio(server);
-    bot.client.once("ready",()=>
+    io = socketio(server).json;
+    bot.client.once('ready',()=>
         {
-        logger.info("Bot ready")
-        io.on("connection", (socket:Socket) => {
+        logger.info('Bot ready')
+        io.on('connection', (socket:Socket) => {
 
                 logger.info(`Client connected [id=${socket.id}]`);
 
                 if(interval){clearInterval(interval);}
 
-                bot.client.on("message", (msg : Message) =>
-                    socket.emit("discordmessage", JSON.stringify(parseMessage(msg))));
+                bot.client.on('message', (msg : Message) =>
+                    socket.emit('discordmessage', JSON.stringify(parseNewMessage(msg))));
 
-                bot.client.on("error", (err : Error) => socket.emit("error", JSON.stringify(err)))
+                bot.client.on('error', (err : Error) => socket.emit('error', JSON.stringify(err)))
 
-                socket.on("sendMessage", (messageData:TypeMessageData)=>handleSendMessage(messageData,bot))
+                socket.on('sendMessage', (messageData:TypeMessageData)=>handleSendMessage(messageData,bot))
 
-                socket.on("disconnect", () => {
-                    logger.info("Client disconnected");
+                socket.on('disconnect', () => {
+                    logger.info('Client disconnected');
                     socket.removeAllListeners();
                 });
             });

@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "esModuleInterop": true,
-        "target": "es5",
+        "target": "ESNext",
         "noImplicitAny": false,
         "moduleResolution": "node",
         "sourceMap": true,

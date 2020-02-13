@@ -4,10 +4,13 @@ import { Message, Collection, Guild,
         MessageMentions,
         MessageAttachment,
         MessageEmbed,
-        MessageEmbedField} from "discord.js";
-import getLogger from "../Logger";
+        MessageEmbedField} from 'discord.js';
+import getLogger from '../Logger';
+import { parseEmojisFromString } from './EmojiParser';
+import { updateEmojiMap, getEmojiMap } from '../index';
 
-const logger = getLogger("LmaoBotParsingFunctions")
+
+const logger = getLogger('LmaoBotParsingFunctions')
 
 export function parseGuilds(guilds:Collection<string,Guild>){
     let guildList = new Object()
@@ -51,7 +54,7 @@ export function parseTextChannel(channel:TextChannel){
 export function parseEmojis(emojis:Collection<string,Emoji>){
     let emojilist=new Object();
     emojis.forEach((emoji,key,emojimap) => {
-        emojilist[emoji.name] = parseEmoji(emoji)
+        emojilist[emoji.name] = convertDiscEmojiToTypeEmoji(emoji)
     });
     return emojilist;
 }
@@ -64,7 +67,7 @@ export function parseMessages(messages: Collection<string,Message>){
     return messageMap;
 }
 
-export function parseEmoji(emoji:Emoji){
+export function convertDiscEmojiToTypeEmoji(emoji:Emoji){
     return {
         id:emoji.id,
         name:emoji.name,
@@ -72,6 +75,32 @@ export function parseEmoji(emoji:Emoji){
         url:emoji.url,
         requiresColons:emoji.requiresColons
     }
+}
+
+export function parseNewMessage(message:Message){
+    const txtchannel = message.channel as TextChannel;
+    let _EMOJI_MAP = getEmojiMap();
+    // logger.info(chalk.yellow(JSON.stringify(_EMOJI_MAP, null, 4)));
+    const newEmojis = parseEmojisFromString(message.content,_EMOJI_MAP);
+    if(newEmojis.size>0){
+        updateEmojiMap(newEmojis);
+    }
+    return({
+        member:parseGuildMember(message.member),
+        author:parseUser(message.author),
+        channel:txtchannel.name,
+        content:message.content,
+        mentions:parseMentions(message.mentions),
+        guild:txtchannel.guild.name,
+        id:message.id,
+        createdAt:message.createdAt,
+        attachments:parseMessageAttachments(message.attachments),
+        embeds:parseEmbeds(message.embeds),
+        type:message.type,
+        hit:message.hit,
+        nonce:message.nonce,
+        newEmojis
+    })
 }
 
 export function parseMessage(message:Message){
@@ -89,7 +118,8 @@ export function parseMessage(message:Message){
         embeds:parseEmbeds(message.embeds),
         type:message.type,
         hit:message.hit,
-        nonce:message.nonce
+        nonce:message.nonce,
+        newEmojis:undefined
     })
 }
 

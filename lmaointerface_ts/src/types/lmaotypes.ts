@@ -10,6 +10,7 @@ export type TypeMessage = {
     id:string,
     embeds:TypeEmbed[],
     attachments:TypeMessageAttachment[]
+    newEmojis:Map<string,TypeEmoji>
 }
 
 export type TypeEmoji = {
