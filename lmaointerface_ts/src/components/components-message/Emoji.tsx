@@ -1,5 +1,4 @@
 import React from 'react'
-import {DISC_EMOJI_CDN_URL} from '../../constants';
 import { TypeEmoji } from '../../types/lmaotypes'
 function Emoji(emoji:TypeEmoji) {
     const {

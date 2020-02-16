@@ -85,7 +85,7 @@ function getUrlFromIds(ids:string[]):string[]{
  */
 function stringSplitter(str:string):string[]{
     let wordArray:string[] = []
-    let newlines = str.replace('\n',' __NEWLINE__ ')
+    let newlines = str.replace('\n',' \n ')
     newlines = newlines.replace(/<|>/g,' ')
     wordArray = newlines.split(/ +/g)
     return wordArray;

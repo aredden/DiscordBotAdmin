@@ -4,7 +4,7 @@ import { isNullOrUndefined } from "util";
 
 function _stringSplitter(str:string):Array<string>{
     let wordArray:Array<string> = []
-    let newlines = str.replace("\n"," __NEWLINE__ ")
+    let newlines = str.replace("\n"," \n ")
     newlines = newlines.replace(/<|>/g," ")
     wordArray = newlines.split(/ +/g)
     return wordArray;

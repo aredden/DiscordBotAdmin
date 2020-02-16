@@ -12,7 +12,7 @@ import { TypeGuild, TypeEmoji, TypeMessage, TypeTextChannel } from './types/lmao
 
 type AppType = {
     isReady:boolean,
-    error:undefined,
+    error:string,
     guildList:Map<string,TypeGuild>,
     channelName:string,
     guildName:string,
@@ -105,7 +105,6 @@ export default class App extends Component<{},AppType> {
       }catch(error){
         console.log("Ran into error pushing message to array of messages.")
       }
-
       let emojiMapFromState = this.state.emojis;
       let emojiMapFromMessage = parsedMessage.newEmojis as Map<string,TypeEmoji>
       if(emojiMapFromMessage){
@@ -115,8 +114,6 @@ export default class App extends Component<{},AppType> {
             }
         });
       }
-
-      
       this.setState({
           guildList:guildlist,
           emojis:emojiMapFromState
@@ -124,7 +121,7 @@ export default class App extends Component<{},AppType> {
   }
 
   onError = (error:string) => {
-    //   this.setState({error: error})
+        this.setState({error: error})
   }
 
   render() {

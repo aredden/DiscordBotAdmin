@@ -107,7 +107,8 @@ export type TypeEmbed = {
     },
     title:string,
     url:string,
-    timestamp:string
+    timestamp:string,
+    author:TypeUser
 }
 
 export type TypeMessageAttachment = {
