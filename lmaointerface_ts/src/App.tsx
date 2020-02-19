@@ -8,7 +8,8 @@ import MessageList from './components/MessageList';
 import SideBar from './components/Sidebar';
 import socketIOClient from 'socket.io-client';
 import axios from 'axios';
-import { TypeGuild, TypeEmoji, TypeMessage, TypeTextChannel } from './types/lmaotypes';
+import { TypeGuild, TypeEmoji, TypeMessage, 
+    TypeTextChannel, TypeMessageUpdateData } from './types/lmaotypes';
 
 type AppType = {
     isReady:boolean,
@@ -40,12 +41,17 @@ export default class App extends Component<{},AppType> {
       this.onMessage = this.onMessage.bind(this);
       this.onError = this.onError.bind(this);
       this.onSwitchChannel = this.onSwitchChannel.bind(this);
+      this.onGuildSwitch = this.onGuildSwitch.bind(this);
   }
 
   componentDidMount() {
       const  endpoint  = this.state.endpoint;
-      this.socket.on("discordmessage", (message:string) => this.onMessage(message));
-      this.socket.on("error",(err:string)=> this.onError(err))
+      this.socket.on("discordmessage", (message:string) => 
+        this.onMessage(message));
+      this.socket.on("error",(err:string)=> 
+        this.onError(err))
+      this.socket.on("messageUpdate",(data:string)=> 
+        this.onMessageUpdate(data))
       axios.get(endpoint+"botguilds")
       .then((response)=>this.onReady(response.data))
       .then((good)=>this.queryEmoji())
@@ -70,7 +76,7 @@ export default class App extends Component<{},AppType> {
 
   onReady = (data:Map<string,TypeGuild>) => {
       var channelname = "general";
-      var guildname="Lmaocraft";
+      var guildname="Zippys Test Server";
       this.setState({
         isReady: true,
         guildList: data,
@@ -118,6 +124,35 @@ export default class App extends Component<{},AppType> {
           guildList:guildlist,
           emojis:emojiMapFromState
       })
+      let el = document.getElementById('message-table')
+      el.scrollTop = el.scrollHeight;
+
+  }
+
+  onSendMessage = (guildID:string, channelID:string, content:string) => {
+        this.socket.emit("sendMessage",
+            {
+                guild:guildID,
+                channel:channelID,
+                content:content
+            })
+        console.log(`Sent message from ${guildID} guild, ${channelID} channel, with content:\n ${content}`)
+  }
+
+  onMessageUpdate = (data:string) => {
+        console.log(`got message update data`);
+        const msgUpdateData:TypeMessageUpdateData = JSON.parse(data);
+        let {id,guild,channel} = msgUpdateData.old, {guildList} = this.state;
+        let messageArray = guildList[guild].channels[channel].messages;
+        let messageIndex:number;
+        messageArray.forEach((message:TypeMessage,idx:number) => {
+            if(message.id === id){
+                messageIndex=idx;
+            }
+        });
+        messageArray[messageIndex] = msgUpdateData.new;
+        guildList[guild].channels[channel].messages = messageArray;
+        this.setState({guildList:guildList});
   }
 
   onError = (error:string) => {
@@ -125,18 +160,27 @@ export default class App extends Component<{},AppType> {
   }
 
   render() {
-      let channels:Map<string,TypeTextChannel>
-      let messages:Array<TypeMessage>
-      let emojis:Map<string,TypeEmoji>
-      let ready = this.state.isReady
-      let guildlist = Object.values(this.state.guildList)
+      let channels:Map<string,TypeTextChannel>, messages:Array<TypeMessage>,
+          emojis:Map<string,TypeEmoji>,ready = this.state.isReady,
+          guildlist = Object.values(this.state.guildList),
+          guildID:string, channelID:string;
       if(guildlist.length > 0){
-          let guildlist = this.state.guildList;
-          let guildname = this.state.guildName;
-          channels = (guildlist[guildname] as TypeGuild).channels;
-          messages = (channels[this.state.channelName] as TypeTextChannel).messages;
+          let {guildList , guildName, channelName} = this.state;
           emojis = this.state.emojis;
+          channels = (guildList[guildName] as TypeGuild).channels;
+          messages = (channels[channelName] as TypeTextChannel).messages;
+          if(messages.length>35){
+              let start = messages.length-35
+              let newMessages:Array<TypeMessage> = [];
+              for(start;start<messages.length;start++){
+                newMessages.push(messages[start])
+              }
+              messages = newMessages;
+          }
+          guildID = guildList[guildName].id
+          channelID = guildList[guildName].channels[channelName].id
       }
+
       return (
           <div className="App">
               <Nav/>
@@ -151,7 +195,10 @@ export default class App extends Component<{},AppType> {
                       channelName={this.state.channelName}
                       guildName={this.state.guildName}
                       messages={messages as TypeMessage[]}
-                      emojis={emojis}/>
+                      emojis={emojis}
+                      sendFunction={this.onSendMessage}
+                      channelID={channelID}
+                      guildID={guildID}/>
               </div>
           </div>
       );

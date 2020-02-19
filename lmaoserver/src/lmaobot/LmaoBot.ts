@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 export class LmaoBot{
-    private token= process.env.DISCORD_TOKEN;
+    private token= process.env.DISCORD_TOKEN_TESTING;
     public client:Client = new Client();
 
     public login = () =>{

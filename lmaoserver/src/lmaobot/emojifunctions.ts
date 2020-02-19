@@ -1,7 +1,7 @@
 import { TypeEmoji } from '../types/lmaotypes';
 import { Emoji, Collection } from 'discord.js';
 import { isNullOrUndefined } from 'util';
-import getLogger from '../Logger';
+import getLogger from '../logger';
 import chalk from 'chalk';
 
 
@@ -61,7 +61,7 @@ function getTypeEmojiFromParsedEmojiWord(name:string,id:string,url:string):TypeE
         name,
         id,
         url,
-        identifier:`:${name}:${id}`,
+        identifier:`${name}:${id}`,
         requiresColons:true
     }
     return emoji;

@@ -83,7 +83,7 @@ function omit(object, excluded) {
 
 // emoji stuff
 
-const getEmoteURL = (emote) => `https://cdn.discordapp.com/emojis/${emote.id}.png`;
+const getEmoteURL = (emote) => `https://cdn.discordapp.com/emojis/${emote.id}`;
 
 function getEmojiURL(surrogate) {
   if (['™', '©', '®'].indexOf(surrogate) > -1) {
@@ -230,7 +230,7 @@ const baseRules = {
   customEmoji: {
     order: SimpleMarkdown.defaultRules.text.order,
     match(source) {
-      return /^<:(\w+):(\d+)>/.exec(source);
+      return /^<a*:(\w+):(\d+)>/.exec(source);
     },
     parse(capture) {
       const name = capture[1];
@@ -324,7 +324,7 @@ function createRules(r) {
             title={title}
             href={SimpleMarkdown.sanitizeUrl(node.target)}
             target='_blank'
-            rel='noreferrer'
+            rel='noopener noreferrer'
             key={state.key}
           >
             {children}

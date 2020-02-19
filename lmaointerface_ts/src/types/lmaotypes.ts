@@ -11,6 +11,7 @@ export type TypeMessage = {
     embeds:TypeEmbed[],
     attachments:TypeMessageAttachment[]
     newEmojis:Map<string,TypeEmoji>
+    editted:undefined|boolean;
 }
 
 export type TypeEmoji = {
@@ -20,6 +21,8 @@ export type TypeEmoji = {
     url:string,
     requiresColons:boolean
 }
+
+export type EmojiMap = Map<string,TypeEmoji>
 
 export type TypeTextChannel = {
     name:string,
@@ -123,4 +126,9 @@ export type TypeMessageAttachment = {
 
 export type TypeMessageData = {
     
+}
+
+export type TypeMessageUpdateData = {
+    old:TypeMessage,
+    new:TypeMessage
 }

@@ -3,14 +3,12 @@ import cors from 'cors';
 import bodyparser from 'body-parser';
 import http from 'http';
 import router from './routes/index';
-import DiscordBotSocketIo from './socket/DiscordBotSocket';
-import { LmaoBot } from './lmaobot/LmaoBot';
-import getLogger from './Logger';
-import { TypeEmoji, TypeGuild } from './types/lmaotypes';
-import { parseEmojisFromCollection, concatEmojiCollections, parseEmojisFromString } from './lmaobot/EmojiParser'
-import { parseGuilds, parseEmojis, parseNewMessage } from './lmaobot/LmaoBotTypeParsingFunctions';
+import DiscordBotSocketIo from './socket/lmaosocket';
+import { LmaoBot } from './lmaobot/lmaobot';
+import getLogger from './logger';
+import { TypeEmoji, EmojiMap } from './types/lmaotypes';
+import { parseEmojis, parseNewMessage } from './lmaobot/typeparserfunctions';
 import chalk from 'chalk';
-
 
 const app = express();
 const port = 3001;
@@ -18,10 +16,10 @@ const server = http.createServer(app);
 const bot:LmaoBot = new LmaoBot();
 const logger = getLogger('src/index');
 
-
-
 // Emoji setup.
-let EMOJIS_MAP:Map<string,TypeEmoji> = new Map<string,TypeEmoji>();
+let EMOJIS_MAP:EmojiMap = new Map<string,TypeEmoji>();
+
+// Function for updating EmojiMap w/ list of new Emojis.
 export function updateEmojiMap(emojis:Map<string,TypeEmoji>){
     logger.info(chalk.red('ATTEMPTING TO UPDATE EMOJIS:')+JSON.stringify(emojis))
     if(emojis){
@@ -34,6 +32,8 @@ export function updateEmojiMap(emojis:Map<string,TypeEmoji>){
     logger.info(chalk.red('UPDATE EMOJIS:')+JSON.stringify(emojis))
     return EMOJIS_MAP;
 }
+
+// Returns most up-to-date EmojiMap
 export function getEmojiMap(){
     return EMOJIS_MAP;
 }

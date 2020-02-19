@@ -3,7 +3,6 @@ import Moment from 'moment';
 import { parseAllowLinks, parseEmbedTitle } from './markdown';
 import { extractRGB } from '../color';
 import '../css/disc.css'
-import '../css/tachyons.css'
 
 const Link = ({ children, ...props}) => {
   return <a target='_blank' rel='noreferrer' {...props}>{children}</a>;
@@ -56,7 +55,7 @@ const EmbedAuthor = ({ name, url, icon_url }) => {
     }
   }
 
-  const authorIcon = icon_url ? (<img src={icon_url} role='presentation' className='embed-author-icon' />) : null;
+  const authorIcon = icon_url ? (<img src={icon_url} alt='' className='embed-author-icon' />) : null;
 
   return <div className='embed-author'>{authorIcon}{authorName}</div>;
 };
@@ -82,7 +81,7 @@ const EmbedThumbnail = ({ url }) => {
   return (
     <img
       src={url}
-      role='presentation'
+      alt={url}
       className='embed-rich-thumb'
       style={{ maxWidth: 80, maxHeight: 80 }}
     />
@@ -96,7 +95,8 @@ const EmbedImage = ({ url }) => {
 
   // NOTE: for some reason it's a link in the original DOM
   // not sure if this breaks the styling, probably does
-  return <a className='embed-thumbnail embed-thumbnail-rich'><img className='image' role='presentation' src={url} /></a>;
+  //
+  return <a className='embed-thumbnail embed-thumbnail-rich' href="#"><img className='image' src={url} /></a>;
 };
 
 const EmbedFooter = ({ timestamp, text, icon_url }) => {
@@ -111,7 +111,7 @@ const EmbedFooter = ({ timestamp, text, icon_url }) => {
 
   const footerText = [text, calculatedTime].filter(Boolean).join(' | ');
   const footerIcon = text && icon_url ? (
-    <img src={icon_url} className='embed-footer-icon' role='presentation' width='20' height='20' />
+    <img src={icon_url} className='embed-footer-icon' alt='' width='20' height='20' />
   ) : null;
 
   return <div>{footerIcon}<span className='embed-footer'>{footerText}</span></div>;

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.9.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
     "chalk": "^3.0.0",
@@ -14,6 +15,7 @@
     "popper.js": "^1.16.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-popper": "^1.3.7",
     "react-scripts": "3.3.1",
     "simple-markdown": "^0.7.2",
     "socket.io": "^2.3.0",
@@ -28,9 +30,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -44,7 +43,6 @@
     ]
   },
   "devDependencies": {
-    "@types/twemoji": "^12.1.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
@@ -58,6 +56,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/twemoji": "^12.1.0",
     "@types/winston": "^2.4.4",
     "discord.js-typings": "github:discordjs/discord.js-typings"
   }

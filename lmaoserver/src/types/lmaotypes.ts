@@ -9,7 +9,12 @@ export type TypeMessage = {
     member:TypeGuildMember,
     id:string,
     embeds:TypeEmbed[],
-    attachments:TypeMessageAttachment[]
+    attachments:TypeMessageAttachment[],
+    newEmojis:Map<string,TypeEmoji>,
+    nonce:string,
+    type:string,
+    hit:boolean
+    editted:undefined|boolean;
 }
 
 export type TypeEmoji = {
@@ -19,6 +24,8 @@ export type TypeEmoji = {
     url:string,
     requiresColons:boolean
 }
+
+export type EmojiMap = Map<string,TypeEmoji>
 
 export type TypeTextChannel = {
     name:string,

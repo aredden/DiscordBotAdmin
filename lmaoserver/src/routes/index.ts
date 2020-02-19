@@ -1,6 +1,6 @@
 import express from 'express';
-import { parseGuilds } from '../lmaobot/LmaoBotTypeParsingFunctions';
-import getLogger from '../Logger';
+import { parseGuilds } from '../lmaobot/typeparserfunctions';
+import getLogger from '../logger';
 import bot, { getEmojiMap} from '../index';
 import chalk from 'chalk';
 

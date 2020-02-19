@@ -3,39 +3,36 @@ import Message from './Message';
 import { TypeMessage, TypeEmoji } from '../types/lmaotypes';
 import ErrorBoundary from './ErrorBoundary';
 import moment from 'moment';
+import InputBox from './InputBox';
+import '../css/App.css'
+import { TypeMessageList } from '../types/lmao-react-types';
 
-type TypeMessageList = {
-    messages: Array < TypeMessage >,
-    guildName: string,
-    channelName: string,
-    emojis: Map < string,
-    TypeEmoji >
-}
+
 /**
  * @class Container for all Messages in Channel {channelName}
  */
 export default class MessageList extends Component < TypeMessageList > {
 
-    constructor(props : TypeMessageList) {
-        super(props)
-    }
 
     render() {
-        let {emojis} = this.props;
+
+
+        let {emojis, guildID, channelID, sendFunction, guildName, channelName} = this.props;
+
         return (
             <div className="messagelist-spacing col-md-8">
                 <div className="d-inline-flex align-items-end p-2">
-                    <h2>{this.props.guildName}</h2>
-                    <h4>&nbsp;&nbsp;#{this.props.channelName}</h4>
+                    <h2>{guildName}</h2>
+                    <h4>&nbsp;&nbsp;#{channelName}</h4>
                 </div>
-                <div className="table-responsive">
+                <div id="message-table" className="table-responsive messagelist-table overflow-auto">
                     <table className="table table-sm">
                         <tbody>
                             {this.props.messages
                                 ? this
                                     .props
                                     .messages
-                                    .map((msg, index) => {
+                                    .map((msg) => {
                                         return (
                                             <ErrorBoundary>
                                                 <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>
@@ -46,21 +43,8 @@ export default class MessageList extends Component < TypeMessageList > {
                         </tbody>
                     </table>
                 </div>
+                <InputBox sendFunction={sendFunction} guildID={guildID} channelID={channelID} emojis={emojis}/>
             </div>
         )
     }
 }
-
-// const MessageBox = () => { 
-//     return(
-//         <div className = "media" > <img src="..." className="mr-3" alt="..."/>
-//             <div className="media-body">
-//                 <h5 className="mt-0">Media heading</h5>
-//                 Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante
-//                 sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra
-//                 turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
-//                 felis in faucibus.
-//             </div>
-//         </div>
-//     )
-// }

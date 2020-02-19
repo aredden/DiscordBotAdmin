@@ -5,8 +5,8 @@ import { Message, Collection, Guild,
         MessageAttachment,
         MessageEmbed,
         MessageEmbedField} from 'discord.js';
-import getLogger from '../Logger';
-import { parseEmojisFromString } from './EmojiParser';
+import getLogger from '../logger';
+import { parseEmojisFromString } from './emojifunctions';
 import { updateEmojiMap, getEmojiMap } from '../index';
 
 
