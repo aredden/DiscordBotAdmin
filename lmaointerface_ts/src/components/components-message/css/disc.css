@@ -747,7 +747,7 @@
 .embed-wrapper {
   position: relative;
   margin-top: 5px;
-  max-width: 520px;
+  max-width: 720px;
   display: flex
 }
 
@@ -943,7 +943,7 @@
   flex: 0;
   padding-top: 10px;
   min-width: 100%;
-  max-width: 506px
+  max-width: 700px
 }
 
 .embed .embed-fields .embed-field.embed-field-inline {

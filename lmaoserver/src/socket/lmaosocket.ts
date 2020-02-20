@@ -6,7 +6,8 @@ import http from 'http';
 import { parseNewMessage, parseMessage } from '../lmaobot/typeparserfunctions';
 import getLogger from '../logger';
 import { TypeMessageData } from '../types/lmaotypes'
-import { handleSendMessage } from '../commands/controlfuctions'
+import { handleSendMessage } from '../commands/command'
+import { handleMessageUpdate } from './socketfunctions';
 const logger = getLogger('DiscordBotSocket');
 
 export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
@@ -44,18 +45,7 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
     )
 }
 
-function handleMessageUpdate(oldMsg:Message,newMsg:Message,socket:Socket,startDate:number){
-    const {createdAt} = oldMsg;
-    const time = createdAt.valueOf();
-    if(time>startDate){
 
-        const messageUpdateData={
-            old:parseMessage(oldMsg),
-            new:parseNewMessage(newMsg)
-        }
-        socket.emit("messageUpdate",JSON.stringify(messageUpdateData))
-    }
-}
 
 
 

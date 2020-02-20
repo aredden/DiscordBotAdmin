@@ -9,13 +9,15 @@ import getLogger from './logger';
 import { TypeEmoji, EmojiMap } from './types/lmaotypes';
 import { parseEmojis, parseNewMessage } from './lmaobot/typeparserfunctions';
 import chalk from 'chalk';
+import LmaoBotControl from './commands/command';
 
 const app = express();
 const port = 3001;
 const server = http.createServer(app);
 const bot:LmaoBot = new LmaoBot();
 const logger = getLogger('src/index');
-
+// eslint-disable-next-line
+let COMMAND:LmaoBotControl;
 // Emoji setup.
 let EMOJIS_MAP:EmojiMap = new Map<string,TypeEmoji>();
 
@@ -41,8 +43,10 @@ this.getEmojiMap = getEmojiMap.bind(this);
 this.updateEmojiMap = updateEmojiMap.bind(this);
 
 bot.client.once('ready',()=>{
-    logger.info('Parsing emojis..')
+    logger.info('Parsing emojis..');
     EMOJIS_MAP = parseEmojis(bot.client.emojis) as Map<string,TypeEmoji>;
+    logger.info('Initializing commands w/ commandsDB.json');
+    COMMAND = new LmaoBotControl(bot);
 })
 
 bot.client.on('message',(message)=>{

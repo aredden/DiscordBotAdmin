@@ -13,16 +13,12 @@ export default class InputBox extends Component<TypeInputBox,{content:string}> {
         this.handleEmojiChoose = this.handleEmojiChoose.bind(this);
     }
 
-    componentDidUpdate(){
-    }
-
     handleEmojiChoose(e,emojiTag:string){
         e.preventDefault()
         this.setState({content:this.state.content+emojiTag+" "})
     }
 
     handleChange = (event:ChangeEvent<HTMLInputElement>) => {
-        console.log(event.target.value)
         this.setState({content:event.target.value})
     }
 
@@ -37,7 +33,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string}> {
     render() {
         const {emojis} = this.props
         if(emojis){
-            let poppoverData = {
+            let popoverData = {
                 emojis:emojis,
                 onChoose:this.handleEmojiChoose
             }
@@ -50,7 +46,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string}> {
                         aria-describedby="basic-addon1"
                         value={this.state.content} 
                         onChange={this.handleChange}/>
-                    <EmojiChooser {...poppoverData}/>
+                    <EmojiChooser {...popoverData}/>
                     <div className="input-group-append">
                         <button className="btn btn-outline-secondary" type="submit" >Send</button>
                     </div>

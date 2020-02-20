@@ -21,7 +21,6 @@ router.get('/botguilds', (req,res)=>{
 router.get('/emojis', (req,res)=>{
     logger.info(`Client from ${req.headers.referer} requested route '/emojis'`);
     let data = getEmojiMap();
-    logger.info(chalk.yellow('UNMODIFIED EMOJI MAP?')+JSON.stringify(data,null,1))
     res.json(data)
 })
 

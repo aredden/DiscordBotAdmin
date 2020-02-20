@@ -162,13 +162,30 @@ function translateSurrogatesToInlineEmoji(surrogates) {
 // i am not sure why are these rules split like this.
 
 const baseRules = {
-  newline: SimpleMarkdown.defaultRules.newline,
+  newline: {
+    order: SimpleMarkdown.defaultRules.newline.order-5,
+    match: function(source){
+      let regExp = new RegExp('^\\+\\+NEWLINE\\+\\+')
+      let array = regExp.exec(source)
+      return array;
+    },
+    parse: function(capture,nestedParse,state){
+      let astNode = {
+        type:'newline'
+      }
+      return {type:"newline", capture};
+    },
+    react: function(node, recurseOutput, state){
+      return <br/>
+    }
+  },
   paragraph: SimpleMarkdown.defaultRules.paragraph,
   escape: SimpleMarkdown.defaultRules.escape,
   link: SimpleMarkdown.defaultRules.link,
   autolink: {
     ...SimpleMarkdown.defaultRules.autolink,
-    match: SimpleMarkdown.inlineRegex(/^<(https?:\/\/[^ >]+)>/)
+    match: SimpleMarkdown.inlineRegex(/^<(https?:\/\/[^ >]+)>/),
+    
   },
   url: SimpleMarkdown.defaultRules.url,
   strong: SimpleMarkdown.defaultRules.strong,
@@ -188,7 +205,8 @@ const baseRules = {
   codeBlock: {
     order: SimpleMarkdown.defaultRules.codeBlock.order,
     match(source) {
-      return /^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/.exec(source);
+      let val = /^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/.exec(source);
+      return val;
     },
     parse(capture) {
       return { lang: (capture[2] || '').trim(), content: capture[3] || '' };
@@ -213,7 +231,8 @@ const baseRules = {
       }
     },
     react(node, recurseOutput, state) {
-      return node.src ? (
+      return (node.name==="blank" ?  <br/> :
+      (node.src ? (
         <img
           draggable={false}
           className={`emoji ${node.jumboable ? 'jumboable' : ''}`}
@@ -224,7 +243,7 @@ const baseRules = {
         />
       ) : (
         <span key={state.key}>{node.surrogate}</span>
-      );
+      )))
     }
   },
   customEmoji: {
@@ -247,16 +266,18 @@ const baseRules = {
       };
     },
     react(node, recurseOutput, state) {
-      return (
+      let val = [
+        <br/>,
         <img
           draggable={false}
           className={`emoji ${node.jumboable ? 'jumboable' : ''}`}
-          alt={`<:${node.name}:${node.id}>`}
+          alt={`<:${node.name}:${node.emojiId}>`}
           title={node.name}
           src={node.src}
           key={state.key}
         />
-      );
+      ]
+      return node.name==="blank" ? val : val[1]
     }
   },
   text: {
@@ -274,6 +295,9 @@ const baseRules = {
     order: SimpleMarkdown.defaultRules.u.order,
     match: SimpleMarkdown.inlineRegex(/^~~([\s\S]+?)~~(?!_)/),
     parse: SimpleMarkdown.defaultRules.u.parse
+  },
+  newLine: {
+
   }
 };
 

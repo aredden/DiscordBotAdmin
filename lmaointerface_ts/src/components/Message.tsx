@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import {TypeMessage, TypeEmoji } from '../types/lmaotypes';
+import {TypeMessage } from '../types/lmaotypes';
 import { hasContent } from './components-message/content/content';
 import  Embed  from './components-message/embed/embed'
 import { parseAllowLinks } from './components-message/embed/markdown'
 import moment from 'moment';
 import Attatchments, { hasAttachment } from './components-message/attatchment/attatchment';
 import {TypeMessageClass} from '../types/lmao-react-types';
+import { parseForNewline } from './components-message/regexfuncs';
 export default class Message extends Component<TypeMessageClass>{
 
     render(){
@@ -13,7 +14,7 @@ export default class Message extends Component<TypeMessageClass>{
         const { message } = this.props;
         let contentArray:JSX.Element[], embedArray:JSX.Element[], attachmentArray:JSX.Element[];
         let timeString = moment(createdAt).format('LT');
-        contentArray = hasContent(content) ? parseAllowLinks(content) : [];
+        contentArray = hasContent(content) ? parseAllowLinks(parseForNewline(content)) : [];
         embedArray = embeds.map(embed => <Embed {...embed}/>);
         attachmentArray = hasAttachment(message)? Attatchments(attachments) : []
         let messageArray = contentArray.concat(embedArray).concat(attachmentArray);

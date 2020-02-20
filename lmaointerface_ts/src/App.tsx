@@ -137,6 +137,7 @@ export default class App extends Component<{},AppType> {
                 content:content
             })
         console.log(`Sent message from ${guildID} guild, ${channelID} channel, with content:\n ${content}`)
+        
   }
 
   onMessageUpdate = (data:string) => {
@@ -153,6 +154,8 @@ export default class App extends Component<{},AppType> {
         messageArray[messageIndex] = msgUpdateData.new;
         guildList[guild].channels[channel].messages = messageArray;
         this.setState({guildList:guildList});
+        let el = document.getElementById('message-table')
+        el.scrollTop = el.scrollHeight;
   }
 
   onError = (error:string) => {

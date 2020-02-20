@@ -3,6 +3,7 @@ import Moment from 'moment';
 import { parseAllowLinks, parseEmbedTitle } from './markdown';
 import { extractRGB } from '../color';
 import '../css/disc.css'
+import { parseForNewline } from '../regexfuncs';
 
 const Link = ({ children, ...props}) => {
   return <a target='_blank' rel='noreferrer' {...props}>{children}</a>;
@@ -26,9 +27,9 @@ const EmbedTitle = ({ title, url }) => {
     return null;
   }
 
-  let computed = <div className='embed-title'>{parseEmbedTitle(title)}</div>;
+  let computed = <div className='embed-title'>{parseEmbedTitle(parseForNewline(title))}</div>;
   if (url) {
-    computed = <Link href={url} className='embed-title'>{parseEmbedTitle(title)}</Link>;
+    computed = <Link href={url} className='embed-title'>{parseEmbedTitle(parseForNewline(title))}</Link>;
   }
 
   return computed;
@@ -39,7 +40,7 @@ const EmbedDescription = ({ content }) => {
     return null;
   }
 
-  return <div className='embed-description markup'>{parseAllowLinks(content)}</div>;
+  return <div className='embed-description markup'>{parseAllowLinks(parseForNewline(content))}</div>;
 };
 
 const EmbedAuthor = ({ name, url, icon_url }) => {
@@ -67,8 +68,8 @@ const EmbedField = ({ name, value, inline }) => {
 
   const cls = 'embed-field' + (inline ? ' embed-field-inline' : '');
 
-  const fieldName = name ? (<div className='embed-field-name'>{parseEmbedTitle(name)}</div>) : null;
-  const fieldValue = value ? (<div className='embed-field-value markup'>{parseAllowLinks(value)}</div>) : null;
+  const fieldName = name ? (<div className='embed-field-name'>{parseEmbedTitle(parseForNewline(name))}</div>) : null;
+  const fieldValue = value ? (<div className='embed-field-value markup'>{parseAllowLinks(parseForNewline(value))}</div>) : null;
 
   return <div className={cls}>{fieldName}{fieldValue}</div>;
 };
@@ -96,7 +97,7 @@ const EmbedImage = ({ url }) => {
   // NOTE: for some reason it's a link in the original DOM
   // not sure if this breaks the styling, probably does
   //
-  return <a className='embed-thumbnail embed-thumbnail-rich' href="#"><img className='image' src={url} /></a>;
+  return <a className='embed-thumbnail embed-thumbnail-rich {max-height:200px}' href="#"><img className='image' src={url} /></a>;
 };
 
 const EmbedFooter = ({ timestamp, text, icon_url }) => {
@@ -122,7 +123,7 @@ const EmbedFields = ({ fields }) => {
     return null;
   }
 
-  return <div className='embed-fields'>{fields.map((f, i) => <EmbedField key={i} {...f} />)}</div>;
+return <div className='embed-fields'>{fields.map((f, i) => <EmbedField key={i} {...f} />)}</div>;
 };
 
 const Embed = ({
