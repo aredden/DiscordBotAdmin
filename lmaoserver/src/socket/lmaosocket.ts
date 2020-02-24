@@ -1,13 +1,13 @@
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { LmaoBot } from '../lmaobot/lmaobot'
 import 'discord.js';
 import http from 'http';
-import { parseNewMessage, parseMessage } from '../lmaobot/typeparserfunctions';
+import { parseNewMessage } from '../lmaobot/typeparserfunctions';
 import getLogger from '../logger';
 import { TypeMessageData } from '../types/lmaotypes'
-import { handleSendMessage } from '../commands/command'
-import { handleMessageUpdate } from './socketfunctions';
+import { handleMessageUpdate, handleSendMessage, handleNotificationsUpdate, handleMessagesRequest } from './socketfunctions';
+import { setNewChannelFocus } from '../index';
 const logger = getLogger('DiscordBotSocket');
 
 export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
@@ -24,9 +24,11 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
 
                 if(interval){clearInterval(interval);}
 
-                bot.client.on('message', (msg : Message) =>
-                    socket.emit('discordmessage', JSON.stringify(parseNewMessage(msg))));
-
+                bot.client.on('message', (msg : Message) =>{
+                    if(msg.channel instanceof TextChannel){
+                        socket.emit('discordmessage', JSON.stringify(parseNewMessage(msg)));
+                    }
+                })
                 bot.client.on('error', (err : Error) =>
                     socket.emit('error', JSON.stringify(err)))
 
@@ -35,6 +37,20 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
 
                 socket.on('sendMessage', (messageData:TypeMessageData)=>
                     handleSendMessage(messageData,bot))
+
+                socket.on('notificationsUpdate', (key:string) => {
+                    handleNotificationsUpdate(key)
+                })
+
+                socket.on('channelFocus', (key:string) => {
+                    setNewChannelFocus(key)
+                })
+
+                socket.on('messagesRequest', (_data:string)=>{
+                    let data = JSON.parse(_data);
+                    handleMessagesRequest(data.guildID,data.channelID,data.lastMessage,socket)
+
+                })
 
                 socket.on('disconnect', () => {
                     logger.info('Client disconnected');

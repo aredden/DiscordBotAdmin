@@ -398,12 +398,6 @@
   transition: opacity .2s ease
 }
 
-.chat>.title-wrap>.topic a,
-.message-group a {
-  -webkit-transition: .05s;
-  text-decoration: none
-}
-
 .chat .avatar-large:hover {
   opacity: .8
 }

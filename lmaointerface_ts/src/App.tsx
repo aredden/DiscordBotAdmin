@@ -9,123 +9,121 @@ import SideBar from './components/Sidebar';
 import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import { TypeGuild, TypeEmoji, TypeMessage, 
-    TypeTextChannel, TypeMessageUpdateData } from './types/lmaotypes';
+    TypeTextChannel, TypeMessageUpdateData, 
+    ChannelMap, EmojiMap, GuildMap } from './types/lmaotypes';
+import { onMessageParseMessage } from './AppFunctions';
+import { AppType } from './types/lmao-react-types';
 
-type AppType = {
-    isReady:boolean,
-    error:string,
-    guildList:Map<string,TypeGuild>,
-    channelName:string,
-    guildName:string,
-    endpoint:string,
-    emojis:Map<string,TypeEmoji>
-}
 
 export default class App extends Component<{},AppType> {
   private socket:SocketIOClient.Socket;
   constructor(props:Object) {
-      super(props);
-      const endpoint = 'http://localhost:3001/';
-      this.state = {
-          isReady: false,
-          error: undefined,
-          guildList:new Map<string,TypeGuild>(),
-          channelName:"",
-          guildName:"",
-          endpoint:endpoint,
-          emojis:new Map<string,TypeEmoji>(),
-      }
-      this.socket = socketIOClient(endpoint);
-      this.onEmojis = this.onEmojis.bind(this);
-      this.onReady = this.onReady.bind(this);
-      this.onMessage = this.onMessage.bind(this);
-      this.onError = this.onError.bind(this);
-      this.onSwitchChannel = this.onSwitchChannel.bind(this);
-      this.onGuildSwitch = this.onGuildSwitch.bind(this);
+        super(props);
+        const endpoint = 'http://localhost:3001/';
+        this.state = {
+            isReady: false,
+            error: undefined,
+            guildList:new Map<string,TypeGuild>(),
+            channelName:"",
+            guildName:"",
+            endpoint:endpoint,
+            emojis:new Map<string,TypeEmoji>(),
+            messageNotifications:new Map<string,number>()
+        }
+        this.onUpdateNotifications = 
+            this.onUpdateNotifications.bind(this);
+        this.socket = socketIOClient(endpoint);
+        this.onEmojis = this.onEmojis.bind(this);
+        this.onReady = this.onReady.bind(this);
+        this.onMessage = this.onMessage.bind(this);
+        this.onError = this.onError.bind(this);
+        this.onSwitchChannel = this.onSwitchChannel.bind(this);
+        this.onSwitchGuild = this.onSwitchGuild.bind(this);
   }
 
   componentDidMount() {
-      const  endpoint  = this.state.endpoint;
-      this.socket.on("discordmessage", (message:string) => 
-        this.onMessage(message));
-      this.socket.on("error",(err:string)=> 
-        this.onError(err))
-      this.socket.on("messageUpdate",(data:string)=> 
-        this.onMessageUpdate(data))
-      axios.get(endpoint+"botguilds")
-      .then((response)=>this.onReady(response.data))
-      .then((good)=>this.queryEmoji())
+        const  endpoint  = this.state.endpoint;
+        this.socket.on("discordmessage", (message:string) => 
+            this.onMessage(message));
+        this.socket.on("error",(err:string)=> 
+            this.onError(err))
+        this.socket.on("messageUpdate",(data:string)=> 
+            this.onMessageUpdate(data))
+        axios.get(endpoint+"botguilds")
+        .then((response)=>this.onReady(JSON.parse(response.data)))
+        .then((_good)=>this.queryEmoji())
   }
 
   queryEmoji(){
-      axios.get(this.state.endpoint+"emojis")
-      .then(response=>this.onEmojis(response.data))
+        axios.get(this.state.endpoint+"emojis")
+        .then(response=>this.onEmojis(response.data))
   }
 
   onEmojis(emojiData:Map<string,TypeEmoji>) {
-      if(this.state.emojis.size>0){
-        let {emojis} = this.state;
-        emojiData.forEach((emoji, name)=>{
-            if(!emojis[name]){
-                emojis.set(name,emoji);
-            }
-        })
-        this.setState({emojis:emojis});
-      }else this.setState({emojis:emojiData})
+        if(this.state.emojis.size>0){
+            let {emojis} = this.state;
+            emojiData.forEach((emoji, name)=>{
+                if(!emojis[name]){
+                    emojis.set(name,emoji);
+                }
+            })
+            this.setState({emojis:emojis});
+        }else this.setState({emojis:emojiData})
   }
 
-  onReady = (data:Map<string,TypeGuild>) => {
-      var channelname = "general";
-      var guildname="Zippys Test Server";
-      this.setState({
-        isReady: true,
-        guildList: data,
-        channelName: channelname,
-        guildName: guildname,
-      })
+  onReady = (data:{guilds:GuildMap, focusKey:string, notifications:Map<string,number>}) => {
+        var channelname = "general";
+        var guildname="Zippys Test Server";
+        let msgNotifications = this.state.messageNotifications;
+        Object.values(data.guilds).forEach((guild:TypeGuild)=>{
+            Object.values(guild.channels).forEach((channel:TypeTextChannel)=>{
+                msgNotifications[guild.name+channel.name]=0;
+                if(guild.name+channel.name===data.focusKey){
+                    channelname=channel.name;
+                    guildname=guild.name;
+                }
+            })
+        })
+        this.setState({
+            messageNotifications:data.notifications,
+            isReady: true,
+            guildList: data.guilds,
+            channelName: channelname,
+            guildName: guildname,
+        })
   }
 
   onSwitchChannel = (e:React.MouseEvent,newChannel:string) => {
-      e.preventDefault()
-      this.setState({
-          channelName:newChannel
-      });
+        let {messageNotifications, guildName} = this.state;
+        if(messageNotifications[guildName+newChannel]>0){
+                messageNotifications[guildName+newChannel]=0;
+        }
+        e.preventDefault()
+        this.setState({
+            messageNotifications:messageNotifications,
+            channelName:newChannel
+        });
+        this.onUpdateNotifications(guildName+newChannel);
   }
 
-  onGuildSwitch = (e:React.MouseEvent,newGuild:string) => {
-      e.preventDefault()
-      this.setState({
-          guildName:newGuild
-      })
+  onSwitchGuild = (e:React.MouseEvent,newGuild:string) => {
+        e.preventDefault()
+        console.log("this is new guild:"+newGuild)
+        this.setState({
+            guildName:newGuild,
+            channelName:"general"
+        })
+        this.onUpdateNotifications(newGuild+'general')
   }
 
   onMessage = (message:string) => {
-      const parsedMessage:TypeMessage = JSON.parse(message) as TypeMessage;
-      console.log(parsedMessage);
-      var guildlist =  this.state.guildList;
-      try{
-        const tempGuild = guildlist[parsedMessage.guild] as TypeGuild;
-        const channels = tempGuild.channels as Map<string,TypeTextChannel>;
-        let channel = channels[parsedMessage.channel] as TypeTextChannel
-        channel.messages.push(parsedMessage);
-      }catch(error){
-        console.log("Ran into error pushing message to array of messages.")
-      }
-      let emojiMapFromState = this.state.emojis;
-      let emojiMapFromMessage = parsedMessage.newEmojis as Map<string,TypeEmoji>
-      if(emojiMapFromMessage){
-        Object.keys(emojiMapFromMessage).forEach((key) => {
-            if(!emojiMapFromState[key]){
-                emojiMapFromState[key]=emojiMapFromMessage[key];
-            }
-        });
-      }
-      this.setState({
-          guildList:guildlist,
-          emojis:emojiMapFromState
-      })
-      let el = document.getElementById('message-table')
-      el.scrollTop = el.scrollHeight;
+        let parsed = onMessageParseMessage(message,this.state)
+        this.setState({
+            guildList:parsed.guildList,
+            emojis:parsed.emojis
+        })
+        let el = document.getElementById('message-table')
+        el.scrollTop = el.scrollHeight;
 
   }
 
@@ -162,9 +160,26 @@ export default class App extends Component<{},AppType> {
         this.setState({error: error})
   }
 
+  onUpdateChannelFocusForNotifications = (key:string) => {
+        this.socket.emit("channelFocus", key)
+  }
+
+  onUpdateNotifications = (key:string) => {
+        this.socket.emit("notificationsUpdate", key)
+  }
+
+  onInitializeNotifications = (data:string) => {
+        const _data = JSON.parse(data)
+        this.setState({
+            messageNotifications: _data.notifications,
+            guildName: _data.guild,
+            channelName: _data.channel
+        })
+  }
+
   render() {
-      let channels:Map<string,TypeTextChannel>, messages:Array<TypeMessage>,
-          emojis:Map<string,TypeEmoji>,ready = this.state.isReady,
+      let channels:ChannelMap, messages:Array<TypeMessage>,
+          emojis:EmojiMap, ready = this.state.isReady,
           guildlist = Object.values(this.state.guildList),
           guildID:string, channelID:string;
       if(guildlist.length > 0){
@@ -189,9 +204,11 @@ export default class App extends Component<{},AppType> {
               <Nav/>
               <div className="row">
                   <SideBar
+                      notifications={this.state.messageNotifications}
                       ready={ready}
                       guildList={this.state.guildList}
                       guildName={this.state.guildName}
+                      onSwitchGuild={this.onSwitchGuild}
                       onSwitchChannel={this.onSwitchChannel}
                       guildChannels={channels as Map<string,TypeTextChannel>}/>
                   <MessageList

@@ -2,7 +2,7 @@ export type TypeMessage = {
     message:string,
     author:TypeUser,
     content:string, 
-    mentions:Map<string,TypeUser>,
+    mentions:TypeGuildMember[],
     channel:string,
     guild:string,
     createdAt:string, 
@@ -23,6 +23,9 @@ export type TypeEmoji = {
 }
 
 export type EmojiMap = Map<string,TypeEmoji>
+export type ChannelMap = Map<string,TypeTextChannel>
+export type NotificationMap = Map<string,number>
+export type GuildMap = Map<string,TypeGuild>
 
 export type TypeTextChannel = {
     name:string,

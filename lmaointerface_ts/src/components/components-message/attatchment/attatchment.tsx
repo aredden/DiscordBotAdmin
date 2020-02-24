@@ -1,24 +1,16 @@
 import { TypeMessageAttachment, TypeMessage } from "../../../types/lmaotypes";
 import React from 'react';
 
-type TypeImage = {
-    height:number,
-    width:number,
-    url:string,
-    proxyURL:string,
-    filename:string
-    filesize:number
-}
 
 const Video = (video:TypeMessageAttachment) => {
-    const height = video.height<400 ? video.height : 400
+    const height = video.height<300 ? video.height : 300
     return(
-        <embed src={video.proxyURL} width="540" height="450"></embed>
+        <embed src={video.proxyURL} width="540" height={height.toString()}></embed>
     )
 }
 
 const Image = (image:TypeMessageAttachment) => {
-    const height = image.height<400 ? image.height : 400
+    const height = image.height<300 ? image.height : 300
     return (
         <img src={image.url?image.url:image.proxyURL} alt={image.filename} style={{height:height}}></img>
     )
@@ -35,11 +27,11 @@ const Attachment = (attachment:TypeMessageAttachment) => {
     } else if(videoArr !== null ){
         return(<Video {...attachment}/>)
     } else {
-        return(<a href={attachment.filename}/>)
+    return(<a href={attachment.filename}>{attachment.filename}</a>)
     }
 }
 
-const Attatchments = (attachments:Array<TypeMessageAttachment>) => {
+const Attachments = (attachments:Array<TypeMessageAttachment>) => {
     let attArray = new Array<JSX.Element>();
     attachments.forEach((attachment)=>{
     attArray.push(<Attachment {...attachment}/>);
@@ -54,4 +46,4 @@ export function hasAttachment(message: TypeMessage){
     return false;
 }
 
-export default Attatchments;
+export default Attachments;

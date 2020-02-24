@@ -1,4 +1,4 @@
-import React, { Component, ChangeEvent, FormEvent, MouseEvent, createRef } from 'react'
+import React, { Component, ChangeEvent, FormEvent, MouseEvent } from 'react'
 import { EmojiMap, TypeEmoji } from '../types/lmaotypes';
 import 'popper.js';
 import { TypeInputBox } from '../types/lmao-react-types';
@@ -13,7 +13,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string}> {
         this.handleEmojiChoose = this.handleEmojiChoose.bind(this);
     }
 
-    handleEmojiChoose(e,emojiTag:string){
+    handleEmojiChoose(e:MouseEvent,emojiTag:string){
         e.preventDefault()
         this.setState({content:this.state.content+emojiTag+" "})
     }
@@ -82,7 +82,7 @@ function EmojiChooser({emojis,onChoose}) {
   }
 
 
-const EmojiWindow = (emojis:EmojiMap,emojiChooser:(e,emojiTag:string)=>void) => {
+const EmojiWindow = (emojis:EmojiMap,emojiChooser:(e:MouseEvent,emojiTag:string)=>void) => {
     return(
         <div>
             {Object.values(emojis).map((emoji,idx)=>{
@@ -97,7 +97,7 @@ const EmojiWindow = (emojis:EmojiMap,emojiChooser:(e,emojiTag:string)=>void) => 
     )
 }
 
-function EmojiIcon(id:string, emoji:TypeEmoji,emojiChooser:(e,emojiTag:string)=>any){
+function EmojiIcon(id:string, emoji:TypeEmoji,emojiChooser:(e:MouseEvent,emojiTag:string)=>any){
     return(
         <button className="btn btn-light"onClick={(e)=>emojiChooser(e,`<:${emoji.name}:${emoji.id}>`)}>
             <img

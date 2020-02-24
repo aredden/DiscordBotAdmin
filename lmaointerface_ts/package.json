@@ -7,7 +7,6 @@
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
     "chalk": "^3.0.0",
-    "contentful": "^7.13.1",
     "fs-extra": "^8.1.0",
     "highlight.js": "^9.18.1",
     "jquery": "^3.4.1",
@@ -58,6 +57,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/twemoji": "^12.1.0",
     "@types/winston": "^2.4.4",
-    "discord.js-typings": "github:discordjs/discord.js-typings"
+    "discord.js-typings": "github:discordjs/discord.js-typings",
+    "jsmin": "^1.0.1"
   }
 }

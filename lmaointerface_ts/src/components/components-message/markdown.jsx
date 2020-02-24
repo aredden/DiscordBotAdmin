@@ -2,7 +2,7 @@ import React from 'react';
 import SimpleMarkdown from 'simple-markdown';
 import hljs from 'highlight.js';
 import Twemoji from 'twemoji';
-import Emoji from '../constants/emoji';
+import Emoji from './constants/emoji';
 
 
 // this is mostly translated from discord's client,
@@ -126,6 +126,7 @@ Object.keys(Emoji).forEach(category => {
   });
 });
 
+// eslint-disable-next-line
 const EMOJI_NAME_AND_DIVERSITY_RE = /^:([^\s:]+?(?:::skin\-tone\-\d)?):/;
 
 function convertNameToSurrogate(name, t='') {
@@ -143,7 +144,7 @@ function convertSurrogateToName(surrogate, colons=true, n='') {
 
   return colons ? `:${a}:` : a;
 }
-
+// eslint-disable-next-line
 const escape = (str) => str.replace(/[\-\[\]\/\{}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 
 const replacer = (function() {
@@ -170,9 +171,6 @@ const baseRules = {
       return array;
     },
     parse: function(capture,nestedParse,state){
-      let astNode = {
-        type:'newline'
-      }
       return {type:"newline", capture};
     },
     react: function(node, recurseOutput, state){
@@ -205,6 +203,7 @@ const baseRules = {
   codeBlock: {
     order: SimpleMarkdown.defaultRules.codeBlock.order,
     match(source) {
+      //eslint-disable-next-line
       let val = /^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/.exec(source);
       return val;
     },

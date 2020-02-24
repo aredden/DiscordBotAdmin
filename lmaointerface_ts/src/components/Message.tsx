@@ -1,17 +1,26 @@
 import React, { Component } from 'react';
-import {TypeMessage } from '../types/lmaotypes';
+import { TypeMessage } from '../types/lmaotypes';
 import { hasContent } from './components-message/content/content';
 import  Embed  from './components-message/embed/embed'
-import { parseAllowLinks } from './components-message/embed/markdown'
+import { parseAllowLinks } from './components-message/markdown'
 import moment from 'moment';
 import Attatchments, { hasAttachment } from './components-message/attatchment/attatchment';
-import {TypeMessageClass} from '../types/lmao-react-types';
+import { TypeMessageClass } from '../types/lmao-react-types';
 import { parseForNewline } from './components-message/regexfuncs';
+import { hasMentions, parseMentions } from './components-message/mentions';
+
+/**
+ * @class Message - instance of message for MessageList box.
+ * @returns Parsed message.
+ */
 export default class Message extends Component<TypeMessageClass>{
 
     render(){
-        const { content, createdAt, attachments, embeds } = this.props.message;
-        const { message } = this.props;
+        let { content, createdAt, attachments, embeds } = this.props.message;
+        let { message } = this.props;
+        
+        content = hasMentions(message) ? parseMentions(message) : content;
+        message.content = content;
         let contentArray:JSX.Element[], embedArray:JSX.Element[], attachmentArray:JSX.Element[];
         let timeString = moment(createdAt).format('LT');
         contentArray = hasContent(content) ? parseAllowLinks(parseForNewline(content)) : [];

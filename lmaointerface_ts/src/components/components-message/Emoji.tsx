@@ -17,5 +17,4 @@ function Emoji(emoji:TypeEmoji) {
              title={name}/>
     )
 }
-export default Emoji
-
+export default Emoji;

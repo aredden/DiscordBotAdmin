@@ -1,14 +1,14 @@
 import React from 'react';
 import Moment from 'moment';
-import { parseAllowLinks, parseEmbedTitle } from './markdown';
+import { parseAllowLinks, parseEmbedTitle } from '../markdown';
 import { extractRGB } from '../color';
-import '../css/disc.css'
+import '../../../css/disc.css'
 import { parseForNewline } from '../regexfuncs';
+import { TypeMessageEmbedField, TypeEmbed, TypeUser } from '../../../types/lmaotypes';
 
 const Link = ({ children, ...props}) => {
   return <a target='_blank' rel='noreferrer' {...props}>{children}</a>;
 };
-
 
 const EmbedColorPill = ({ color }) => {
   let computed:string;
@@ -43,20 +43,21 @@ const EmbedDescription = ({ content }) => {
   return <div className='embed-description markup'>{parseAllowLinks(parseForNewline(content))}</div>;
 };
 
-const EmbedAuthor = ({ name, url, icon_url }) => {
+const EmbedAuthor = ({ name, avatarURL, avatar }:TypeUser) => {
   if (!name) {
     return null;
   }
 
-  let authorName;
+  let authorName:JSX.Element;
   if (name) {
     authorName = <span className='embed-author-name'>{name}</span>;
-    if (url) {
-      authorName = <Link href={url} className='embed-author-name'>{name}</Link>;
+    if (avatarURL) {
+      // eslint-disable-next-line
+      authorName = <Link href={avatarURL} className='embed-author-name'>{name}</Link>;
     }
   }
 
-  const authorIcon = icon_url ? (<img src={icon_url} alt='' className='embed-author-icon' />) : null;
+  const authorIcon = avatarURL ? (<img src={avatarURL} alt='' className='embed-author-icon' />) : null;
 
   return <div className='embed-author'>{authorIcon}{authorName}</div>;
 };
@@ -69,9 +70,9 @@ const EmbedField = ({ name, value, inline }) => {
   const cls = 'embed-field' + (inline ? ' embed-field-inline' : '');
 
   const fieldName = name ? (<div className='embed-field-name'>{parseEmbedTitle(parseForNewline(name))}</div>) : null;
-  const fieldValue = value ? (<div className='embed-field-value markup'>{parseAllowLinks(parseForNewline(value))}</div>) : null;
+  const fieldValue = value ? (<div key={`${name}-${Math.floor(Math.random()*10000)}`} className='embed-field-value markup'>{parseAllowLinks(parseForNewline(value))}</div>) : null;
 
-  return <div className={cls}>{fieldName}{fieldValue}</div>;
+  return <div key={Math.floor(Math.random()*10000)} className={cls}>{fieldName}{fieldValue}</div>;
 };
 
 const EmbedThumbnail = ({ url }) => {
@@ -97,10 +98,10 @@ const EmbedImage = ({ url }) => {
   // NOTE: for some reason it's a link in the original DOM
   // not sure if this breaks the styling, probably does
   //
-  return <a className='embed-thumbnail embed-thumbnail-rich {max-height:200px}' href="#"><img className='image' src={url} /></a>;
+  return <a className='embed-thumbnail embed-thumbnail-rich' style={{maxHeight:"200px"}} href={url}><img className='image' src={url} alt={url}/></a>;
 };
 
-const EmbedFooter = ({ timestamp, text, icon_url }) => {
+const EmbedFooter = ({ timestamp, text, iconURL }) => {
   if (!text && !timestamp) {
     return null;
   }
@@ -111,8 +112,8 @@ const EmbedFooter = ({ timestamp, text, icon_url }) => {
   calculatedTime = time.isValid() ? time.format('ddd MMM Do, YYYY [at] h:mm A') : null;
 
   const footerText = [text, calculatedTime].filter(Boolean).join(' | ');
-  const footerIcon = text && icon_url ? (
-    <img src={icon_url} className='embed-footer-icon' alt='' width='20' height='20' />
+  const footerIcon = text && iconURL ? (
+    <img src={iconURL} className='embed-footer-icon' alt='' width='20' height='20' />
   ) : null;
 
   return <div>{footerIcon}<span className='embed-footer'>{footerText}</span></div>;
@@ -122,13 +123,13 @@ const EmbedFields = ({ fields }) => {
   if (!fields) {
     return null;
   }
-
-return <div className='embed-fields'>{fields.map((f, i) => <EmbedField key={i} {...f} />)}</div>;
+  let _fields = fields as TypeMessageEmbedField[];
+return <div className='embed-fields'>{_fields.map((field:TypeMessageEmbedField, idx) => <EmbedField key={idx} {...field} />)}</div>;
 };
 
 const Embed = ({
   color, author, title, url, description, fields, thumbnail, image, timestamp, footer
-}) => {
+}:TypeEmbed) => {
   return (
     <div className='accessory'>
       <div className='embed-wrapper'>

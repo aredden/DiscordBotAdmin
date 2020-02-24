@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import Message from './Message';
-import { TypeMessage, TypeEmoji } from '../types/lmaotypes';
 import ErrorBoundary from './ErrorBoundary';
 import moment from 'moment';
 import InputBox from './InputBox';
-import '../css/App.css'
 import { TypeMessageList } from '../types/lmao-react-types';
 
 
@@ -12,11 +10,7 @@ import { TypeMessageList } from '../types/lmao-react-types';
  * @class Container for all Messages in Channel {channelName}
  */
 export default class MessageList extends Component < TypeMessageList > {
-
-
     render() {
-
-
         let {emojis, guildID, channelID, sendFunction, guildName, channelName} = this.props;
 
         return (
@@ -32,9 +26,9 @@ export default class MessageList extends Component < TypeMessageList > {
                                 ? this
                                     .props
                                     .messages
-                                    .map((msg) => {
+                                    .map((msg, idx) => {
                                         return (
-                                            <ErrorBoundary>
+                                            <ErrorBoundary key={`errorboundary-${idx}`}>
                                                 <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>
                                             </ErrorBoundary>
                                         )

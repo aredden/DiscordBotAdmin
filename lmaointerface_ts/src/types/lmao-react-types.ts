@@ -1,4 +1,4 @@
-import { TypeMessage, TypeEmoji, EmojiMap } from "./lmaotypes";
+import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild } from "./lmaotypes";
 
 
 export type TypeMessageClass = {
@@ -21,4 +21,15 @@ export type TypeInputBox = {
     channelID:string,
     guildID:string
     emojis:EmojiMap
+}
+
+export type AppType = {
+    isReady:boolean,
+    error:string,
+    guildList:Map<string,TypeGuild>,
+    channelName:string,
+    guildName:string,
+    endpoint:string,
+    emojis:Map<string,TypeEmoji>,
+    messageNotifications:Map<string,number>
 }

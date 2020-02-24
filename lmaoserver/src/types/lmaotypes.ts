@@ -1,11 +1,10 @@
 export type TypeMessage = {
-    message:string,
     author:TypeUser,
     content:string,
-    mentions:Map<string,TypeUser>,
+    mentions:TypeGuildMember[],
     channel:string,
     guild:string,
-    createdAt:string,
+    createdAt:Date,
     member:TypeGuildMember,
     id:string,
     embeds:TypeEmbed[],
@@ -49,7 +48,7 @@ export type TypeUser = {
     name:string,
     id:string,
     tag:string,
-    createdAt:string,
+    createdAt:Date,
     bot:boolean,
     avatarURL:string,
     avatar:string
@@ -57,7 +56,7 @@ export type TypeUser = {
 
 export type TypeRole = {
     name:string,
-    color:string,
+    color:number,
     id:string,
     permissions:number,
     mentionable:boolean,
@@ -86,7 +85,7 @@ export type TypeEmbed = {
         url:string
     },
     color:string,
-    createdAt:string,
+    createdAt:Date,
     description:string,
     hexColor:string,
     fields:TypeMessageEmbedField[],

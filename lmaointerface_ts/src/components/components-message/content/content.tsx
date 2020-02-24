@@ -1,5 +1,4 @@
 import { TypeEmoji } from "../../../types/lmaotypes";
-
 import { isNullOrUndefined } from "util";
 
 function _stringSplitter(str:string):Array<string>{

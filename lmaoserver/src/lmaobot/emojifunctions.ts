@@ -4,8 +4,6 @@ import { isNullOrUndefined } from 'util';
 import getLogger from '../logger';
 import chalk from 'chalk';
 
-
-
 const logger = getLogger('EmojiParserFunctions')
 
 /**

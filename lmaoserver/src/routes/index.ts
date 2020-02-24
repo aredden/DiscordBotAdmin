@@ -1,21 +1,25 @@
 import express from 'express';
 import { parseGuilds } from '../lmaobot/typeparserfunctions';
 import getLogger from '../logger';
-import bot, { getEmojiMap} from '../index';
-import chalk from 'chalk';
+import bot, { getEmojiMap, getChannelNotification, getFocusKey} from '../index';
+import _chalk from 'chalk';
 
 const router = express.Router();
 
 const logger = getLogger('routes/index');
 
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   res.send({ response: 'LmaoServer is running.' }).status(200);
 });
 
 router.get('/botguilds', (req,res)=>{
   logger.info(`Client from ${req.headers.referer} requested route '/botguilds'`);
-  let data = parseGuilds(bot.client.guilds);
-  res.json(data);
+  let data = {
+    guilds:parseGuilds(bot.client.guilds),
+    focusKey:getFocusKey(),
+    notifications:getChannelNotification()
+  }
+  res.json(JSON.stringify(data));
 })
 
 router.get('/emojis', (req,res)=>{

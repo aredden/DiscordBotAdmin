@@ -1,12 +1,13 @@
 import { LmaoBot } from '../lmaobot/lmaobot';
-import { TextChannel, MessageAttachment, MessageEmbed, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import getLogger from '../logger';
 import { TypeMessageData } from '../types/lmaotypes';
 import { readJSON } from 'fs-extra';
-import chalk = require('chalk');
+import chalk from 'chalk';
+import { handleSendMessage } from '../socket/socketfunctions';
 const logger = getLogger('LmaoBotControl');
 
-export default class LmaoBotControl{
+export default class LmaoBotControl {
     public guilds:object;
     private bot:LmaoBot;
     private commandsDB:object;
@@ -17,7 +18,9 @@ export default class LmaoBotControl{
         })
         readJSON('./src/commandsDB.json')
             .then(_json=>this.setCommandsDB(_json))
-        this.bot.client.on("message",(message)=>this.commandsCheck(message))
+        this.bot.client.on("message",(message)=>{
+            if(message.member!==null)this.commandsCheck(message)
+        })
     }
 
     commandsCheck(message:Message){
@@ -45,28 +48,3 @@ export default class LmaoBotControl{
     }
 }
 
-export function handleSendMessage(
-    messageData:TypeMessageData,
-    bot:LmaoBot,
-    _attatchments?:MessageAttachment[],
-    _embeds?:MessageEmbed[]){
-    const guild = bot.client.guilds.get(messageData.guild)
-    if(!guild){
-        logger.error(`guild w/ id: ${messageData.guild} does not exist!`)
-        return;
-    }
-    const channel = guild.channels.get(messageData.channel) as TextChannel;
-    if(!channel){
-        logger.error(`guild w/ id: ${messageData.channel} does not exist!`)
-        return;
-    }
-    logger.info(`Sending message to ${channel.name} in ${channel.guild.name} content:\n${messageData.content}`)
-    channel.send(messageData.content)
-        .then(
-            _success=>{
-            logger.info(`Successfully sent message to ${channel.name}!`)},
-            _fail=>{
-            logger.error(`Failed to send message to ${channel.name}!`)
-            }
-        );
-}

@@ -8,13 +8,14 @@ import { Message, Collection, Guild,
 import getLogger from '../logger';
 import { parseEmojisFromString } from './emojifunctions';
 import { updateEmojiMap, getEmojiMap } from '../index';
+import { TypeGuild, TypeMessage, TypeGuildMember, TypeRole, TypeTextChannel } from '../types/lmaotypes';
 
 
 const logger = getLogger('LmaoBotParsingFunctions')
 
-export function parseGuilds(guilds:Collection<string,Guild>){
-    let guildList = new Object()
-    guilds.forEach((guild,key,guildmap)=>{
+export function parseGuilds(guilds:Collection<string,Guild>):Map<string,TypeGuild>{
+    let guildList = new Map<string,TypeGuild>()
+    guilds.forEach((guild)=>{
             let newChannels = parseChannels(guild.channels);
             let newEmojis = parseEmojis(guild.emojis);
             let newGuild= new Object({
@@ -29,9 +30,9 @@ export function parseGuilds(guilds:Collection<string,Guild>){
     return guildList;
 }
 
-function parseChannels(channels:Collection<string,GuildChannel>){
-    let channelList = new Object()
-    channels.forEach((channel,key,channelmap)=>{
+function parseChannels(channels:Collection<string,GuildChannel>):Map<string,TypeTextChannel>{
+    let channelList:Map<string,TypeTextChannel> = new Map<string,TypeTextChannel>();
+    channels.forEach((channel)=>{
         if(channel.type==='text'){
             let parsedchannel =parseTextChannel(channel as TextChannel);
             channelList[channel.name]=parsedchannel;
@@ -40,7 +41,7 @@ function parseChannels(channels:Collection<string,GuildChannel>){
     return channelList;
 }
 
-export function parseTextChannel(channel:TextChannel){
+export function parseTextChannel(channel:TextChannel):TypeTextChannel{
     return {
         name:channel.name,
         type:channel.type,
@@ -53,17 +54,23 @@ export function parseTextChannel(channel:TextChannel){
 
 export function parseEmojis(emojis:Collection<string,Emoji>){
     let emojilist=new Object();
-    emojis.forEach((emoji,key,emojimap) => {
+    emojis.forEach((emoji) => {
         emojilist[emoji.name] = convertDiscEmojiToTypeEmoji(emoji)
     });
     return emojilist;
 }
 
-export function parseMessages(messages: Collection<string,Message>){
-    let messageMap=new Array();
-    messages.forEach((message,key,messagemap)=>{
+export function parseMessages(messages: Collection<string,Message>):TypeMessage[]{
+    let messageMap=new Array<TypeMessage>();
+    messages.forEach((message)=>{
         messageMap.push(parseMessage(message));
     })
+    if(messageMap.length>30){
+        const length = messageMap.length;
+        messageMap = messageMap.filter((_message,idx)=>{
+            return idx+30>=length
+        })
+    }
     return messageMap;
 }
 
@@ -77,7 +84,7 @@ export function convertDiscEmojiToTypeEmoji(emoji:Emoji){
     }
 }
 
-export function parseNewMessage(message:Message){
+export function parseNewMessage(message:Message): TypeMessage{
     const txtchannel = message.channel as TextChannel;
     let _EMOJI_MAP = getEmojiMap();
     // logger.info(chalk.yellow(JSON.stringify(_EMOJI_MAP, null, 4)));
@@ -99,11 +106,12 @@ export function parseNewMessage(message:Message){
         type:message.type,
         hit:message.hit,
         nonce:message.nonce,
-        newEmojis
+        newEmojis,
+        editted:false
     })
 }
 
-export function parseMessage(message:Message){
+export function parseMessage(message:Message):TypeMessage{
     const txtchannel = message.channel as TextChannel;
     return({
         member:parseGuildMember(message.member),
@@ -119,29 +127,29 @@ export function parseMessage(message:Message){
         type:message.type,
         hit:message.hit,
         nonce:message.nonce,
-        newEmojis:undefined
+        newEmojis:undefined,
+        editted:false,
     })
 }
 
-export function parseMentions(mentions:MessageMentions){
-    return({
-        users:parseGuildMembers(mentions.members)
-    })
+export function parseMentions(mentions:MessageMentions):TypeGuildMember[]{
+    let members = parseGuildMembers(mentions.members);
+    return(Object.values(members))
 }
 /**
  * Parses a collection of GuildMembers into data that can be sent to end user.
  * @param members Collection<string,GuildMember>
  * @returns Array<Object>
  */
-export function parseGuildMembers(members:Collection<string,GuildMember>):object[]{
-    let memberArray:object[] = [];
-    members.forEach((member,key,membermap)=>{
-        memberArray.push(parseGuildMember(member))
+export function parseGuildMembers(members:Collection<string,GuildMember>):Map<string,TypeGuildMember>{
+    let memberArray:Map<string,TypeGuildMember> = new Map<string,TypeGuildMember>();
+    members.forEach((member)=>{
+        memberArray[member.user.username]=parseGuildMember(member)
     })
     return memberArray
 }
 
-export function parseGuildMember(member:GuildMember){
+export function parseGuildMember(member:GuildMember):TypeGuildMember{
     return({
         nickname:member.nickname,
         id:member.id,
@@ -157,23 +165,22 @@ export function parseGuildMember(member:GuildMember){
  * @param roles Discord.js - Collection<string,Role>
  * @returns
  */
-export function parseRoles(roles:Collection<string,Role>){
-    let rolesMap:object = {}
+export function parseRoles(roles:Collection<string,Role>):Map<string,TypeRole>{
+    let rolesMap:Map<string,TypeRole> = new Map<string,TypeRole>();
     roles.forEach((role,key,rolemap)=>{
         roles[role.name]=parseGuildRole(role)
     })
     return rolesMap;
 }
 
-export function parseGuildRole(role:Role){
+export function parseGuildRole(role:Role):TypeRole{
     return ({
         name:role.name,
         color:role.color,
         id:role.id,
         permissions:role.permissions,
         mentionable:role.mentionable,
-        hexColor:role.hexColor,
-        calculatedPosition:role.calculatedPosition
+        hexColor:role.hexColor
     })
 }
 
@@ -259,7 +266,7 @@ export function parseEmbed(embed:MessageEmbed){
 
 export function parseEmbedFields(fields:MessageEmbedField[]){
     let embedFields = []
-    fields.forEach((field,idx,fieldarr)=>{
+    fields.forEach((field)=>{
         embedFields.push({
             inline:field.inline,
             name:field.name,
