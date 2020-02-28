@@ -66,6 +66,7 @@ export type TypeRole = {
 export type TypeGuild = {
     name:string,
     channels:Map<string,TypeTextChannel>,
+    users:Map<string,TypeGuildMember>,
     emojis:Map<string,TypeEmoji>,
     id:string,
     owner:TypeGuildMember

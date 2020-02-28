@@ -13,13 +13,14 @@ export type TypeMessageList = {
     emojis: Map < string,TypeEmoji >,
     guildID:string,
     channelID:string,
+    requestMessages:(e:any,channelID:string,guildID:string,messageID?:string)=>void,
     sendFunction:(guild:string,channel:string,content:string)=>void
 }
 
 export type TypeInputBox = {
     sendFunction:(guild:string,channel:string,content:string)=>void,
     channelID:string,
-    guildID:string
+    guildID:string,
     emojis:EmojiMap
 }
 

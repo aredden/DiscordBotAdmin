@@ -21,6 +21,7 @@ export function parseGuilds(guilds:Collection<string,Guild>):Map<string,TypeGuil
             let newGuild= new Object({
                 name:guild.name,
                 channels:newChannels,
+                users:parseGuildMembers(guild.members),
                 emojis:newEmojis,
                 id:guild.id,
                 owner:parseGuildMember(guild.owner)
@@ -167,7 +168,7 @@ export function parseGuildMember(member:GuildMember):TypeGuildMember{
  */
 export function parseRoles(roles:Collection<string,Role>):Map<string,TypeRole>{
     let rolesMap:Map<string,TypeRole> = new Map<string,TypeRole>();
-    roles.forEach((role,key,rolemap)=>{
+    roles.forEach((role)=>{
         roles[role.name]=parseGuildRole(role)
     })
     return rolesMap;
@@ -218,7 +219,7 @@ export function parseMessageAttachment(attachment:MessageAttachment){
 
 export function parseEmbeds(embeds:MessageEmbed[]){
     let embedArray = []
-    embeds.forEach((embed,idx,embedarray)=>{
+    embeds.forEach((embed)=>{
         embedArray.push(parseEmbed(embed))
     })
     return embedArray

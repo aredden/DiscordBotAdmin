@@ -22,6 +22,9 @@ export function onMessageParseMessage(message:string, state:AppType){
     if(channel.name !== channelName){
         messageNotifications[msg.guild+channel.name]+=1
     }
+    channel.messages = channel.messages.sort((messageA,messageB)=>{
+        return Date.parse(messageA.createdAt) - Date.parse(messageB.createdAt)
+    })
     let emojisFromMsg = msg.newEmojis as EmojiMap
     if(emojisFromMsg){
         Object.keys(emojisFromMsg).forEach((key) => {

@@ -39,6 +39,7 @@ export default class App extends Component<{},AppType> {
         this.onError = this.onError.bind(this);
         this.onSwitchChannel = this.onSwitchChannel.bind(this);
         this.onSwitchGuild = this.onSwitchGuild.bind(this);
+        this.onRequestMessages = this.onRequestMessages.bind(this);
   }
 
   componentDidMount() {
@@ -156,6 +157,16 @@ export default class App extends Component<{},AppType> {
         el.scrollTop = el.scrollHeight;
   }
 
+  onRequestMessages = (e:MouseEvent,channelID:string,guildID:string,messageID?:string) =>{
+        e.preventDefault();
+        let requestData = {
+            channelID:channelID,
+            guildID:guildID,
+            lastMessage:messageID?messageID:undefined
+        };
+        this.socket.emit("requestMessages",JSON.stringify(requestData))
+  }
+
   onError = (error:string) => {
         this.setState({error: error})
   }
@@ -212,6 +223,7 @@ export default class App extends Component<{},AppType> {
                       onSwitchChannel={this.onSwitchChannel}
                       guildChannels={channels as Map<string,TypeTextChannel>}/>
                   <MessageList
+                      requestMessages={this.onRequestMessages}
                       channelName={this.state.channelName}
                       guildName={this.state.guildName}
                       messages={messages as TypeMessage[]}

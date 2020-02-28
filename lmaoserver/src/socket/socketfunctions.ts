@@ -7,7 +7,6 @@ import  getLogger  from "../logger";
 import { updateChannelNotifications } from "../index";
 import bot from '../index';
 
-const _lmaobot = bot;
 const logger = getLogger("socketfunctions")
 
 export function handleMessageUpdate(oldMsg:Message,newMsg:Message,socket:Socket,startDate:number){
@@ -59,16 +58,17 @@ export function handleMessagesRequest(guildID:string,channelID:string,lastMessag
         limit:30
     };
 
-    ((_lmaobot.client.guilds[guildID] as Guild)
-        .channels[channelID] as TextChannel)
+    ((bot.client.guilds.get(guildID) as Guild)
+        .channels.get(channelID) as TextChannel)
         .fetchMessages(queryOpts)
         .then((messages)=>{
-            parseMessages(messages)
+            return parseMessages(messages)
         },(_fail)=>{
             logger.error(`Failed to update messages: ${_fail}`)
         })
-        .then((parsedMessages)=>{
-            sock.emit("messageQueryUpdate",JSON.stringify(parsedMessages))
+        .then((parsedMessages:TypeMessage[])=>{
+            parsedMessages.forEach(message => {
+                sock.emit("discordmessage",JSON.stringify(message))
+            });
         })
-
 }

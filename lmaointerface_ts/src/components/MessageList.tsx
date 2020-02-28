@@ -9,30 +9,40 @@ import { TypeMessageList } from '../types/lmao-react-types';
 /**
  * @class Container for all Messages in Channel {channelName}
  */
-export default class MessageList extends Component < TypeMessageList > {
+export default class MessageList extends Component <TypeMessageList> {
     render() {
-        let {emojis, guildID, channelID, sendFunction, guildName, channelName} = this.props;
+        let {messages, emojis, guildID, channelID, sendFunction, requestMessages, guildName, channelName} = this.props;
 
         return (
             <div className="messagelist-spacing col-md-8">
-                <div className="d-inline-flex align-items-end p-2">
-                    <h2>{guildName}</h2>
-                    <h4>&nbsp;&nbsp;#{channelName}</h4>
+                <div className="p-2 d-flex align-items-end">
+                    <h2 className="d-inline-flex justify-content-start align-items-end ml-5">{guildName}</h2>
+                    <h4 className="d-inline-flex justify-content-start align-items-end mr-3">&nbsp;&nbsp;#{channelName}</h4>
+                    <button 
+                        className="ml-3 d-flex justify-content-end align-items-start btn btn-sm btn-outline-primary"
+                        style={{marginBottom:".4rem"}}
+                        onClick={(e)=>
+                            requestMessages(
+                            e,
+                            channelID,
+                            guildID,
+                            messages[0] ? messages[0].id:undefined
+                        )}>
+                        Update
+                    </button>
                 </div>
                 <div id="message-table" className="table-responsive messagelist-table overflow-auto">
                     <table className="table table-sm">
                         <tbody>
-                            {this.props.messages
-                                ? this
-                                    .props
-                                    .messages
-                                    .map((msg, idx) => {
-                                        return (
-                                            <ErrorBoundary key={`errorboundary-${idx}`}>
-                                                <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>
-                                            </ErrorBoundary>
-                                        )
-                                    })
+                            {messages ? 
+                                messages
+                                .map((msg, idx) => {
+                                    return (
+                                        <ErrorBoundary key={`errorboundary-${idx}`}>
+                                            <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>
+                                        </ErrorBoundary>
+                                    )
+                                })
                                 : <tr/>}
                         </tbody>
                     </table>

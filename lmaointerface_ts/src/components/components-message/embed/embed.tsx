@@ -85,7 +85,7 @@ const EmbedThumbnail = ({ url }) => {
       src={url}
       alt={url}
       className='embed-rich-thumb'
-      style={{ maxWidth: 80, maxHeight: 80 }}
+      style={{ maxWidth: 100, maxHeight: 100 }}
     />
   );
 };
@@ -98,7 +98,14 @@ const EmbedImage = ({ url }) => {
   // NOTE: for some reason it's a link in the original DOM
   // not sure if this breaks the styling, probably does
   //
-  return <a className='embed-thumbnail embed-thumbnail-rich' style={{maxHeight:"200px"}} href={url}><img className='image' src={url} alt={url}/></a>;
+  return <a className='embed-thumbnail embed-thumbnail-rich' 
+            style={{maxHeight:"350px",maxWidth:"350px"}} 
+            href={url}>
+              <img className='image'
+                   style={{maxHeight:"350px",maxWidth:"350px"}} 
+                   src={url} 
+                   alt={url}/>
+         </a>;
 };
 
 const EmbedFooter = ({ timestamp, text, iconURL }) => {

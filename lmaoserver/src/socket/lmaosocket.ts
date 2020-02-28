@@ -46,10 +46,9 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
                     setNewChannelFocus(key)
                 })
 
-                socket.on('messagesRequest', (_data:string)=>{
+                socket.on('requestMessages', (_data:string)=>{
                     let data = JSON.parse(_data);
                     handleMessagesRequest(data.guildID,data.channelID,data.lastMessage,socket)
-
                 })
 
                 socket.on('disconnect', () => {
