@@ -41,7 +41,36 @@ export type TypeGuildMember = {
     user:TypeUser,
     roles:Map<string,TypeRole>,
     displayName:string,
-    displayHexColor:string
+    displayHexColor:string,
+    highestRole:TypeRole,
+    guildName:string,
+    presence:TypePresence
+}
+
+export type TypePresence ={
+    game: {
+		applicationID: string,
+		assets:{
+            largeImage: string
+            largeText: string
+            smallImage: string
+            smallText: string
+            smallImageURL: string
+            largeImageURL: string
+        }
+        state: string,
+		timestamps: {
+			start: Date,
+			end: Date
+		},
+		flags: string[],
+		type: number,
+		url: string,
+		details: string,
+		name: string,
+		streaming: boolean,
+    },
+    status: 'online' | 'idle' | 'dnd' | 'offline' | 'invisible',
 }
 
 export type TypeUser = {
@@ -68,6 +97,7 @@ export type TypeGuild = {
     channels:Map<string,TypeTextChannel>,
     users:Map<string,TypeGuildMember>,
     emojis:Map<string,TypeEmoji>,
+    roles:Map<string,TypeRole>,
     id:string,
     owner:TypeGuildMember
 }

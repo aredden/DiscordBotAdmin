@@ -3,11 +3,11 @@ import socketio, { Socket } from 'socket.io';
 import { LmaoBot } from '../lmaobot/lmaobot'
 import 'discord.js';
 import http from 'http';
-import { parseNewMessage } from '../lmaobot/typeparserfunctions';
+import { parseNewMessage, parseGuildMember } from '../lmaobot/typeparserfunctions';
 import getLogger from '../logger';
-import { TypeMessageData } from '../types/lmaotypes'
+import { TypeMessageData, EmojiMap, TypePresence, TypeGuildMember, TypeEmoji } from '../types/lmaotypes'
 import { handleMessageUpdate, handleSendMessage, handleNotificationsUpdate, handleMessagesRequest } from './socketfunctions';
-import { setNewChannelFocus } from '../index';
+import { setNewChannelFocus, updateEmojiMap } from '../index';
 const logger = getLogger('DiscordBotSocket');
 
 export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
@@ -34,6 +34,16 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
 
                 bot.client.on("messageUpdate", (oldMsg:Message,newMsg:Message)=>
                     handleMessageUpdate(oldMsg,newMsg,socket,startDate))
+
+                bot.client.on("presenceUpdate", (oldMember,newMember)=>{
+                    socket.emit("presenceUpdate", JSON.stringify(parseGuildMember(newMember)))
+                })
+
+                bot.client.on("emojiCreate", (emoji)=>{
+                    let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
+                    mojiMap[emoji.name]=emoji;
+                    updateEmojiMap(mojiMap);
+                })
 
                 socket.on('sendMessage', (messageData:TypeMessageData)=>
                     handleSendMessage(messageData,bot))

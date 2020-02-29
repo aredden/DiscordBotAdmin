@@ -59,7 +59,7 @@ export function getChannelNotification(){
 }
 
 export function updateChannelNotifications(key:string, value?:number, newChannel?:boolean){
-    CHANNEL_NOTIFICATIONS[key] = value ? CHANNEL_NOTIFICATIONS[key]+value : 0
+    CHANNEL_NOTIFICATIONS[key] = value ? CHANNEL_NOTIFICATIONS[key] + value : 0
     if(newChannel){
         setNewChannelFocus(key)
     }
@@ -96,7 +96,7 @@ bot.client.on('message',(message)=>{
         logger.info('Recieved new message, updating global EMOJIS_MAP.')
         const messageParsed = parseNewMessage(message);
         let newEmojis = messageParsed.newEmojis;
-        if(Object.keys(newEmojis).length>0){
+        if(newEmojis && Object.keys(newEmojis).length>0){
             Object.keys(newEmojis).forEach((name)=>{
                 if(!EMOJIS_MAP[name]){
                     EMOJIS_MAP[name]=newEmojis[name];

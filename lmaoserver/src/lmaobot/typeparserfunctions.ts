@@ -6,9 +6,8 @@ import { Message, Collection, Guild,
         MessageEmbed,
         MessageEmbedField} from 'discord.js';
 import getLogger from '../logger';
-import { parseEmojisFromString } from './emojifunctions';
-import { updateEmojiMap, getEmojiMap } from '../index';
-import { TypeGuild, TypeMessage, TypeGuildMember, TypeRole, TypeTextChannel } from '../types/lmaotypes';
+import { getEmojiMap } from '../index';
+import { TypeGuild, TypeMessage, TypeGuildMember, TypeRole, TypeTextChannel, TypePresence } from '../types/lmaotypes';
 
 
 const logger = getLogger('LmaoBotParsingFunctions')
@@ -23,6 +22,7 @@ export function parseGuilds(guilds:Collection<string,Guild>):Map<string,TypeGuil
                 channels:newChannels,
                 users:parseGuildMembers(guild.members),
                 emojis:newEmojis,
+                roles:parseRoles(guild.roles),
                 id:guild.id,
                 owner:parseGuildMember(guild.owner)
             });
@@ -88,11 +88,6 @@ export function convertDiscEmojiToTypeEmoji(emoji:Emoji){
 export function parseNewMessage(message:Message): TypeMessage{
     const txtchannel = message.channel as TextChannel;
     let _EMOJI_MAP = getEmojiMap();
-    // logger.info(chalk.yellow(JSON.stringify(_EMOJI_MAP, null, 4)));
-    const newEmojis = parseEmojisFromString(message.content,_EMOJI_MAP);
-    if(newEmojis.size>0){
-        updateEmojiMap(newEmojis);
-    }
     return({
         member:parseGuildMember(message.member),
         author:parseUser(message.author),
@@ -107,7 +102,7 @@ export function parseNewMessage(message:Message): TypeMessage{
         type:message.type,
         hit:message.hit,
         nonce:message.nonce,
-        newEmojis,
+        newEmojis:undefined,
         editted:false
     })
 }
@@ -157,7 +152,10 @@ export function parseGuildMember(member:GuildMember):TypeGuildMember{
         user:parseUser(member.user),
         roles:parseRoles(member.roles),
         displayName:member.displayName,
-        displayHexColor:member.displayHexColor
+        displayHexColor:member.displayHexColor,
+        highestRole:member.highestRole,
+        guildName:member.guild.name,
+        presence:(member.presence as TypePresence)
     });
 }
 

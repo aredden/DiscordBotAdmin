@@ -10,9 +10,10 @@ import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import { TypeGuild, TypeEmoji, TypeMessage, 
     TypeTextChannel, TypeMessageUpdateData, 
-    ChannelMap, EmojiMap, GuildMap } from './types/lmaotypes';
+    ChannelMap, EmojiMap, GuildMap, TypeGuildMember } from './types/lmaotypes';
 import { onMessageParseMessage } from './AppFunctions';
 import { AppType } from './types/lmao-react-types';
+import UserBar from './components/UserBar';
 
 
 export default class App extends Component<{},AppType> {
@@ -50,10 +51,19 @@ export default class App extends Component<{},AppType> {
             this.onError(err))
         this.socket.on("messageUpdate",(data:string)=> 
             this.onMessageUpdate(data))
+        this.socket.on("presenceUpdate",(newMemberData:string)=>
+            this.onPresenceUpdate(newMemberData))
         axios.get(endpoint+"botguilds")
         .then((response)=>this.onReady(JSON.parse(response.data)))
         .then((_good)=>this.queryEmoji())
   }
+
+    onPresenceUpdate(newMemberData: string) {
+        const memberUpdated = JSON.parse(newMemberData) as TypeGuildMember;
+        let {guildList} = this.state;
+        guildList[memberUpdated.guildName].users[memberUpdated.displayName] = memberUpdated
+        this.setState({guildList:guildList});
+    }
 
   queryEmoji(){
         axios.get(this.state.endpoint+"emojis")
@@ -192,7 +202,7 @@ export default class App extends Component<{},AppType> {
       let channels:ChannelMap, messages:Array<TypeMessage>,
           emojis:EmojiMap, ready = this.state.isReady,
           guildlist = Object.values(this.state.guildList),
-          guildID:string, channelID:string;
+          guildID:string, channelID:string, members:Map<string,TypeGuildMember>;
       if(guildlist.length > 0){
           let {guildList , guildName, channelName} = this.state;
           emojis = this.state.emojis;
@@ -206,8 +216,9 @@ export default class App extends Component<{},AppType> {
               }
               messages = newMessages;
           }
-          guildID = guildList[guildName].id
-          channelID = guildList[guildName].channels[channelName].id
+          members = guildList[guildName].users;
+          guildID = guildList[guildName].id;
+          channelID = guildList[guildName].channels[channelName].id;
       }
 
       return (
@@ -231,6 +242,8 @@ export default class App extends Component<{},AppType> {
                       sendFunction={this.onSendMessage}
                       channelID={channelID}
                       guildID={guildID}/>
+                  <UserBar
+                      members={members}/>
               </div>
           </div>
       );

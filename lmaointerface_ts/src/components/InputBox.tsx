@@ -23,11 +23,12 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
             content:content.replace(colonMatch,"")+emojiTag+" ",
             colonMatch:null
         })
-        document.getElementById("input-text-box").focus()
+        document.getElementById("input-text-box").focus();
     }
 
     destroyAutoCompletePopper(){
         this.setState({colonMatch:null});
+        document.getElementById("input-text-box").focus();
     }
 
     handleUpPress(e){
@@ -106,34 +107,38 @@ type EmojiAutoCompleteProps={
     destroyPopper:()=>any,
 }
 
-class EmojiAutoComplete extends Component<EmojiAutoCompleteProps,{index:number}>{
+class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
 
     constructor(props){
         super(props)
-        this.state = {
-            index:null
-        }
         this.handleKeyboardEvent = this.handleKeyboardEvent.bind(this);
     }
 
-    handleKeyboardEvent = (event, idx) => {
+    handleKeyboardEvent = (event:KeyboardEvent, idx) => {
         let {emojis, onChoose} = this.props;
-        let {index} = this.state;
         switch(event.key){
             case "ArrowUp":
                 event.preventDefault();
+                
                 if(idx+1<emojis.length){
                     document.getElementById(`emojiautocomplete-${idx+1}`).focus()
                 }else document.getElementById(`emojiautocomplete-${0}`).focus();
                 break;
             case "ArrowDown":
                 event.preventDefault();
+                
                 if(idx-1>=0){
                     document.getElementById(`emojiautocomplete-${idx-1}`).focus()
                 }else document.getElementById(`emojiautocomplete-${emojis.length-1}`).focus()
                 break;
             case "Enter":
                 event.preventDefault();
+                event.stopPropagation();
+                onChoose(`<:${emojis[idx].name}:${emojis[idx].id}>`)
+                break;
+            case "Tab":
+                event.preventDefault();
+                
                 onChoose(`<:${emojis[idx].name}:${emojis[idx].id}>`)
                 break;
             case "Escape":
@@ -142,6 +147,7 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps,{index:number}>
                 break;
             case "Backspace":
                 event.preventDefault();
+                event.stopPropagation();
                 this.props.destroyPopper();
                 break;
             default:

@@ -1,4 +1,5 @@
 import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap } from "./types/lmaotypes";
+import moment from "moment";
 
 type AppType = {
     isReady:boolean,
@@ -22,8 +23,8 @@ export function onMessageParseMessage(message:string, state:AppType){
     if(channel.name !== channelName){
         messageNotifications[msg.guild+channel.name]+=1
     }
-    channel.messages = channel.messages.sort((messageA,messageB)=>{
-        return Date.parse(messageA.createdAt) - Date.parse(messageB.createdAt)
+    channel.messages = channel.messages.sort((a,b)=>{
+        return moment(a.createdAt).unix() - moment(a.createdAt).unix()
     })
     let emojisFromMsg = msg.newEmojis as EmojiMap
     if(emojisFromMsg){

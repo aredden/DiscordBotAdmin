@@ -36,6 +36,7 @@ export default class MessageList extends Component <TypeMessageList> {
                         <tbody>
                             {messages ? 
                                 messages
+                                .sort((a,b)=>(moment(a.createdAt).unix()-moment(b.createdAt).unix()))
                                 .map((msg, idx) => {
                                     return (
                                         <ErrorBoundary key={`errorboundary-${idx}`}>

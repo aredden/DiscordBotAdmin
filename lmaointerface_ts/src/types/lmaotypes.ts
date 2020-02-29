@@ -5,7 +5,7 @@ export type TypeMessage = {
     mentions:TypeGuildMember[],
     channel:string,
     guild:string,
-    createdAt:string, 
+    createdAt:Date, 
     member:TypeGuildMember,
     id:string,
     embeds:TypeEmbed[],
@@ -42,14 +42,42 @@ export type TypeGuildMember = {
     user:TypeUser,
     roles:Map<string,TypeRole>,
     displayName:string,
-    displayHexColor:string
+    displayHexColor:string,
+    highestRole:TypeRole,
+    presence:TypePresence,
+    guildName:string
 }
 
+export type TypePresence ={
+    game: {
+		applicationID: string,
+		assets:{
+            largeImage: string
+            largeText: string
+            smallImage: string
+            smallText: string
+            smallImageURL: string
+            largeImageURL: string
+        }
+        state: string,
+		timestamps: {
+			start: Date,
+			end: Date
+		},
+		flags: string[],
+		type: number,
+		url: string,
+		details: string,
+		name: string,
+		streaming: boolean,
+    },
+    status: 'online' | 'idle' | 'dnd' | 'offline' | 'invisible',
+}
 export type TypeUser = {
     name:string,
     id:string,
     tag:string,
-    createdAt:string,
+    createdAt:Date,
     bot:boolean,
     avatarURL:string,
     avatar:string
@@ -60,6 +88,7 @@ export type TypeRole = {
     color:string,
     id:string,
     permissions:number,
+    position:number,
     mentionable:boolean,
     hexColor:string
 }
@@ -86,7 +115,7 @@ export type TypeEmbed = {
         url:string
     },
     color:string,
-    createdAt:string,
+    createdAt:Date,
     description:string,
     hexColor:string,
     fields:TypeMessageEmbedField[],
@@ -125,10 +154,6 @@ export type TypeMessageAttachment = {
     url:string,
     proxyURL:string,
     id:string
-}
-
-export type TypeMessageData = {
-    
 }
 
 export type TypeMessageUpdateData = {
