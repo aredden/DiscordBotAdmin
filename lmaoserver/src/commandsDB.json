@@ -1,9 +1,7 @@
 {
-    "text-contains":{
-        "rekt":"GOTTEM"
+    "contains":{
+        "rekt":["GOTTEM"],
+        "other!":["okay","nice","wot","lmao"]
     },
-    "bot-mention-only":":babyyoda:",
-    "bot-mention-contains":{
-        "love you":":two_hearts:"
-    }
+    "mention":["Hai uwu"]
 }

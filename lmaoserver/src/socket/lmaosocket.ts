@@ -69,8 +69,3 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
         }
     )
 }
-
-
-
-
-
