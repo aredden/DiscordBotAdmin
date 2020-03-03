@@ -20,7 +20,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
     handleEmojiChooseNoEvent(emojiTag:string){
         const {colonMatch, content} = this.state
         this.setState({
-            content:content.replace(colonMatch,"")+emojiTag+" ",
+            content:colonMatch!==null?content.replace(new RegExp(`${colonMatch}$`,"g"),"")+emojiTag+" ":content+emojiTag+" ",
             colonMatch:null
         })
         document.getElementById("input-text-box").focus();
@@ -32,15 +32,20 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
     }
 
     handleUpPress(e){
-        if((e.key==="ArrowUp" || e.key==="Tab")&&!isNullOrUndefined(document.getElementById('transitions-popper-autocomplete'))){
+        if((e.key==="ArrowUp" || e.key==="Tab" || e.key==="Enter")&&!isNullOrUndefined(document.getElementById('transitions-popper-autocomplete'))){
+            e.preventDefault();
             document.getElementById('emojiautocomplete-0').focus();
         }
     }
 
     handleEmojiChoose(e:MouseEvent,emojiTag:string){
         document.getElementById("input-text-box").focus();
+        let {content, colonMatch} = this.state;
         if(e){e.preventDefault();}
-        this.setState({content:this.state.content+emojiTag+" "})
+        this.setState({
+            content:colonMatch!==null?content.replace(new RegExp(`${colonMatch}$`,"g"),"")+emojiTag+" ":content+emojiTag+" ",
+            colonMatch:null
+        })
     }
 
     handleChange = (event:ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +80,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
                         emoji.name.match(regex)!==null
                     ),
                 onChoose:this.handleEmojiChooseNoEvent,
+                onClickChoose:this.handleEmojiChoose,
                 colonMatch:this.state.colonMatch,
                 destroyPopper:this.destroyAutoCompletePopper
             }
@@ -103,6 +109,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
 type EmojiAutoCompleteProps={
     emojis:TypeEmoji[],
     onChoose:(emojiTag:string)=>any,
+    onClickChoose:(e,emojiTag:string)=>any,
     colonMatch:string,
     destroyPopper:()=>any,
 }
@@ -119,7 +126,6 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
         switch(event.key){
             case "ArrowUp":
                 event.preventDefault();
-                
                 if(idx+1<emojis.length){
                     document.getElementById(`emojiautocomplete-${idx+1}`).focus()
                 }else document.getElementById(`emojiautocomplete-${0}`).focus();
@@ -134,15 +140,13 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
             case "Enter":
                 event.preventDefault();
                 event.stopPropagation();
-                onChoose(`<:${emojis[idx].name}:${emojis[idx].id}>`)
+                onChoose(`<${emojis[idx].url.match(/.gif$/gm)!==null?"a":""}:${emojis[idx].name}:${emojis[idx].id}>`)
                 break;
             case "Tab":
                 event.preventDefault();
-                
-                onChoose(`<:${emojis[idx].name}:${emojis[idx].id}>`)
+                onChoose(`<${emojis[idx].url.match(/.gif$/gm)!==null?"a":""}:${emojis[idx].name}:${emojis[idx].id}>`)
                 break;
             case "Escape":
-                event.preventDefault();
                 this.props.destroyPopper();
                 break;
             case "Backspace":
@@ -165,7 +169,7 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
                     placement="top-start" transition>
             {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={350}>
-                {EmojiNames(this.props.emojis,this.handleKeyboardEvent)}
+                {EmojiNames(this.props.emojis,this.handleKeyboardEvent,this.props.onClickChoose)}
                 </Fade>
             )}
             </Popper>
@@ -173,17 +177,19 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
     }
 }
 
-const EmojiNames = (emojis:TypeEmoji[], handleKeyboardEvent:(event, index:number)=>void) => {
+const EmojiNames = (emojis:TypeEmoji[], handleKeyboardEvent:(event, index:number)=>void, handleClickChoose:(event,tag)=>any) => {
     return(
         <form className="form-control col" onSubmit={e=>{e.stopPropagation();e.preventDefault()}}>
             <div className="card-title text-bold"><strong>Emojis</strong></div>
             {emojis.map((emoji,idx)=>{
+                let id = `emojiautocomplete-icon-${idx}`;
                 return <button onKeyDown={e=>handleKeyboardEvent(e,idx)} 
+                               onClick={e=>handleClickChoose(e,`<${emoji.url.match(/.gif$/gm)!==null?"a":""}:${emoji.name}:${emoji.id}>`)}
                                className="form-control btn btn-light d-flex justify-content-start" 
                                key={`emojiautocomplete-${idx}`}
                                tabIndex={idx+1}
                                id={`emojiautocomplete-${idx}`}>
-                                   &nbsp;{Icon(`emojiautocomplete-icon-${idx}`,emoji)}&nbsp;{emoji.name}
+                                   &nbsp;<Icon {...{id, emoji}}/>&nbsp;{emoji.name}
                         </button>
             }).reverse()}
         </form>
@@ -208,7 +214,7 @@ function EmojiChooser({emojis,onChoose}) {
         <button className="btn btn-outline-info" aria-describedby={id} type="button" onClick={handleClick}>
           Emojis
         </button>
-        <Popper className="row-sm-1 card bg-light p-3" id={id} open={open} anchorEl={anchorEl} placement="top" transition>
+        <Popper className="row-sm-1 card bg-secondary p-1" id={id} open={open} anchorEl={anchorEl} placement="top" transition>
           {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={350}>
               {EmojiWindow(emojis,onChoose,4)}
@@ -225,7 +231,7 @@ function EmojiChooser({emojis,onChoose}) {
 
 const EmojiWindow = (emojis:EmojiMap,emojiChooser:(e:MouseEvent,emojiTag:string)=>void,columns:number) => {
     return(
-        <div>
+        <div className="p-1 m-0 bg-secondary">
             {Object.values(emojis).map((emoji,idx)=>{
                 let returnElement:JSX.Element = EmojiIcon(emoji.id,emoji,emojiChooser);
                 let breakElement:JSX.Element=<br/>;
@@ -240,28 +246,19 @@ const EmojiWindow = (emojis:EmojiMap,emojiChooser:(e:MouseEvent,emojiTag:string)
 
 function EmojiIcon(id:string, emoji:TypeEmoji,emojiChooser:(e:MouseEvent,emojiTag:string)=>any){
     return(
-        <button className="btn btn-light"onClick={(e)=>emojiChooser(e,`<:${emoji.name}:${emoji.id}>`)}>
-                <img
-                    draggable={false}
-                    style={{height:"25px",width:"25px"}}
-                    alt={`<:${emoji.name}:${emoji.id}>`}
-                    title={emoji.name}
-                    src={`http://cdn.discordapp.com/emojis/${emoji.id}`}
-                    key={`emoji-${id}-${Date.now()}`}
-                />
+        <button className="btn btn-secondary p-0 m-0 "onClick={(e)=>emojiChooser(e,`<${emoji.url.match(/.gif$/)!==null?"a":""}:${emoji.name}:${emoji.id}>`)}>
+            <Icon {...{id,emoji}}/>
         </button>
     )
 }
 
-function Icon(id, emoji){
-    return(
-        <img
-        draggable={false}
-        style={{height:"25px",width:"25px"}}
-        alt={`<:${emoji.name}:${emoji.id}>`}
-        title={emoji.name}
-        src={`http://cdn.discordapp.com/emojis/${emoji.id}`}
-        key={`emoji-${id}-${Date.now()}`}
-    />
-    )
+const Icon = ({id, emoji}) => {
+       return <img
+            draggable={false}
+            style={{height:"30px",width:"30px"}}
+            alt={`<:${emoji.name}:${emoji.id}>`}
+            title={emoji.name}
+            src={`http://cdn.discordapp.com/emojis/${emoji.id}`}
+            key={`emoji-${id}-${Date.now()}`}
+        />
 }

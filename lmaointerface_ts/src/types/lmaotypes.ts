@@ -11,8 +11,10 @@ export type TypeMessage = {
     embeds:TypeEmbed[],
     attachments:TypeMessageAttachment[]
     newEmojis:Map<string,TypeEmoji>
-    editted:undefined|boolean;
+    edited:undefined|boolean;
 }
+
+export type MemberMap = Map<string,TypeGuildMember>
 
 export type TypeEmoji = {
     id:string,
@@ -48,7 +50,7 @@ export type TypeGuildMember = {
     guildName:string
 }
 
-export type TypePresence ={
+export type TypePresence = {
     game: {
 		applicationID: string,
 		assets:{
@@ -68,11 +70,19 @@ export type TypePresence ={
 		type: number,
 		url: string,
 		details: string,
-		name: string,
+        name: string,
 		streaming: boolean,
     },
-    status: 'online' | 'idle' | 'dnd' | 'offline' | 'invisible',
+    clientStatus: {
+        web?:UserStatus,
+        mobile?:UserStatus,
+        desktop?:UserStatus
+    },
+    status: UserStatus,
 }
+
+export type UserStatus = 'online' | 'idle' | 'dnd' | 'offline' | 'invisible';
+
 export type TypeUser = {
     name:string,
     id:string,
@@ -97,6 +107,7 @@ export type TypeGuild = {
     name:string,
     channels:Map<string,TypeTextChannel>,
     emojis:Map<string,TypeEmoji>,
+    users:Map<string,TypeGuildMember>,
     id:string,
     owner:TypeGuildMember
 }

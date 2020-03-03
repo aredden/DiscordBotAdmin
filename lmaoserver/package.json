@@ -44,6 +44,7 @@
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
     "discord.js": "^11.5.1",
+    "moment": "^2.24.0",
     "mongodb": "^3.5.2",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"

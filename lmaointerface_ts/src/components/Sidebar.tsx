@@ -44,11 +44,10 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                         </li>
                         { guildList ? Object.values(guildList).map((guild) => {
                             return (
-                                <li className="nav-item d-flex justify-content-start btn btn-light" 
-                                    key={guild.id}>
-                                    <div className="nav-link text-bold" key={guild.id}>
+                                <li className="nav-item d-flex btn btn-light text-bold btn btn-light d-flex justify-content-start" key={guild.id}>
+                                    <div className="nav-link " 
+                                    onClick={(e)=>onSwitchGuild(e,guild.name)} key={guild.id}>
                                         <span data-feather="file" 
-                                              onClick={(e)=>onSwitchGuild(e,guild.name)} 
                                               key={guild.id}>
                                             <div className="display-block m-1 text-truncate">
                                                 {guild.name}

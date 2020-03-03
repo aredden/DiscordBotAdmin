@@ -29,7 +29,7 @@ let GUILD_DATA:Map<string,TypeGuild> = new Map<string,TypeGuild>();
 let KEY_FOCUS:string = "";
 // Function for updating EmojiMap w/ list of new Emojis.
 export function updateEmojiMap(emojis:Map<string,TypeEmoji>){
-    logger.info(chalk.red('ATTEMPTING TO UPDATE EMOJIS:')+JSON.stringify(emojis))
+    logger.info(chalk.yellow('ATTEMPTING TO UPDATE EMOJIS:')+JSON.stringify(emojis,null,1))
     if(emojis){
         emojis.forEach((emoji,name)=>{
             if(!EMOJIS_MAP[name]){
@@ -37,7 +37,7 @@ export function updateEmojiMap(emojis:Map<string,TypeEmoji>){
             }
         })
     }
-    logger.info(chalk.red('UPDATE EMOJIS:')+JSON.stringify(emojis))
+    logger.info(chalk.yellow('UPDATED EMOJIS:')+JSON.stringify(emojis,null,1))
     return EMOJIS_MAP;
 }
 
@@ -93,7 +93,7 @@ bot.client.once('ready',()=>{
 
 bot.client.on('message',(message)=>{
     if(message.member!==null){
-        logger.info('Recieved new message, updating global EMOJIS_MAP.')
+        logger.info('Recieved new message.')
         const messageParsed = parseNewMessage(message);
         let newEmojis = messageParsed.newEmojis;
         if(newEmojis && Object.keys(newEmojis).length>0){

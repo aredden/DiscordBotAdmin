@@ -1,10 +1,10 @@
-import { Message, MessageAttachment, MessageEmbed, TextChannel, Guild, Channel, ChannelLogsQueryOptions } from "discord.js";
+import { Message, MessageAttachment, MessageEmbed, TextChannel, Guild, Channel, ChannelLogsQueryOptions, User } from "discord.js";
 import { Socket } from "socket.io";
 import { parseMessage, parseNewMessage, parseMessages } from "../lmaobot/typeparserfunctions";
 import { TypeMessageData, TypeMessage } from "../types/lmaotypes";
 import { LmaoBot } from "../lmaobot/lmaobot";
 import  getLogger  from "../logger";
-import { updateChannelNotifications } from "../index";
+import { updateChannelNotifications, getFocusKey } from "../index";
 import bot from '../index';
 
 const logger = getLogger("socketfunctions")
@@ -67,8 +67,40 @@ export function handleMessagesRequest(guildID:string,channelID:string,lastMessag
             logger.error(`Failed to update messages: ${_fail}`)
         })
         .then((parsedMessages:TypeMessage[])=>{
-            parsedMessages.forEach(message => {
-                sock.emit("discordmessage",JSON.stringify(message))
-            });
+            sock.emit("batchMessages",JSON.stringify(parsedMessages))
         })
+}
+
+export function handleTypingStart(channel:Channel, user:User, socket:Socket){
+    if(channel.type ==="text"){
+        let txtChannel = channel as TextChannel
+        if(getFocusKey()===txtChannel.guild.name+txtChannel.name){
+            socket.emit("typingStart",
+                JSON.stringify(
+                    {
+                        user:user.username,
+                        id:user.id,
+                        discriminator:user.discriminator
+                    }
+                )
+            )
+        }
+    }
+}
+
+export function handleTypingStop(channel:Channel, user:User, socket:Socket){
+    if(channel.type ==="text"){
+        let txtChannel = channel as TextChannel
+        if(getFocusKey()===txtChannel.guild.name+txtChannel.name){
+            socket.emit("typingStop",
+                JSON.stringify(
+                    {
+                        user:user.username,
+                        id:user.id,
+                        discriminator:user.discriminator
+                    }
+                )
+            )
+        }
+    }
 }

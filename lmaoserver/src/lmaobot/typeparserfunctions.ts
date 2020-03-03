@@ -103,7 +103,7 @@ export function parseNewMessage(message:Message): TypeMessage{
         hit:message.hit,
         nonce:message.nonce,
         newEmojis:undefined,
-        editted:false
+        edited:false
     })
 }
 
@@ -124,7 +124,7 @@ export function parseMessage(message:Message):TypeMessage{
         hit:message.hit,
         nonce:message.nonce,
         newEmojis:undefined,
-        editted:false,
+        edited:false,
     })
 }
 

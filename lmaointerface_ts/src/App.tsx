@@ -11,7 +11,7 @@ import axios from 'axios';
 import { TypeGuild, TypeEmoji, TypeMessage, 
     TypeTextChannel, TypeMessageUpdateData, 
     ChannelMap, EmojiMap, GuildMap, TypeGuildMember } from './types/lmaotypes';
-import { onMessageParseMessage } from './AppFunctions';
+import { onMessageParseMessage, handleBatchMessage } from './AppFunctions';
 import { AppType } from './types/lmao-react-types';
 import UserBar from './components/UserBar';
 
@@ -33,7 +33,10 @@ export default class App extends Component<{},AppType> {
         }
         this.onUpdateNotifications = 
             this.onUpdateNotifications.bind(this);
-        this.socket = socketIOClient(endpoint);
+        this.socket = socketIOClient(endpoint,{
+            reconnectionDelay:2000,
+            reconnectionAttempts:10
+        });
         this.onEmojis = this.onEmojis.bind(this);
         this.onReady = this.onReady.bind(this);
         this.onMessage = this.onMessage.bind(this);
@@ -43,8 +46,13 @@ export default class App extends Component<{},AppType> {
         this.onRequestMessages = this.onRequestMessages.bind(this);
   }
 
+  componentWillUnmount(){
+      this.socket.removeAllListeners();
+  }
+
   componentDidMount() {
         const  endpoint  = this.state.endpoint;
+
         this.socket.on("discordmessage", (message:string) => 
             this.onMessage(message));
         this.socket.on("error",(err:string)=> 
@@ -53,6 +61,10 @@ export default class App extends Component<{},AppType> {
             this.onMessageUpdate(data))
         this.socket.on("presenceUpdate",(newMemberData:string)=>
             this.onPresenceUpdate(newMemberData))
+        this.socket.on("emojiUpdate",(data:string)=>
+            this.setState({emojis:JSON.parse(data)}))
+        this.socket.on("batchMessages",(messages:string)=>
+            this.onBatchMessage(messages))
         axios.get(endpoint+"botguilds")
         .then((response)=>this.onReady(JSON.parse(response.data)))
         .then((_good)=>this.queryEmoji())
@@ -61,7 +73,16 @@ export default class App extends Component<{},AppType> {
     onPresenceUpdate(newMemberData: string) {
         const memberUpdated = JSON.parse(newMemberData) as TypeGuildMember;
         let {guildList} = this.state;
-        guildList[memberUpdated.guildName].users[memberUpdated.displayName] = memberUpdated
+        let userList = (guildList[memberUpdated.guildName] as TypeGuild).users
+        let toRemove = ""
+        Object.values(userList).forEach((user:TypeGuildMember)=>{
+            if(user.id===memberUpdated.id){
+                toRemove = user.displayName;
+            }
+        })
+        userList[toRemove]=undefined;
+        userList[memberUpdated.displayName] = memberUpdated;
+        guildList[memberUpdated.guildName].users = userList;
         this.setState({guildList:guildList});
     }
 
@@ -102,6 +123,7 @@ export default class App extends Component<{},AppType> {
             channelName: channelname,
             guildName: guildname,
         })
+        this.onUpdateChannelFocusForNotifications(guildname+channelname);
   }
 
   onSwitchChannel = (e:React.MouseEvent,newChannel:string) => {
@@ -109,7 +131,6 @@ export default class App extends Component<{},AppType> {
         if(messageNotifications[guildName+newChannel]>0){
                 messageNotifications[guildName+newChannel]=0;
         }
-        e.preventDefault()
         this.setState({
             messageNotifications:messageNotifications,
             channelName:newChannel
@@ -118,7 +139,6 @@ export default class App extends Component<{},AppType> {
   }
 
   onSwitchGuild = (e:React.MouseEvent,newGuild:string) => {
-        e.preventDefault()
         console.log("this is new guild:"+newGuild)
         this.setState({
             guildName:newGuild,
@@ -135,7 +155,11 @@ export default class App extends Component<{},AppType> {
         })
         let el = document.getElementById('message-table')
         el.scrollTop = el.scrollHeight;
+  }
 
+  onBatchMessage = (messages:string) => {
+        this.setState({guildList:handleBatchMessage(messages,this.state)})
+        
   }
 
   onSendMessage = (guildID:string, channelID:string, content:string) => {
@@ -189,15 +213,6 @@ export default class App extends Component<{},AppType> {
         this.socket.emit("notificationsUpdate", key)
   }
 
-  onInitializeNotifications = (data:string) => {
-        const _data = JSON.parse(data)
-        this.setState({
-            messageNotifications: _data.notifications,
-            guildName: _data.guild,
-            channelName: _data.channel
-        })
-  }
-
   render() {
       let channels:ChannelMap, messages:Array<TypeMessage>,
           emojis:EmojiMap, ready = this.state.isReady,
@@ -234,6 +249,7 @@ export default class App extends Component<{},AppType> {
                       onSwitchChannel={this.onSwitchChannel}
                       guildChannels={channels as Map<string,TypeTextChannel>}/>
                   <MessageList
+                      socket={this.socket}
                       requestMessages={this.onRequestMessages}
                       channelName={this.state.channelName}
                       guildName={this.state.guildName}

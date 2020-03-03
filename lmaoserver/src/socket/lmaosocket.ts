@@ -1,13 +1,16 @@
-import { Message, TextChannel } from 'discord.js';
+import { Message, TextChannel, Channel, User, Emoji } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { LmaoBot } from '../lmaobot/lmaobot'
 import 'discord.js';
 import http from 'http';
-import { parseNewMessage, parseGuildMember } from '../lmaobot/typeparserfunctions';
+import { parseNewMessage, parseGuildMember, convertDiscEmojiToTypeEmoji } from '../lmaobot/typeparserfunctions';
 import getLogger from '../logger';
-import { TypeMessageData, EmojiMap, TypePresence, TypeGuildMember, TypeEmoji } from '../types/lmaotypes'
-import { handleMessageUpdate, handleSendMessage, handleNotificationsUpdate, handleMessagesRequest } from './socketfunctions';
+import { TypeMessageData, EmojiMap, TypeEmoji } from '../types/lmaotypes'
+import { handleMessageUpdate, handleSendMessage,
+        handleNotificationsUpdate, handleMessagesRequest,
+        handleTypingStart, handleTypingStop } from './socketfunctions';
 import { setNewChannelFocus, updateEmojiMap } from '../index';
+import chalk from 'chalk';
 const logger = getLogger('DiscordBotSocket');
 
 export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
@@ -39,20 +42,31 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
                     socket.emit("presenceUpdate", JSON.stringify(parseGuildMember(newMember)))
                 })
 
-                bot.client.on("emojiCreate", (emoji)=>{
+                bot.client.on("typingStart",(channel:Channel, user:User) => {
+                    handleTypingStart(channel,user,socket);
+                })
+
+                bot.client.on("typingStop",(channel:Channel, user:User) => {
+                    handleTypingStop(channel,user,socket);
+                })
+
+                bot.client.on("emojiCreate", (emoji:Emoji)=>{
                     let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
-                    mojiMap[emoji.name]=emoji;
-                    updateEmojiMap(mojiMap);
+                    mojiMap[emoji.name]=convertDiscEmojiToTypeEmoji(emoji)
+                    mojiMap = updateEmojiMap(mojiMap);
+                    socket.emit("emojiUpdate",JSON.stringify(mojiMap));
                 })
 
                 socket.on('sendMessage', (messageData:TypeMessageData)=>
                     handleSendMessage(messageData,bot))
 
                 socket.on('notificationsUpdate', (key:string) => {
+                    logger.info(`Setting new channel focus to: ${chalk.yellow(key)}`)
                     handleNotificationsUpdate(key)
                 })
 
                 socket.on('channelFocus', (key:string) => {
+                    logger.info(`Setting new channel focus to: ${chalk.yellow(key)}`)
                     setNewChannelFocus(key)
                 })
 

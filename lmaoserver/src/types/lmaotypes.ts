@@ -13,7 +13,7 @@ export type TypeMessage = {
     nonce:string,
     type:string,
     hit:boolean
-    editted:undefined|boolean;
+    edited:undefined|boolean;
 }
 
 export type TypeEmoji = {
@@ -70,8 +70,15 @@ export type TypePresence ={
 		name: string,
 		streaming: boolean,
     },
-    status: 'online' | 'idle' | 'dnd' | 'offline' | 'invisible',
+    clientStatus: {
+        web?: UserStatus,
+        mobile?: UserStatus,
+        desktop?: UserStatus
+    }
+    status: UserStatus
 }
+
+export type UserStatus = 'online' | 'idle' | 'dnd' | 'offline' | 'invisible';
 
 export type TypeUser = {
     name:string,

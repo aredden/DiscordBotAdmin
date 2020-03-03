@@ -3,10 +3,13 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 export class LmaoBot{
+
     private token= process.env.DISCORD_TOKEN;
     public client:Client = new Client();
 
     public login = () =>{
-        this.client.login(this.token);
+
+        this.client.login(this.token).
+            then((_succeed)=>this.client.setMaxListeners(30));
     }
 }

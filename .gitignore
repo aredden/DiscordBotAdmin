@@ -6,4 +6,6 @@ logo*
 .env
 .eslintrc.json
 .jsbeautifyrc
-log
+log*
+*/commandsDB.json
+*/package-lock.json
