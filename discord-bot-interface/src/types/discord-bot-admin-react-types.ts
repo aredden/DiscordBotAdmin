@@ -1,4 +1,4 @@
-import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild, MemberMap } from "./discord-admin-types";
+import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild, MemberMap } from "./discord-bot-admin-types";
 
 
 export type TypeMessageClass = {

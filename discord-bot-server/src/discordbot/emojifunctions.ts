@@ -1,4 +1,4 @@
-import { TypeEmoji } from '../types/lmaotypes';
+import { TypeEmoji } from '../types/discord-bot-admin-types';
 import { Emoji, Collection } from 'discord.js';
 import { isNullOrUndefined } from 'util';
 import getLogger from '../logger';

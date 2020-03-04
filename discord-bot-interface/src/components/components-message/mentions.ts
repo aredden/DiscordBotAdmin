@@ -1,4 +1,4 @@
-import { TypeMessage, TypeGuildMember } from "../../types/discord-admin-types";
+import { TypeMessage, TypeGuildMember } from "../../types/discord-bot-admin-types";
 
 export function hasMentions(msg:TypeMessage):boolean{
     return msg.mentions ? msg.mentions.length>0 : false

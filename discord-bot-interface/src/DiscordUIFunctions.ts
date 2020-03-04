@@ -1,6 +1,6 @@
-import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap, MemberMap } from "./types/discord-admin-types";
+import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap, MemberMap } from "./types/discord-bot-admin-types";
 import moment from "moment";
-import { TypeDiscordUI } from "./types/discord-admin-react-types";
+import { TypeDiscordUI } from "./types/discord-bot-admin-react-types";
 
 /**
  * Function for preparing data pre-render.

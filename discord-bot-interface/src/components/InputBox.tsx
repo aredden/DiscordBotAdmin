@@ -1,6 +1,6 @@
 import React, { Component, ChangeEvent, FormEvent, MouseEvent } from 'react'
-import { EmojiMap, TypeEmoji } from '../types/discord-admin-types';
-import { TypeInputBox } from '../types/discord-admin-react-types';
+import { EmojiMap, TypeEmoji } from '../types/discord-bot-admin-types';
+import { TypeInputBox } from '../types/discord-bot-admin-react-types';
 import { Fade, Popper} from '@material-ui/core';
 import { isNullOrUndefined } from 'util';
 

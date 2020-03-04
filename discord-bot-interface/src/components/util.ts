@@ -1,4 +1,4 @@
-import { TypeUser, TypeMessage, TypeRole, TypeGuildMember } from "../types/discord-admin-types"
+import { TypeUser, TypeMessage, TypeRole, TypeGuildMember } from "../types/discord-bot-admin-types"
 
 export const buildDeadPerson = (user:TypeUser,msg:TypeMessage,guildName:string) =>{
     return({nickname:msg.author.name,

@@ -1,4 +1,4 @@
-import { TypeMessageAttachment, TypeMessage } from "../../../types/discord-admin-types";
+import { TypeMessageAttachment, TypeMessage } from "../../../types/discord-bot-admin-types";
 import React from 'react';
 
 

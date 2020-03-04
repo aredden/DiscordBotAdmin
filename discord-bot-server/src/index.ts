@@ -9,7 +9,7 @@ import getLogger from './logger';
 import DiscordBotSocketIo from './socket/lmaosocket';
 
 import { DiscordBot } from './discordbot/bot';
-import { TypeEmoji, EmojiMap, TypeGuild, TypeTextChannel } from './types/lmaotypes';
+import { TypeEmoji, EmojiMap, TypeGuild, TypeTextChannel } from './types/discord-bot-admin-types';
 import { parseEmojis, parseNewMessage, parseGuilds, parseTextChannel } from './discordbot/typeparserfunctions';
 import { TextChannel } from 'discord.js';
 import BotControl from './commands/command';

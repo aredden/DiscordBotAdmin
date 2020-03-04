@@ -3,7 +3,7 @@ import { Message, MessageAttachment, MessageEmbed,
          ChannelLogsQueryOptions, User } from "discord.js";
 import { Socket } from "socket.io";
 import { parseMessage, parseNewMessage, parseMessages } from "../discordbot/typeparserfunctions";
-import { TypeMessageData, TypeMessage } from "../types/lmaotypes";
+import { TypeMessageData, TypeMessage } from "../types/discord-bot-admin-types";
 import { DiscordBot } from "../discordbot/bot";
 import  getLogger  from "../logger";
 import { updateChannelNotifications, getFocusKey } from "../index";

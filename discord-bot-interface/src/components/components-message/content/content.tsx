@@ -1,4 +1,4 @@
-import { TypeEmoji } from "../../../types/discord-admin-types";
+import { TypeEmoji } from "../../../types/discord-bot-admin-types";
 import { isNullOrUndefined } from "util";
 
 function _stringSplitter(str:string):Array<string>{

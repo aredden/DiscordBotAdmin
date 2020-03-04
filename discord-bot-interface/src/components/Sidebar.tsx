@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { TypeGuild, TypeTextChannel } from '../types/discord-admin-types';
+import { TypeGuild, TypeTextChannel } from '../types/discord-bot-admin-types';
 
 type TypeSidebar = {
     notifications:Map<string,number>,

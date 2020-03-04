@@ -6,7 +6,7 @@ import http from 'http';
 import { parseNewMessage, parseGuildMember,
          convertDiscEmojiToTypeEmoji } from '../discordbot/typeparserfunctions';
 import getLogger from '../logger';
-import { TypeMessageData, EmojiMap, TypeEmoji } from '../types/lmaotypes'
+import { TypeMessageData, EmojiMap, TypeEmoji } from '../types/discord-bot-admin-types'
 import { handleMessageUpdate, handleSendMessage,
         handleNotificationsUpdate, handleMessagesRequest,
         handleTypingStart, handleTypingStop } from './socketfunctions';

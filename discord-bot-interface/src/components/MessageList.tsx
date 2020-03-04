@@ -3,7 +3,7 @@ import Message from './Message';
 import ErrorBoundary from './ErrorBoundary';
 import moment from 'moment';
 import InputBox from './InputBox';
-import { TypeMessageList } from '../types/discord-admin-react-types';
+import { TypeMessageList } from '../types/discord-bot-admin-react-types';
 import { buildDeadPerson } from './util';
 
 export const RequestMessageButton = ({requestMessages,channelID,guildID,messages}) => {

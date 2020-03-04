@@ -10,10 +10,10 @@ import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import { TypeGuild, TypeEmoji, TypeMessage, 
          TypeTextChannel, TypeMessageUpdateData, 
-         GuildMap, TypeGuildMember } from './types/discord-admin-types';
+         GuildMap, TypeGuildMember } from './types/discord-bot-admin-types';
 import { onMessageParseMessage, handleBatchMessage, 
          handleAppRender } from './DiscordUIFunctions';
-import { TypeDiscordUI } from './types/discord-admin-react-types';
+import { TypeDiscordUI } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
          Switch } from 'react-router-dom'

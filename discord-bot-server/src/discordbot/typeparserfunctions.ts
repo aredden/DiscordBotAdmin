@@ -8,7 +8,7 @@ import { Message, Collection, Guild,
 import getLogger from '../logger';
 import { getEmojiMap } from '../index';
 import { TypeGuild, TypeMessage, TypeGuildMember,
-         TypeRole, TypeTextChannel, TypePresence } from '../types/lmaotypes';
+         TypeRole, TypeTextChannel, TypePresence } from '../types/discord-bot-admin-types';
 import { isNull } from 'util';
 
 

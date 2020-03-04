@@ -1,5 +1,5 @@
 import React from 'react'
-import { TypeEmoji } from '../../types/discord-admin-types'
+import { TypeEmoji } from '../../types/discord-bot-admin-types'
 function Emoji(emoji:TypeEmoji) {
     const {
         name,

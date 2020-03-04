@@ -4,7 +4,7 @@ import { parseAllowLinks, parseEmbedTitle } from '../markdown';
 import { extractRGB } from '../color';
 import '../../../css/disc.css'
 import { parseForNewline } from '../regexfuncs';
-import { TypeMessageEmbedField, TypeEmbed, TypeUser } from '../../../types/discord-admin-types';
+import { TypeMessageEmbedField, TypeEmbed, TypeUser } from '../../../types/discord-bot-admin-types';
 
 const Link = ({ children, ...props}) => {
   return <a target='_blank' rel='noreferrer' {...props}>{children}</a>;

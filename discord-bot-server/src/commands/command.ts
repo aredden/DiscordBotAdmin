@@ -1,7 +1,7 @@
 import { DiscordBot } from '../discordbot/bot';
 import { Message } from 'discord.js';
 import getLogger from '../logger';
-import { TypeMessageData } from '../types/lmaotypes';
+import { TypeMessageData } from '../types/discord-bot-admin-types';
 import { readJSON } from 'fs-extra';
 import chalk from 'chalk';
 import { handleSendMessage } from '../socket/socketfunctions';

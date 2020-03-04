@@ -1,7 +1,7 @@
 
 
 import React, { Component } from 'react'
-import { TypeGuildMember } from '../types/discord-admin-types'
+import { TypeGuildMember } from '../types/discord-bot-admin-types'
 import moment from 'moment'
 import $ from "jquery"
 

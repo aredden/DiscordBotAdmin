@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { TypeMessage } from '../types/discord-admin-types';
+import { TypeMessage } from '../types/discord-bot-admin-types';
 import { hasContent } from './components-message/content/content';
 import  Embed  from './components-message/embed/embed'
 import { parseAllowLinks } from './components-message/markdown'
 import moment from 'moment';
 import Attatchments, { hasAttachment } from './components-message/attatchment/attatchment';
-import { TypeMessageClass } from '../types/discord-admin-react-types';
+import { TypeMessageClass } from '../types/discord-bot-admin-react-types';
 import { parseForNewline } from './components-message/regexfuncs';
 import { hasMentions, parseMentions } from './components-message/mentions';
 
