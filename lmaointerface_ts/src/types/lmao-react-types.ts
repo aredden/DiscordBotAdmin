@@ -38,5 +38,6 @@ export type AppType = {
     guildName:string,
     endpoint:string,
     emojis:Map<string,TypeEmoji>,
-    messageNotifications:Map<string,number>
+    messageNotifications:Map<string,number>,
+    requestedMessages:boolean
 }

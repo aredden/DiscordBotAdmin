@@ -1,5 +1,5 @@
 import { LmaoBot } from '../lmaobot/lmaobot';
-import { Message, User, Collection, GuildMember } from 'discord.js';
+import { Message } from 'discord.js';
 import getLogger from '../logger';
 import { TypeMessageData } from '../types/lmaotypes';
 import { readJSON } from 'fs-extra';

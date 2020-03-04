@@ -168,7 +168,7 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
                     anchorEl={document.getElementById('input-text-box')} 
                     placement="top-start" transition>
             {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={350}>
+                <Fade {...TransitionProps} timeout={1000}>
                 {EmojiNames(this.props.emojis,this.handleKeyboardEvent,this.props.onClickChoose)}
                 </Fade>
             )}

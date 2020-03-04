@@ -1,4 +1,4 @@
-import { Message, TextChannel, Channel, User, Emoji } from 'discord.js';
+import { Message, TextChannel, Channel, User, Emoji, GuildMember } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { LmaoBot } from '../lmaobot/lmaobot'
 import 'discord.js';
@@ -13,49 +13,55 @@ import { setNewChannelFocus, updateEmojiMap } from '../index';
 import chalk from 'chalk';
 const logger = getLogger('DiscordBotSocket');
 
+
+
+
 export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
     const startDate = Date.now()
     let io : socketio.Server;
     let interval:NodeJS.Timeout;
     io = socketio(server).json;
+
     bot.client.once('ready',()=>
         {
         logger.info('Bot ready')
         io.on('connection', (socket:Socket) => {
 
-                logger.info(`Client connected [id=${socket.id}]`);
 
-                if(interval){clearInterval(interval);}
-
-                bot.client.on('message', (msg : Message) =>{
+                const messageListener = (msg : Message) =>{
                     if(msg.channel instanceof TextChannel){
                         socket.emit('discordmessage', JSON.stringify(parseNewMessage(msg)));
                     }
-                })
-                bot.client.on('error', (err : Error) =>
-                    socket.emit('error', JSON.stringify(err)))
-
-                bot.client.on("messageUpdate", (oldMsg:Message,newMsg:Message)=>
-                    handleMessageUpdate(oldMsg,newMsg,socket,startDate))
-
-                bot.client.on("presenceUpdate", (oldMember,newMember)=>{
+                };
+                const errorListener = (err : Error) => socket.emit('error', JSON.stringify(err));
+                const messageUpdateListener =  (oldMsg:Message,newMsg:Message)=>
+                    handleMessageUpdate(oldMsg,newMsg,socket,startDate)
+                const presenceUpdateListener = (oldMember:GuildMember,newMember:GuildMember)=>{
                     socket.emit("presenceUpdate", JSON.stringify(parseGuildMember(newMember)))
-                })
-
-                bot.client.on("typingStart",(channel:Channel, user:User) => {
+                }
+                const typingStartListener = (channel:Channel, user:User) => {
                     handleTypingStart(channel,user,socket);
-                })
-
-                bot.client.on("typingStop",(channel:Channel, user:User) => {
+                }
+                const typingStopListener = (channel:Channel, user:User) => {
                     handleTypingStop(channel,user,socket);
-                })
-
-                bot.client.on("emojiCreate", (emoji:Emoji)=>{
+                }
+                const emojiCreateListener = (emoji:Emoji)=>{
                     let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
                     mojiMap[emoji.name]=convertDiscEmojiToTypeEmoji(emoji)
                     mojiMap = updateEmojiMap(mojiMap);
                     socket.emit("emojiUpdate",JSON.stringify(mojiMap));
-                })
+                }
+                logger.info(`Client connected [id=${socket.id}]`);
+
+                if(interval){clearInterval(interval);}
+
+                bot.client.on('message',messageListener)
+                bot.client.on('error', errorListener)
+                bot.client.on("messageUpdate", messageUpdateListener)
+                bot.client.on("presenceUpdate", presenceUpdateListener)
+                bot.client.on("typingStart",typingStartListener)
+                bot.client.on("typingStop",typingStopListener)
+                bot.client.on("emojiCreate", emojiCreateListener)
 
                 socket.on('sendMessage', (messageData:TypeMessageData)=>
                     handleSendMessage(messageData,bot))
@@ -75,10 +81,23 @@ export default function lmaoSocket(bot:LmaoBot,server:http.Server) {
                     handleMessagesRequest(data.guildID,data.channelID,data.lastMessage,socket)
                 })
 
+                socket.on("killingSocket", ()=>{
+                    logger.info("Killing socket")
+                    socket.removeAllListeners();
+                })
+
                 socket.on('disconnect', () => {
+                    bot.client.removeListener('message',messageListener)
+                    bot.client.removeListener('error', errorListener)
+                    bot.client.removeListener("messageUpdate", messageUpdateListener)
+                    bot.client.removeListener("presenceUpdate", presenceUpdateListener)
+                    bot.client.removeListener("typingStart", typingStartListener)
+                    bot.client.removeListener("typingStop", typingStopListener)
+                    bot.client.removeListener("emojiCreate", emojiCreateListener)
                     logger.info('Client disconnected');
                     socket.removeAllListeners();
                 });
+
             });
         }
     )

@@ -6,7 +6,10 @@ export default function getLogger(clazz:string):Logger{
     return winston.createLogger({
         transports: [
             new winston.transports.Console(),
-            new winston.transports.File({ filename: `log-${moment().format('llll')}` }),
+            new winston.transports.File({
+                filename: `log-${moment().format('MM.DD.YY_hh-mm-ss')}.log`,
+                dirname:  `./logs`
+            }),
         ],
         format: winston.format.printf(log => {
             const level = log.level;

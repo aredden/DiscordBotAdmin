@@ -8,6 +8,7 @@ import { Message, Collection, Guild,
 import getLogger from '../logger';
 import { getEmojiMap } from '../index';
 import { TypeGuild, TypeMessage, TypeGuildMember, TypeRole, TypeTextChannel, TypePresence } from '../types/lmaotypes';
+import { isNull } from 'util';
 
 
 const logger = getLogger('LmaoBotParsingFunctions')
@@ -110,7 +111,7 @@ export function parseNewMessage(message:Message): TypeMessage{
 export function parseMessage(message:Message):TypeMessage{
     const txtchannel = message.channel as TextChannel;
     return({
-        member:parseGuildMember(message.member),
+        member:message.member&&parseGuildMember(message.member),
         author:parseUser(message.author),
         channel:txtchannel.name,
         content:message.content,
@@ -147,7 +148,7 @@ export function parseGuildMembers(members:Collection<string,GuildMember>):Map<st
 
 export function parseGuildMember(member:GuildMember):TypeGuildMember{
     return({
-        nickname:member.nickname,
+        nickname:!isNull(member.nickname)?member.nickname:"",
         id:member.id,
         user:parseUser(member.user),
         roles:parseRoles(member.roles),

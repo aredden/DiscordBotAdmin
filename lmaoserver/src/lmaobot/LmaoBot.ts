@@ -7,9 +7,7 @@ export class LmaoBot{
     private token= process.env.DISCORD_TOKEN;
     public client:Client = new Client();
 
-    public login = () =>{
-
-        this.client.login(this.token).
-            then((_succeed)=>this.client.setMaxListeners(30));
+    public login = () => {
+        this.client.login(this.token).then((_succeed:string)=>{this.client = this.client.setMaxListeners(30)});
     }
 }

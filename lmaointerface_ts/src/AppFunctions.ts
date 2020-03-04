@@ -1,4 +1,4 @@
-import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap } from "./types/lmaotypes";
+import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap, MemberMap } from "./types/lmaotypes";
 import moment from "moment";
 
 type AppType = {
@@ -10,6 +10,30 @@ type AppType = {
     endpoint:string,
     emojis:EmojiMap,
     messageNotifications:Map<string,number>
+}
+
+export const handleAppRender = (state:AppType) => {
+    
+    let {guildList , guildName, channelName } = state;
+    let guildID:string, channelID:string, 
+        members:MemberMap, channels:ChannelMap,
+        messages:Array<TypeMessage>
+    if(Object.values(guildList).length > 0){
+        channels = (guildList[guildName] as TypeGuild).channels;
+        messages = (channels[channelName] as TypeTextChannel).messages;
+        if(messages.length>35){
+            let start = messages.length-35
+            let newMessages:Array<TypeMessage> = [];
+            for(start;start<messages.length;start++){
+            newMessages.push(messages[start])
+            }
+            messages = newMessages;
+        }
+        members = guildList[guildName].users;
+        guildID = guildList[guildName].id;
+        channelID = guildList[guildName].channels[channelName].id;
+    }
+    return({guildID, channelID, messages, channels, members})
 }
 
 export function onMessageParseMessage(message:string, state:AppType){
@@ -44,8 +68,9 @@ export const handleBatchMessage = (data:string, state:AppType) => {
     const tempGuild = guildList[msgs[0].guild] as TypeGuild;
     const channels = tempGuild.channels as ChannelMap;
     let channel = channels[msgs[0].channel] as TypeTextChannel
-    for(let msg of msgs){        
+    for(let msg of msgs){     
         channel.messages.push(msg);
+
         if(channel.name !== channelName){
             messageNotifications[msg.guild+channel.name]+=1
         }

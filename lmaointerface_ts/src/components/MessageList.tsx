@@ -4,6 +4,7 @@ import ErrorBoundary from './ErrorBoundary';
 import moment from 'moment';
 import InputBox from './InputBox';
 import { TypeMessageList } from '../types/lmao-react-types';
+import { buildDeadPerson } from './util';
 
 export const RequestMessageButton = ({requestMessages,channelID,guildID,messages}) => {
     return (
@@ -83,7 +84,7 @@ export default class MessageList extends Component <TypeMessageList,{typing:Arra
         let {messages, emojis, guildID, channelID, sendFunction, requestMessages, guildName, channelName} = this.props;
         let {typing} = this.state;
         return (
-            <div className="messagelist-spacing col-md-8">
+            <div className="messagelist-spacing flex-column col-md-8">
                 <div className="p-2 d-flex align-items-end">
                     <h2 className="d-inline-flex justify-content-start align-items-end ml-5">{guildName}</h2>
                     <h4 className="d-inline-flex justify-content-start align-items-end mr-3">&nbsp;&nbsp;#{channelName}</h4>
@@ -94,8 +95,11 @@ export default class MessageList extends Component <TypeMessageList,{typing:Arra
                         <tbody>
                             {messages ? 
                                 messages
-                                .sort((a,b)=>(moment(a.createdAt).unix()-moment(b.createdAt).unix()))
+                                .sort((a,b)=>(moment(a.createdAt).valueOf()-moment(b.createdAt).valueOf()))
                                 .map((msg, idx) => {
+                                    if(!msg.member){
+                                        msg.member = buildDeadPerson(msg.author,msg,guildName)
+                                    }
                                     return (
                                         <ErrorBoundary key={`errorboundary-${idx}`}>
                                             <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>

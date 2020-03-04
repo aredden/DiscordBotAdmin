@@ -6,6 +6,11 @@ logo*
 .env
 .eslintrc.json
 .jsbeautifyrc
-log*
+log
+log-*
 */commandsDB.json
 */package-lock.json
+lmaoserver/logs
+lmaoserver/src/commandsDB.json
+lmaoserver/package-lock.json
+lmaointerface_ts/package-lock.json
