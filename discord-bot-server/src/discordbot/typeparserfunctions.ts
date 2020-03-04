@@ -11,7 +11,6 @@ import { TypeGuild, TypeMessage, TypeGuildMember,
          TypeRole, TypeTextChannel, TypePresence } from '../types/discord-bot-admin-types';
 import { isNull } from 'util';
 
-
 const logger = getLogger('BotParsingFunctions')
 
 export function parseGuilds(guilds:Collection<string,Guild>):Map<string,TypeGuild>{
@@ -68,6 +67,7 @@ export function parseMessages(messages: Collection<string,Message>):TypeMessage[
     messages.forEach((message)=>{
         messageMap.push(parseMessage(message));
     })
+    messageMap.sort((a,b)=>b.createdAt.getTime()-a.createdAt.getTime())
     if(messageMap.length>30){
         const length = messageMap.length;
         messageMap = messageMap.filter((_message,idx)=>{

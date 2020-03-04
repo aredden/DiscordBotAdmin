@@ -84,7 +84,7 @@ export default class MessageList extends Component <TypeMessageList,{typing:Arra
         let {messages, emojis, guildID, channelID, sendFunction, requestMessages, guildName, channelName} = this.props;
         let {typing} = this.state;
         return (
-            <div className="messagelist-spacing flex-column col-md-8">
+            <div className="messagelist-spacing flex-column col-md-8 bg-light" style={{paddingLeft:'2rem',paddingRight:'1rem'}}>
                 <div className="p-2 d-flex align-items-end">
                     <h2 className="d-inline-flex justify-content-start align-items-end ml-5">{guildName}</h2>
                     <h4 className="d-inline-flex justify-content-start align-items-end mr-3">&nbsp;&nbsp;#{channelName}</h4>

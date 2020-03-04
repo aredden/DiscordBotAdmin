@@ -24,7 +24,7 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
             loginText = "Not Logged In"
         }
         return (
-            <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+            <nav className="col-lg-2 shadow-lg navbar navbar-nav navbar-dark bg-dark sidebar">
                 <div className="sidebar-sticky">
                     <ul className="nav flex-column">
                         <li className="nav-item">
@@ -44,12 +44,12 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                         </li>
                         { guildList ? Object.values(guildList).map((guild) => {
                             return (
-                                <li className="nav-item d-flex btn btn-light text-bold btn btn-light d-flex justify-content-start" key={guild.id}>
+                                <li className="nav-item d-flex btn btn-light text-bold btn btn-dark d-flex justify-content-start" key={guild.id}>
                                     <div className="nav-link " 
                                     onClick={(e)=>onSwitchGuild(e,guild.name)} key={guild.id}>
                                         <span data-feather="file" 
                                               key={guild.id}>
-                                            <div className="display-block m-1 text-truncate">
+                                            <div className="display-block m-1 text-truncate text-white">
                                                 {guild.name}
                                             </div>
                                         </span>
@@ -67,13 +67,13 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                     <ul className="nav flex-column mb-2">
                         { guildChannels ? Object.values(guildChannels).map((channel) => {
                             let num = notifications[guildName+channel.name]
-                                return <li className="nav-item d-flex justify-content-start btn btn-light" 
+                                return <li className="nav-item d-flex justify-content-start btn btn-dark" 
                                            key={channel.id}>
                                     <div className="nav-link"
                                          onClick={(e)=>onSwitchChannel(e,channel.name)}
                                          key={channel.id}>
                                         <div className="d-flex display-inline">
-                                            <div className="text-truncate" style={{maxWidth:"9rem"}}>
+                                            <div className="text-truncate text-white" style={{fontSize:16 ,maxWidth:"9rem"}}>
                                                 { channel.name }
                                             </div>
                                             &nbsp;

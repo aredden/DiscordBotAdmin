@@ -270,7 +270,7 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         <Router>
             <div className="App">
                 <Nav/>
-                <div className="row">
+                <div className="row bg-light">
                         <SideBar {...sideBarProps}/>
                         <Switch>
                                 <Route exact path="/">

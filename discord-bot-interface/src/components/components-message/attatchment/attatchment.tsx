@@ -5,7 +5,7 @@ import React from 'react';
 const Video = (video:TypeMessageAttachment) => {
     const height = video.height<300 ? video.height : 300
     return(
-        <embed src={video.proxyURL} width="540" height={height.toString()}></embed>
+        <iframe title={video.filename} src={video.proxyURL} width={450} height={height}></iframe>
     )
 }
 

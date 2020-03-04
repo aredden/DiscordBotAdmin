@@ -1,9 +1,11 @@
 import React from 'react';
-import SimpleMarkdown from 'simple-markdown';
+import { parserFor as mkdn_parserFor, 
+         defaultRules, inlineRegex, 
+         // @ts-ignore
+         sanitizeUrl, reactFor, ruleOutput} from 'simple-markdown';
 import hljs from 'highlight.js';
 import Twemoji from 'twemoji';
 import Emoji from './constants/emoji';
-
 
 // this is mostly translated from discord's client,
 // although it's not 1:1 since the client js is minified
@@ -33,7 +35,7 @@ function flattenAst(node, parent) {
   return node;
 }
 
-function astToString(node) {
+function astToString(node,result?) {
   function inner(node, result=[]) {
     if (Array.isArray(node)) {
       node.forEach(subNode => astToString(subNode, result));
@@ -49,15 +51,17 @@ function astToString(node) {
   return inner(node).join('');
 }
 
-function parserFor(rules, returnAst) {
-  const parser = SimpleMarkdown.parserFor(rules);
-  const renderer = SimpleMarkdown.reactFor(SimpleMarkdown.ruleOutput(rules, 'react'));
+function parserFor(rules, returnAst?) {
+  const parser = mkdn_parserFor(rules);
+  // @ts-ignore
+  const renderer = reactFor(ruleOutput(rules, 'react'));
   return function(input='', inline=true, state={}, transform=null) {
     if (!inline) {
       input += '\n\n';
     }
 
     let ast = parser(input, { inline, ...state });
+    // @ts-ignore
     ast = flattenAst(ast);
     if (transform) {
       ast = transform(ast);
@@ -164,7 +168,7 @@ function translateSurrogatesToInlineEmoji(surrogates) {
 
 const baseRules = {
   newline: {
-    order: SimpleMarkdown.defaultRules.newline.order-5,
+    order: defaultRules.newline.order-5,
     match: function(source){
       let regExp = new RegExp('^\\+\\+NEWLINE\\+\\+')
       let array = regExp.exec(source)
@@ -177,42 +181,42 @@ const baseRules = {
       return <br/>
     }
   },
-  paragraph: SimpleMarkdown.defaultRules.paragraph,
-  escape: SimpleMarkdown.defaultRules.escape,
-  link: SimpleMarkdown.defaultRules.link,
+  paragraph: defaultRules.paragraph,
+  escape: defaultRules.escape,
+  link: defaultRules.link,
   autolink: {
-    ...SimpleMarkdown.defaultRules.autolink,
-    match: SimpleMarkdown.inlineRegex(/^<(https?:\/\/[^ >]+)>/),
+    ...defaultRules.autolink,
+    match: inlineRegex(/^<(https?:\/\/[^ >]+)>/),
     
   },
-  url: SimpleMarkdown.defaultRules.url,
-  strong: SimpleMarkdown.defaultRules.strong,
-  em: SimpleMarkdown.defaultRules.em,
-  u: SimpleMarkdown.defaultRules.u,
-  br: SimpleMarkdown.defaultRules.br,
-  inlineCode: SimpleMarkdown.defaultRules.inlineCode,
+  url: defaultRules.url,
+  strong: defaultRules.strong,
+  em: defaultRules.em,
+  u: defaultRules.u,
+  br: defaultRules.br,
+  inlineCode: defaultRules.inlineCode,
   emoticon: {
-    order: SimpleMarkdown.defaultRules.text.order,
-    match: function(source) {
+    order: defaultRules.text.order,
+    match: function(source: string) {
       return /^(¯\\_\(ツ\)_\/¯)/.exec(source);
     },
-    parse: function(capture) {
+    parse: function(capture: any[]) {
       return { type: 'text', content: capture[1] };
     }
   },
   codeBlock: {
-    order: SimpleMarkdown.defaultRules.codeBlock.order,
-    match(source) {
+    order: defaultRules.codeBlock.order,
+    match(source: string) {
       //eslint-disable-next-line
       let val = /^```(([A-z0-9\-]+?)\n+)?\n*([^]+?)\n*```/.exec(source);
       return val;
     },
-    parse(capture) {
+    parse(capture: any[]) {
       return { lang: (capture[2] || '').trim(), content: capture[3] || '' };
     }
   },
   emoji: {
-    order: SimpleMarkdown.defaultRules.text.order,
+    order: defaultRules.text.order,
     match(source) {
       return EMOJI_NAME_AND_DIVERSITY_RE.exec(source);
     },
@@ -246,7 +250,7 @@ const baseRules = {
     }
   },
   customEmoji: {
-    order: SimpleMarkdown.defaultRules.text.order,
+    order: defaultRules.text.order,
     match(source) {
       return /^<a*:(\w+):(\d+)>/.exec(source);
     },
@@ -280,7 +284,7 @@ const baseRules = {
     }
   },
   text: {
-    ...SimpleMarkdown.defaultRules.text,
+    ...defaultRules.text,
     parse(capture, recurseParse, state) {
       return state.nested ? {
         content: capture[0]
@@ -291,9 +295,9 @@ const baseRules = {
     }
   },
   s: {
-    order: SimpleMarkdown.defaultRules.u.order,
-    match: SimpleMarkdown.inlineRegex(/^~~([\s\S]+?)~~(?!_)/),
-    parse: SimpleMarkdown.defaultRules.u.parse
+    order: defaultRules.u.order,
+    match: inlineRegex(/^~~([\s\S]+?)~~(?!_)/),
+    parse: defaultRules.u.parse
   },
   newLine: {
 
@@ -318,7 +322,7 @@ function createRules(r) {
     ...r,
     s: {
       order: r.u.order,
-      match: SimpleMarkdown.inlineRegex(/^~~([\s\S]+?)~~(?!_)/),
+      match: inlineRegex(/^~~([\s\S]+?)~~(?!_)/),
       parse: r.u.parse,
       react(node, recurseOutput, state) {
         return <s key={state.key}>{recurseOutput(node.content, state)}</s>;
@@ -332,7 +336,7 @@ function createRules(r) {
     },
     url: {
       ...url,
-      match: SimpleMarkdown.inlineRegex(/^((https?|steam):\/\/[^\s<]+[^<.,:;"')\]\s])/)
+      match: inlineRegex(/^((https?|steam):\/\/[^\s<]+[^<.,:;"')\]\s])/)
     },
     link: {
       ...link,
@@ -345,7 +349,7 @@ function createRules(r) {
         return (
           <a
             title={title}
-            href={SimpleMarkdown.sanitizeUrl(node.target)}
+            href={sanitizeUrl(node.target)}
             target='_blank'
             rel='noopener noreferrer'
             key={state.key}

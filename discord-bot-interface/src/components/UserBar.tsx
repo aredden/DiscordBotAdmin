@@ -11,7 +11,7 @@ type TypeUserBar = {
 
 type MemberMap = Map<string,TypeGuildMember>
 
-const statusStyle = {marginTop:"1rem",marginBottom:"1rem",marginLeft:"2rem"};
+const statusStyle = {paddingTop:"1rem",paddingBottom:"1rem",paddingLeft:"2rem"};
 
 export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGuildMember}> {
     constructor(props:TypeUserBar){
@@ -37,12 +37,15 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
         })
 
         return (
-                <div className="col-md-2">
+                <div className="col-md-2" >
                     <UserModal member={this.state.selectedUser}></UserModal> 
-                <nav className="userbar d-md-block bg-light">
+                <nav className="userbar d-md-block bg-light" style={{borderLeft:"1px solid rgb(0,0,0,.1)"}}>
                     <div className="userbar-sticky">
                         <ul className="nav flex-column">
-                            <h5 style={statusStyle}><strong >Online</strong></h5>
+                            <li>
+                                <div style={{paddingTop:'.5rem', paddingLeft:'3rem', fontWeight:'bold'}}>Online</div>
+                                <hr/>
+                            </li>
                             {
                                 members ? online
                                 .sort((
@@ -53,7 +56,11 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
                                     return(Member(member,this.handleSelectUser))
                                 }):"Guild has no members"
                             }
-                            <h5 style={statusStyle}><strong>Offline</strong></h5>
+                            <li>
+                                <hr/>
+                                <div style={{paddingTop:'.5rem', paddingLeft:'3rem', fontWeight:'bold'}}>Offline</div>
+                                <hr/>
+                            </li>
                             {
                                 members ? offline
                                 .sort((
