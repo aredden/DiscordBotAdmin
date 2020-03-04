@@ -1,8 +1,8 @@
 node_modules
 logo*
-/lmaoserver/dist
+/discord-bot-server/dist
 .vscode
-/lmaoserver/tslint.exclude
+/discord-bot-server/tslint.exclude
 .env
 .eslintrc.json
 .jsbeautifyrc
@@ -10,7 +10,7 @@ log
 log-*
 */commandsDB.json
 */package-lock.json
-lmaoserver/logs
-lmaoserver/src/commandsDB.json
-lmaoserver/package-lock.json
-lmaointerface_ts/package-lock.json
+discord-bot-server/logs
+discord-bot-server/src/commandsDB.json
+discord-bot-server/package-lock.json
+discord-bot-interface/package-lock.json
