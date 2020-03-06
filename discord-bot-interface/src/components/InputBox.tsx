@@ -87,7 +87,7 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
         return (
                 <form className="input-group mb-3" onSubmit={(e)=>this.handleSubmit(e)}>
                     <input type="text" 
-                        className="form-control" 
+                        className="form-control bg-light" 
                         placeholder="Message" 
                         aria-label="Message"
                         id="input-text-box"
@@ -168,7 +168,7 @@ class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{
                     anchorEl={document.getElementById('input-text-box')} 
                     placement="top-start" transition>
             {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={1000}>
+                <Fade {...TransitionProps} timeout={350}>
                 {EmojiNames(this.props.emojis,this.handleKeyboardEvent,this.props.onClickChoose)}
                 </Fade>
             )}
@@ -211,7 +211,7 @@ function EmojiChooser({emojis,onChoose}) {
 
     return (
       <div className="input-group-append">
-        <button className="btn btn-outline-info" aria-describedby={id} type="button" onClick={handleClick}>
+        <button className="btn btn-outline-dark" aria-describedby={id} type="button" onClick={handleClick}>
           Emojis
         </button>
         <Popper className="row-sm-1 card bg-secondary p-1" id={id} open={open} anchorEl={anchorEl} placement="top" transition>

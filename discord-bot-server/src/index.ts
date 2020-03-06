@@ -6,7 +6,7 @@ import chalk from 'chalk';
 
 import router from './routes/index';
 import getLogger from './logger';
-import DiscordBotSocketIo from './socket/lmaosocket';
+import DiscordBotSocketIo from './socket/botsocket';
 
 import { DiscordBot } from './discordbot/bot';
 import { TypeEmoji, EmojiMap, TypeGuild, TypeTextChannel } from './types/discord-bot-admin-types';
@@ -28,8 +28,16 @@ let CHANNEL_NOTIFICATIONS:Map<string,number> = new Map<string,number>();
 let GUILD_DATA:Map<string,TypeGuild> = new Map<string,TypeGuild>();
 let KEY_FOCUS:string = "";
 // Function for updating EmojiMap w/ list of new Emojis.
-export function updateEmojiMap(emojis:Map<string,TypeEmoji>){
+
+export function updateEmojiMap(emojis:Map<string,TypeEmoji>,toRemove?:Map<string,TypeEmoji>){
     logger.info(chalk.yellow('ATTEMPTING TO UPDATE EMOJIS:')+JSON.stringify(emojis,null,1))
+    if(toRemove){
+        toRemove.forEach((_emoji,name)=>{
+            if(EMOJIS_MAP[name]){
+                EMOJIS_MAP[name]=undefined;
+            }
+        })
+    }
     if(emojis){
         emojis.forEach((emoji,name)=>{
             if(!EMOJIS_MAP[name]){
@@ -73,6 +81,10 @@ export function getFocusKey(){
 export function setNewChannelFocus(key:string){
     KEY_FOCUS = key;
     CHANNEL_NOTIFICATIONS[key]=0;
+}
+
+export function getCommands(){
+    return COMMAND.getCommands();
 }
 
 bot.client.once('ready',()=>{

@@ -1,16 +1,13 @@
 import React, { Component } from 'react'
-import Message from './Message';
-import ErrorBoundary from './ErrorBoundary';
-import moment from 'moment';
 import InputBox from './InputBox';
 import { TypeMessageList } from '../types/discord-bot-admin-react-types';
-import { buildDeadPerson } from './util';
+import MessageGroups from './MessageGroups';
 
 export const RequestMessageButton = ({requestMessages,channelID,guildID,messages}) => {
     return (
         <button 
         tabIndex={-1}
-        className="ml-3 d-flex justify-content-end align-items-start btn btn-sm btn-outline-primary"
+        className="ml-3 btn btn-sm btn-outline-primary"
         style={{marginBottom:".4rem"}}
         onClick={(e)=>
                 requestMessages(
@@ -84,30 +81,15 @@ export default class MessageList extends Component <TypeMessageList,{typing:Arra
         let {messages, emojis, guildID, channelID, sendFunction, requestMessages, guildName, channelName} = this.props;
         let {typing} = this.state;
         return (
-            <div className="messagelist-spacing flex-column col-md-8 bg-light" style={{paddingLeft:'2rem',paddingRight:'1rem'}}>
-                <div className="p-2 d-flex align-items-end">
-                    <h2 className="d-inline-flex justify-content-start align-items-end ml-5">{guildName}</h2>
-                    <h4 className="d-inline-flex justify-content-start align-items-end mr-3">&nbsp;&nbsp;#{channelName}</h4>
-                    <RequestMessageButton {...{requestMessages,channelID,guildID,messages}}/>
+            <div className="messagelist-spacing flex-column col-md-8" style={{ msScrollbarBaseColor:"#F0F0F0", backgroundColor:'#F0F0F0',paddingLeft:'2rem',paddingRight:'1rem'}}>
+                <div className="p-3 d-flex align-items-end">
+                    <h2 className="ml-3">{guildName}</h2>
+                    <h4 className="ml-3">#{channelName}</h4>
+                    <div className="ml-auto mr-3"><RequestMessageButton {...{requestMessages,channelID,guildID,messages}}/></div>
                 </div>
-                <div id="message-table" className="table-responsive messagelist-table overflow-auto">
+                <div id="message-table" className="table-responsive messagelist-table overflow-auto" style={{ scrollbarColor:'#0f0f0f'}}>
                     <table className="table table-sm">
-                        <tbody>
-                            {messages ? 
-                                messages
-                                .sort((a,b)=>(moment(a.createdAt).valueOf()-moment(b.createdAt).valueOf()))
-                                .map((msg, idx) => {
-                                    if(!msg.member){
-                                        msg.member = buildDeadPerson(msg.author,msg,guildName)
-                                    }
-                                    return (
-                                        <ErrorBoundary key={`errorboundary-${idx}`}>
-                                            <Message emojis={emojis} message={msg} key={msg.id + "-" + moment().unix()}/>
-                                        </ErrorBoundary>
-                                    )
-                                })
-                                : <tr/>}
-                        </tbody>
+                        <MessageGroups {...{guildName,emojis,messages}}/>
                     </table>
                 </div>
                 <InputBox socket={this.props.socket} sendFunction={sendFunction} guildID={guildID} channelID={channelID} emojis={emojis}/>

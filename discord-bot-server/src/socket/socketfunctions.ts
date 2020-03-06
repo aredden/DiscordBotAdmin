@@ -2,7 +2,7 @@ import { Message, MessageAttachment, MessageEmbed,
          TextChannel, Guild, Channel,
          ChannelLogsQueryOptions, User } from "discord.js";
 import { Socket } from "socket.io";
-import { parseMessage, parseNewMessage, parseMessages } from "../discordbot/typeparserfunctions";
+import { parseMessage, parseNewMessage, parseMessages, parseTextChannel } from "../discordbot/typeparserfunctions";
 import { TypeMessageData, TypeMessage } from "../types/discord-bot-admin-types";
 import { DiscordBot } from "../discordbot/bot";
 import  getLogger  from "../logger";
@@ -107,3 +107,15 @@ export function handleTypingStop(channel:Channel, user:User, socket:Socket){
         }
     }
 }
+
+export const handleChannelUpdate = (channel:Channel,sock:Socket) => {
+    if(channel.type === 'text'){
+        let txtChannel = channel as TextChannel
+        let parsedTextChannel = parseTextChannel(txtChannel);
+        sock.emit("channelUpdate",JSON.stringify({
+            channel:parsedTextChannel,
+            guild:txtChannel.guild.name,
+            id:txtChannel.id
+        }))
+    }
+ }

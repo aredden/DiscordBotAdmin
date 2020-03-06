@@ -5,8 +5,8 @@ export default class Nav extends Component {
 
     render() {
         return (
-            <ul className="nav navbar-dark bg-dark fixed-top p-0 shadow">
-                <Link to="/" className="navbar-brand col-md-2">LmaoBot.js</Link>
+            <ul className="nav navbar-default navbar-dark bg-dark d-flex fixed-top shadow">
+                <Link to="/" className="navbar-brand col-md-2 pl-4 mr-0">LmaoBot.js</Link>
                 <li className="nav-item">
                     <Link to="/commands" className="nav-link text-white" >Commands</Link>
                 </li>

@@ -12,7 +12,8 @@ import { TypeGuild, TypeEmoji, TypeMessage,
          TypeTextChannel, TypeMessageUpdateData, 
          GuildMap, TypeGuildMember } from './types/discord-bot-admin-types';
 import { onMessageParseMessage, handleBatchMessage, 
-         handleAppRender } from './DiscordUIFunctions';
+         handleAppRender, 
+         createNewChannelsMap} from './DiscordUIFunctions';
 import { TypeDiscordUI } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
@@ -49,15 +50,15 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         this.onSwitchChannel = this.onSwitchChannel.bind(this);
         this.onSwitchGuild = this.onSwitchGuild.bind(this);
         this.onRequestMessages = this.onRequestMessages.bind(this);
-  }
+    }
 
-  componentWillUnmount(){
-      this.socket.emit("killingSocket");
-      this.socket.removeAllListeners();
-  }
+    componentWillUnmount(){
+        this.socket.emit("killingSocket");
+        this.socket.removeAllListeners();
+    }
 
-  componentDidMount() {
-        const  endpoint  = this.state.endpoint;
+    componentDidMount() {
+        const {endpoint, guildList} = this.state;
 
         this.socket.on("discordmessage",(message:string)=> 
             this.onMessage(message));
@@ -69,36 +70,58 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             this.onPresenceUpdate(newMemberData))
         this.socket.on("emojiUpdate",(data:string)=>
             this.setState({emojis:JSON.parse(data)}))
+        this.socket.on("memberUpdate",(data:string)=>{
+            let memberData = JSON.parse(data)
+            guildList[memberData.guild].users = memberData.members
+            this.setState({guildList:guildList})})
+        this.socket.on("channelUpdate", (data:string) => {
+            this.onChannelUpdate(data)})
+        this.socket.on("channelDelete", (data:string) => {
+            this.onChannelDelete(data)})
         this.socket.on("batchMessages",(messages:string)=>
-            this.onBatchMessage(messages))
+        this.onBatchMessage(messages))
 
         axios.get(endpoint+"botguilds")
         .then((response)=>this.onReady(JSON.parse(response.data)))
         .then((_good)=>this.queryEmoji())
-  }
+    }
+
+    onChannelDelete(data:string){
+        let {id, guild} = JSON.parse(data)
+        let {guildList} = this.state;
+        let channelMap = guildList[guild].channels;
+        guildList[guild].channels = createNewChannelsMap(channelMap,id)
+        this.setState({guildList:guildList})
+    }
+
+    onChannelUpdate(data:string){
+        let {channel, id, guild} = JSON.parse(data)
+        let {guildList} = this.state;
+        let channelMap = guildList[guild].channels;
+        guildList[guild].channels = createNewChannelsMap(channelMap,id,channel)
+        this.setState({guildList:guildList})
+    }
 
     onPresenceUpdate(newMemberData: string) {
         const memberUpdated = JSON.parse(newMemberData) as TypeGuildMember;
         let {guildList} = this.state;
         let userList = (guildList[memberUpdated.guildName] as TypeGuild).users
-        let toRemove = ""
         Object.values(userList).forEach((user:TypeGuildMember)=>{
             if(user.id===memberUpdated.id){
-                toRemove = user.displayName;
+                userList[memberUpdated.displayName]=undefined
             }
         })
-        userList[toRemove]=undefined;
         userList[memberUpdated.displayName] = memberUpdated;
         guildList[memberUpdated.guildName].users = userList;
         this.setState({guildList:guildList});
     }
 
-  queryEmoji(){
-        axios.get(this.state.endpoint+"emojis")
-        .then(response=>this.onEmojis(response.data))
-  }
+    queryEmoji(){
+            axios.get(this.state.endpoint+"emojis")
+            .then(response=>this.onEmojis(response.data))
+    }
 
-  onEmojis(emojiData:Map<string,TypeEmoji>) {
+    onEmojis(emojiData:Map<string,TypeEmoji>) {
         if(this.state.emojis.size>0){
             let {emojis} = this.state;
             emojiData.forEach((emoji, name)=>{
@@ -108,14 +131,14 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             })
             this.setState({emojis:emojis});
         }else this.setState({emojis:emojiData})
-  }
+    }
 
-  onReady = (data:{guilds:GuildMap, focusKey:string, notifications:Map<string,number>}) => {
-        var channelname = "general";
-        var guildname="Zippys Test Server";
-        let msgNotifications = this.state.messageNotifications;
-        Object.values(data.guilds).forEach((guild:TypeGuild)=>{
-            Object.values(guild.channels).forEach((channel:TypeTextChannel)=>{
+    onReady = (data:{guilds:GuildMap, focusKey:string, notifications:Map<string,number>}) => {
+            var channelname = "general";
+            var guildname="Zippys Test Server";
+            let msgNotifications = this.state.messageNotifications;
+            Object.values(data.guilds).forEach((guild:TypeGuild)=>{
+                Object.values(guild.channels).forEach((channel:TypeTextChannel)=>{
                 msgNotifications[guild.name+channel.name]=0;
                 if(guild.name+channel.name===data.focusKey){
                     channelname=channel.name;
@@ -131,9 +154,9 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             guildName: guildname,
         },()=>
         this.onUpdateChannelFocusForNotifications(guildname+channelname))
-  }
+    }
 
-  onSwitchChannel = (e:React.MouseEvent,newChannel:string) => {
+    onSwitchChannel = (e:React.MouseEvent,newChannel:string) => {
         let {messageNotifications, guildName} = this.state;
         if(messageNotifications[guildName+newChannel]>0){
                 messageNotifications[guildName+newChannel]=0;
@@ -144,11 +167,10 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             requestedMessages:false
         },()=>
             this.onUpdateNotifications(guildName+newChannel)
-        );
-        
-  }
+        );  
+    }
 
-  onSwitchGuild = (e:React.MouseEvent,newGuild:string) => {
+    onSwitchGuild = (e:React.MouseEvent,newGuild:string) => {
         console.log("this is new guild:"+newGuild)
         this.setState({
             guildName:newGuild,
@@ -156,9 +178,9 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             requestedMessages:false
         })
         this.onUpdateNotifications(newGuild+'general')
-  }
+    }
 
-  onMessage = (message:string) => {
+    onMessage = (message:string) => {
         let parsed = onMessageParseMessage(message,this.state)
         this.setState({
             guildList:parsed.guildList,
@@ -166,26 +188,26 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         })
         let el = document.getElementById('message-table')
         el.scrollTop = el.scrollHeight;
-  }
+    }
 
-  onBatchMessage = (messages:string) => {
+    onBatchMessage = (messages:string) => {
         this.setState({
             guildList:handleBatchMessage(messages,this.state)
         })
-  }
+    }
 
-  onSendMessage = (guildID:string, channelID:string, content:string) => {
-        this.socket.emit("sendMessage",
-            {
+    onSendMessage = (guildID:string, channelID:string, content:string) => {
+        this.socket.emit("sendMessage", {
                 guild:guildID,
                 channel:channelID,
                 content:content
-            })
+            }
+        )
         console.log(`Sent message from ${guildID} guild,
              ${channelID} channel, with content:\n ${content}`)
-  }
+    }
 
-  onMessageUpdate = (data:string) => {
+    onMessageUpdate = (data:string) => {
         console.log(`got message update data`);
         const msgUpdateData:TypeMessageUpdateData = JSON.parse(data);
         let {id,guild,channel} = msgUpdateData.old, {guildList} = this.state;
@@ -199,11 +221,13 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         messageArray[messageIndex] = msgUpdateData.new;
         guildList[guild].channels[channel].messages = messageArray;
         this.setState({guildList:guildList});
+
+        //scroll to bottom of MessageList
         let el = document.getElementById('message-table')
         el.scrollTop = el.scrollHeight;
-  }
+    }
 
-  onRequestMessages = ( e:MouseEvent, channelID:string, guildID:string,
+    onRequestMessages = ( e:MouseEvent, channelID:string, guildID:string,
                         messageID?:string, requestFromRender?:boolean ) => {
         e && e.preventDefault();
         let requestData = {
@@ -220,70 +244,70 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         } else {
         this.socket.emit("requestMessages",JSON.stringify(requestData))
         }
-  }
+    }
 
-  onError = (error:string) => {
+    onError = (error:string) => {
         this.setState({error: error})
-  }
+    }
 
-  onUpdateChannelFocusForNotifications = (key:string) => {
+    onUpdateChannelFocusForNotifications = (key:string) => {
         this.socket.emit("channelFocus", key)
-  }
+    }
 
-  onUpdateNotifications = (key:string) => {
+    onUpdateNotifications = (key:string) => {
         this.socket.emit("notificationsUpdate", key)
-  }
+    }
 
-  render() {
-      let { guildList, messageNotifications, emojis,
-            guildName, channelName, isReady, requestedMessages } = this.state
-      let { guildID, channelID, messages, members, channels } = handleAppRender(this.state);
-      if(Object.values(guildList).length > 0){
-          if(messages.length===0&&!requestedMessages&&channelID&&guildID){
-            this.onRequestMessages(undefined,channelID,guildID,undefined,true);
-          }
-      }
+    render() {
+        let { guildList, messageNotifications, emojis,
+                guildName, channelName, isReady, requestedMessages } = this.state
+        let { guildID, channelID, messages, members, channels } = handleAppRender(this.state);
+        if(Object.values(guildList).length > 0){
+            if(messages.length===0&&!requestedMessages&&channelID&&guildID){
+                this.onRequestMessages(undefined,channelID,guildID,undefined,true);
+            }
+        }
 
-      let sideBarProps = {
-        notifications:messageNotifications,
-        ready:isReady,
-        guildList:guildList,
-        guildName:guildName,
-        onSwitchGuild:this.onSwitchGuild,
-        onSwitchChannel:this.onSwitchChannel,
-        guildChannels:channels
-      }
+        let sideBarProps = {
+            notifications:messageNotifications,
+            ready:isReady,
+            guildList:guildList,
+            guildName:guildName,
+            onSwitchGuild:this.onSwitchGuild,
+            onSwitchChannel:this.onSwitchChannel,
+            guildChannels:channels
+        }
 
-      let messageListProps = {
-        socket:this.socket,
-        requestMessages:this.onRequestMessages,
-        channelName:channelName,
-        guildName:guildName,
-        messages:messages as TypeMessage[],
-        emojis:emojis,
-        sendFunction:this.onSendMessage,
-        channelID:channelID,
-        guildID:guildID
-      }
+        let messageListProps = {
+            socket:this.socket,
+            requestMessages:this.onRequestMessages,
+            channelName:channelName,
+            guildName:guildName,
+            messages:messages as TypeMessage[],
+            emojis:emojis,
+            sendFunction:this.onSendMessage,
+            channelID:channelID,
+            guildID:guildID
+        }
 
-      return (
-        <Router>
-            <div className="App">
-                <Nav/>
-                <div className="row bg-light">
-                        <SideBar {...sideBarProps}/>
-                        <Switch>
-                                <Route exact path="/">
-                                    <MessageList {...messageListProps}/>
-                                    <UserBar members={members}/>
-                                </Route>
-                                <Route path="/commands">
-                                    <Commands />
-                                </Route>
-                        </Switch>
+        return (
+            <Router>
+                <div className="App" style={{backgroundColor:'#F0F0F0'}}>
+                    <Nav/>
+                    <div className="row">
+                            <SideBar {...sideBarProps}/>
+                            <Switch>
+                                    <Route exact path="/">
+                                        <MessageList {...messageListProps}/>
+                                        <UserBar members={members}/>
+                                    </Route>
+                                    <Route path="/commands">
+                                        <Commands />
+                                    </Route>
+                            </Switch>
+                    </div>
                 </div>
-            </div>
-        </Router>
-      );
-  }
+            </Router>
+        );
+    }
 }

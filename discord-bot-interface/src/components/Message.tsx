@@ -15,6 +15,11 @@ import { hasMentions, parseMentions } from './components-message/mentions';
  */
 export default class Message extends Component<TypeMessageClass>{
 
+    constructor(props:TypeMessageClass){
+        super(props)
+        document.getElementById(`${this.props.message.id}text`)
+    }
+
     render(){
         let { content, createdAt, attachments, embeds } = this.props.message;
         let { message } = this.props;
@@ -41,17 +46,33 @@ export default class Message extends Component<TypeMessageClass>{
 }
 
 const Row = (message:TypeMessage,arrays:Array<JSX.Element>,time:string)=>{
+
+    function handleMouseEnter(e:React.MouseEvent<HTMLDivElement, MouseEvent>){
+        let time = document.getElementById(`${message.id}time`);
+        time.classList.remove('invisible');
+    }
+
+    function handleMouseLeave(e:React.MouseEvent<HTMLDivElement, MouseEvent>){
+        let time = document.getElementById(`${message.id}time`);
+        time.classList.add('invisible');
+    }
     let editText:JSX.Element;
     if(message.edited){
         editText = <small className="text-muted">edited</small>
     }
     return(
-        <tr className="rounded d-flex">
-            <td className="text-capitalize col-md-1"><small className="text-muted font-weight-light">{time}</small></td>
-            <td className="col-md-2" style={{color:message.member.displayHexColor}}>{message.member.displayName}</td>
-            <td className="col-md-9" id={message.id}>
-                {arrays}{editText?editText:""}
-            </td>
-        </tr>
+            <div className="messagelist-message p-1"
+                 onMouseEnter={e=>handleMouseEnter(e)}
+                 onMouseLeave={e=>handleMouseLeave(e)}>
+                <div id={message.id+'content'} className="pb-1">
+                    {arrays}
+                    <small id={message.id+'time'} 
+                           className="text-muted font-weight-light pl-2 invisible">
+                        {time}
+                    </small>
+                </div>
+                {editText}
+            </div>
+        
     )
 }

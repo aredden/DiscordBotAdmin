@@ -70,6 +70,9 @@ export const handleBatchMessage = (data:string, state:TypeDiscordUI) => {
     const msgs:TypeMessage[] = JSON.parse(data) as Array<TypeMessage>;
 
     let { guildList, messageNotifications, channelName } =  state;
+    if(msgs.length===0){
+        return guildList;
+    }
     const tempGuild = guildList[msgs[0].guild] as TypeGuild;
     const channels = tempGuild.channels as ChannelMap;
     let channel = channels[msgs[0].channel] as TypeTextChannel
@@ -83,4 +86,24 @@ export const handleBatchMessage = (data:string, state:TypeDiscordUI) => {
         return moment(a.createdAt).unix() - moment(a.createdAt).unix()
     })
     return(guildList)
+}
+
+/**
+ * Creates new map of channels and deletes channel with id {@param id}
+ * @param channels Optional channel to add.
+ * @param id ID of channel to remove.
+ * @param channel Original ChannelMap.
+ */
+export function createNewChannelsMap(channels:ChannelMap, id:string, channel?:TypeTextChannel){
+    let channelArray = Object.values(channels);
+    let newChannelMap:ChannelMap = new Map<string,TypeTextChannel>();
+    channelArray.forEach((channel:TypeTextChannel) => {
+        if(channel.id!==id){
+            newChannelMap[channel.name]=channel;
+        }
+    })
+    if(channel){
+        newChannelMap[channel.name]=channel;
+    }
+    return newChannelMap;
 }

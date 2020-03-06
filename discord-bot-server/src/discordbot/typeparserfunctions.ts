@@ -67,11 +67,11 @@ export function parseMessages(messages: Collection<string,Message>):TypeMessage[
     messages.forEach((message)=>{
         messageMap.push(parseMessage(message));
     })
-    messageMap.sort((a,b)=>b.createdAt.getTime()-a.createdAt.getTime())
-    if(messageMap.length>30){
+    messageMap = messageMap.sort((a,b)=>a.createdAt.getTime()-b.createdAt.getTime())
+    if(messageMap.length>35){
         const length = messageMap.length;
         messageMap = messageMap.filter((_message,idx)=>{
-            return idx+30>=length
+            return idx+35>=length
         })
     }
     return messageMap;

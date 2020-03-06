@@ -126,5 +126,10 @@ export default class BotControl {
         }
         return {found,trigger};
     }
+
+    getCommands(){
+        let {mention, contains, startsWith} = this;
+        return ({mention,contains,startsWith})
+    }
 }
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { parseGuilds } from '../discordbot/typeparserfunctions';
 import getLogger from '../logger';
-import bot, { getEmojiMap, getChannelNotification, getFocusKey} from '../index';
+import bot, { getEmojiMap, getChannelNotification, getFocusKey, getCommands} from '../index';
 import _chalk from 'chalk';
 
 const router = express.Router();
@@ -28,9 +28,13 @@ router.get('/emojis', (req,res)=>{
     res.json(data)
 })
 
-router.get('/status', (req,res) =>{
+router.get('/status', (req,res) => {
   logger.info(`Client from ${req.headers.referer} requested route '/status'`);
   res.send({status:bot.client.status}).status(200)
+})
+
+router.get('/botcommands', (_req,res) => {
+  res.json(getCommands())
 })
 
 export default router;
