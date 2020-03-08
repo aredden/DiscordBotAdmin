@@ -11,7 +11,9 @@ export type TypeMessage = {
     embeds:TypeEmbed[],
     attachments:TypeMessageAttachment[]
     newEmojis:Map<string,TypeEmoji>
-    edited:undefined|boolean;
+    editedAt:Date,
+    edits:TypeMessage[],
+    editable:boolean
 }
 
 export type MemberMap = Map<string,TypeGuildMember>
@@ -106,10 +108,19 @@ export type TypeRole = {
 export type TypeGuild = {
     name:string,
     channels:Map<string,TypeTextChannel>,
-    emojis:Map<string,TypeEmoji>,
     users:Map<string,TypeGuildMember>,
+    emojis:Map<string,TypeEmoji>,
+    roles:Map<string,TypeRole>,
     id:string,
     owner:TypeGuildMember
+    ownerID:string,
+    createdAt:Date,
+    iconURL:string,
+    icon:string,
+    available:boolean,
+    memberCount:number,
+    me:TypeGuildMember,
+    joinedAt:Date
 }
 
 export type TypeMessageEmbedField = {

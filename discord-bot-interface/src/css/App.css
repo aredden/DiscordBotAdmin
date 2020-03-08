@@ -103,6 +103,10 @@
   color: #2f3cb8;
 }
 
+.userbar-user:hover {
+  background-color: rgb(209, 205, 205);
+}
+
 .userbar .nav-link:hover .feather,
 .userbar .nav-link.active .feather {
   color: inherit;
@@ -112,7 +116,6 @@
   font-size: .75rem;
   text-transform: uppercase;
 }
-
 
 /*
  * Content

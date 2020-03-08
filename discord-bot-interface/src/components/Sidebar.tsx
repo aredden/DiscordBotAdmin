@@ -45,7 +45,7 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                             </h5>
                             <hr/>
                         </li>
-                        { guildList ? Object.values(guildList).map((guild) => {
+                        { guildList ? Object.values(guildList).map((guild:TypeGuild) => {
                             return (
                                 <li className="nav-item btn btn-dark d-flex justify-content-start py-0" 
                                     onClick={(e)=>onSwitchGuild(e,guild.name)} key={guild.id}>
@@ -53,6 +53,10 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                                         <span data-feather="file" 
                                               key={guild.id}>
                                             <div className="display-block m-1 text-truncate text-white">
+                                                <img src={guild.iconURL}
+                                                     alt={""}
+                                                     style={{maxHeight:'2.6rem', maxWidth:'2.6rem', borderRadius:'1.2rem'}}
+                                                     className="mr-2"/>
                                                 {guild.name}
                                             </div>
                                         </span>
@@ -80,8 +84,8 @@ export default class Sidebar extends Component<TypeSidebar,{}> {
                                         <div className="nav-link"
                                             key={channel.id}>
                                             <div className="d-flex display-inline">
-                                                <div className="text-truncate text-white" style={{fontSize:16 ,maxWidth:"9rem"}}>
-                                                    { channel.name }
+                                                <div className="text-truncate" style={{fontSize:16 ,maxWidth:"9rem",color:"#bbb"}}>
+                                                    #{ channel.name }
                                                 </div>
                                                 &nbsp;
                                                 { num>0 ? <span 

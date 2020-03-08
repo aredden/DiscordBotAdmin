@@ -14,8 +14,7 @@ const logger = getLogger("socketfunctions")
 export function handleMessageUpdate(oldMsg:Message,newMsg:Message,socket:Socket,startDate:number){
     const {createdAt} = oldMsg;
     const time = createdAt.valueOf();
-    if(time>startDate){
-
+    if(time>startDate || newMsg.editedAt.valueOf()>startDate){
         const messageUpdateData={
             old:parseMessage(oldMsg),
             new:parseNewMessage(newMsg)

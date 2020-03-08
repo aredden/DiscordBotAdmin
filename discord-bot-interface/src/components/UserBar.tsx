@@ -35,7 +35,7 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
         })
 
         return (
-                <div className="col-md-2">
+                <div className="col-md-2" key='userbar-bar'>
                     <UserModal member={this.state.selectedUser}></UserModal> 
                 <nav className="userbar d-md-block" style={{borderLeft:"1px solid rgb(0,0,0,.1)", backgroundColor:'#E7E7E7'}}>
                     <div className="userbar-sticky">
@@ -81,7 +81,7 @@ function Member(user:TypeGuildMember,handleUserClick:(e,member:TypeGuildMember)=
     const presence = PresenceParse(user.presence.status)
     return (
         <li className="nav-link d-flex justify-content-start 
-            align-items-center btn ml-1"
+            align-items-center btn ml-1 userbar-user"
             data-toggle="modal"
             data-target="#userModal"
             onClick={(e)=>handleUserClick(e,user)}>

@@ -9,11 +9,31 @@ export type TypeMessage = {
     id:string,
     embeds:TypeEmbed[],
     attachments:TypeMessageAttachment[],
-    newEmojis:Map<string,TypeEmoji>,
+    newEmojis:TypeEmoji[],
     nonce:string,
     type:string,
     hit:boolean
-    edited:undefined|boolean;
+    edits:TypeMessageNoEdits[],
+    editable:boolean,
+    editedAt:Date
+}
+
+export type TypeMessageNoEdits = {
+    author:TypeUser,
+    content:string,
+    mentions:TypeGuildMember[],
+    channel:string,
+    guild:string,
+    createdAt:Date,
+    member:TypeGuildMember,
+    id:string,
+    embeds:TypeEmbed[],
+    attachments:TypeMessageAttachment[],
+    newEmojis:TypeEmoji[],
+    nonce:string,
+    type:string,
+    hit:boolean
+    editedAt:Date
 }
 
 export type TypeEmoji = {
@@ -107,6 +127,14 @@ export type TypeGuild = {
     roles:Map<string,TypeRole>,
     id:string,
     owner:TypeGuildMember
+    ownerID:string,
+    createdAt:Date,
+    iconURL:string,
+    icon:string,
+    available:boolean,
+    memberCount:number,
+    me:TypeGuildMember,
+    joinedAt:Date
 }
 
 export type TypeMessageEmbedField = {

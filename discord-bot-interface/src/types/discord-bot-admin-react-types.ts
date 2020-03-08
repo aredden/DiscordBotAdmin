@@ -2,7 +2,8 @@ import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild, MemberMap } from "./discor
 
 
 export type TypeMessageClass = {
-    message:TypeMessage
+    message:TypeMessage,
+    handleMessageEditClick:(e,id)=>any
 }
 
 export type TypeMessageList = {

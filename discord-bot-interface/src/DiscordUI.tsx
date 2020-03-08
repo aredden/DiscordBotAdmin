@@ -106,13 +106,14 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
         const memberUpdated = JSON.parse(newMemberData) as TypeGuildMember;
         let {guildList} = this.state;
         let userList = (guildList[memberUpdated.guildName] as TypeGuild).users
+        let newMemberList = new Map<string,TypeGuildMember>();
         Object.values(userList).forEach((user:TypeGuildMember)=>{
-            if(user.id===memberUpdated.id){
-                userList[memberUpdated.displayName]=undefined
+            if(user.id!==memberUpdated.id){
+                newMemberList[user.displayName]=user
             }
         })
         userList[memberUpdated.displayName] = memberUpdated;
-        guildList[memberUpdated.guildName].users = userList;
+        guildList[memberUpdated.guildName].users = newMemberList;
         this.setState({guildList:guildList});
     }
 
@@ -284,7 +285,6 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             channelName:channelName,
             guildName:guildName,
             messages:messages as TypeMessage[],
-            emojis:emojis,
             sendFunction:this.onSendMessage,
             channelID:channelID,
             guildID:guildID
@@ -298,7 +298,7 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
                             <SideBar {...sideBarProps}/>
                             <Switch>
                                     <Route exact path="/">
-                                        <MessageList {...messageListProps}/>
+                                        <MessageList {...{...messageListProps,emojis}}/>
                                         <UserBar members={members}/>
                                     </Route>
                                     <Route path="/commands">

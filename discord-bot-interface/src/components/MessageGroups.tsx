@@ -5,7 +5,12 @@ import { buildDeadPerson } from './util';
 import ErrorBoundary from './ErrorBoundary';
 import Message from './Message';
 
-type TypeMessageGroupsClass = {guildName:string,emojis:EmojiMap,messages:TypeMessage[]}
+type TypeMessageGroupsClass = {
+    guildName:string,
+    emojis:EmojiMap,
+    messages:TypeMessage[]
+    handleMessageEditClick:(e,id)=>any
+}
 
 export default class MessageGroups extends Component<TypeMessageGroupsClass,{}> {
     
@@ -22,7 +27,7 @@ export default class MessageGroups extends Component<TypeMessageGroupsClass,{}> 
                 if(prev.author.id === current.author.id){
                     let timeDifference = Math.abs(new Date(prev.createdAt).getTime()-
                                          new Date(current.createdAt).getTime())
-                    if( timeDifference < 60000) {
+                    if( timeDifference < 120000) {
                         groups[idx].push(current)
                     } else {
                         groups.push(new Array(current));
@@ -38,21 +43,23 @@ export default class MessageGroups extends Component<TypeMessageGroupsClass,{}> 
         return (
             <tbody>
             {groups.map((msgGroup, idx) => {
-                    if(!msgGroup[0].member){
-                        msgGroup[0].member = buildDeadPerson(msgGroup[0].author,msgGroup[0],guildName)
-                    }
-                    return (
-                        <ErrorBoundary key={`errorboundary-${idx}`}>
-                            <MessageGroup messages={msgGroup} key={msgGroup[0].id + "-" + moment().unix()}/>
-                        </ErrorBoundary>
-                    )
-                })}
+                if(!msgGroup[0].member){
+                    msgGroup[0].member = buildDeadPerson(msgGroup[0].author,msgGroup[0],guildName)
+                }
+                return (
+                    <ErrorBoundary key={`errorboundary-${idx}`}>
+                        <MessageGroup messages={msgGroup} 
+                                      key={msgGroup[0].id + "-message-group"}
+                                      handleMessageEditClick={this.props.handleMessageEditClick}/>
+                    </ErrorBoundary>
+                )
+            })}
         </tbody>
         )
     }
 }
 
-class MessageGroup extends Component<{messages:TypeMessage[]},{}>{
+class MessageGroup extends Component<{messages:TypeMessage[],handleMessageEditClick:(e,id)=>any},{}>{
 
     render(){
         let {messages} = this.props;
@@ -70,27 +77,26 @@ class MessageGroup extends Component<{messages:TypeMessage[]},{}>{
             <tr className="media py-1 px-2 mr-2">
             <img src={messages[0].author.avatarURL} 
                  style={{maxHeight:'2.6rem', maxWidth:'2.6rem', borderRadius:'1rem'}} 
-                 className="mt-1 mr-3" alt={messages[0].author.tag}/>
+                 className="mt-1 mr-3" alt={""}/>
             
             <div className="media-body">
                 <h5 style={{color:messages[0].member.displayHexColor, backgroundColor:'dark'}}>
                     {messages[0].member.displayName}
+                    {messages[0].member.user.bot?<small className="ml-1 badge badge-secondary">Bot</small>:""}
                     <small id={messages[0].id+'time-body'} 
                            className="text-muted font-weight-light pl-2">
                         {timeString}
                     </small>
                 </h5>
-                <MessageContents messages={messages}/>
+                {
+                    messages.map((message:TypeMessage) =>
+                       <div id={message.id+'content'} className="pb-1">
+                           <Message message={message} handleMessageEditClick={this.props.handleMessageEditClick}/>
+                       </div>
+                    )
+                }
             </div>
         </tr>
         )
     }
-}
-
-const MessageContents = ({messages})=> {
-    return messages.map((message:TypeMessage)=>
-        <div id={message.id+'content'} className="pb-1">
-            <Message message={message}/>
-        </div>
-    )
 }

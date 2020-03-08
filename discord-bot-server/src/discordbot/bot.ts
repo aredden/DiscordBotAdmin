@@ -8,6 +8,9 @@ export class DiscordBot{
     public client:Client = new Client();
 
     public login = () => {
-        this.client.login(this.token).then((_succeed:string)=>{this.client = this.client.setMaxListeners(30)});
+        this.client.login(this.token)
+            .then((_succeed:string) => {
+                this.client = this.client.setMaxListeners(30)
+            });
     }
 }

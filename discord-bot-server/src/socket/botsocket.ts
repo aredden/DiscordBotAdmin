@@ -35,42 +35,33 @@ export default function lmaoSocket(bot:DiscordBot,server:http.Server) {
                 const messageUpdateListener =  (oldMsg:Message,newMsg:Message)=>
                     handleMessageUpdate(oldMsg,newMsg,socket,startDate)
                 const presenceUpdateListener = (_oldMember:GuildMember,newMember:GuildMember)=>{
-                    socket.emit("presenceUpdate", JSON.stringify(parseGuildMember(newMember)))
-                }
+                    socket.emit("presenceUpdate", JSON.stringify(parseGuildMember(newMember)))}
                 const typingStartListener = (channel:Channel, user:User) => {
-                    handleTypingStart(channel,user,socket);
-                }
+                    handleTypingStart(channel,user,socket);}
                 const typingStopListener = (channel:Channel, user:User) => {
-                    handleTypingStop(channel,user,socket);
-                }
+                    handleTypingStop(channel,user,socket);}
                 const emojiCreateListener = (emoji:Emoji)=>{
                     let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
                     mojiMap[emoji.name]=convertDiscEmojiToTypeEmoji(emoji)
                     mojiMap = updateEmojiMap(mojiMap);
-                    socket.emit("emojiUpdate",JSON.stringify(mojiMap));
-                }
+                    socket.emit("emojiUpdate",JSON.stringify(mojiMap));}
                 const emojiUpdateListener = (oldEmoji:Emoji,newEmoji:Emoji)=>{
                     let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
                     let toRemove:EmojiMap = new Map<string,TypeEmoji>();
                     toRemove[oldEmoji.name] = convertDiscEmojiToTypeEmoji(oldEmoji);
                     mojiMap[newEmoji.name] = convertDiscEmojiToTypeEmoji(newEmoji);
                     mojiMap = updateEmojiMap(mojiMap,toRemove);
-                    socket.emit("emojiUpdate",JSON.stringify(mojiMap));
-                }
+                    socket.emit("emojiUpdate",JSON.stringify(mojiMap));}
                 const emojiDeleteListener = (emoji:Emoji) =>{
                     let mojiMap:EmojiMap = new Map<string,TypeEmoji>();
                     let toRemove:EmojiMap = new Map<string,TypeEmoji>();
                     toRemove[emoji.name] = convertDiscEmojiToTypeEmoji(emoji);
                     mojiMap = updateEmojiMap(mojiMap,toRemove)
-                    socket.emit("emojiUpdate",JSON.stringify(mojiMap))
-                }
-
+                    socket.emit("emojiUpdate",JSON.stringify(mojiMap))}
                 const channelUpdateListener = (_oldChannel:Channel, newChannel:Channel)=>{
-                    handleChannelUpdate(newChannel,socket);
-                }
+                    handleChannelUpdate(newChannel,socket);}
                 const channelCreateListener = (channel:Channel) => {
-                    handleChannelUpdate(channel,socket);
-                }
+                    handleChannelUpdate(channel,socket);}
                 const channelDeleteListener = (channel:Channel) => {
                     if(channel.type === 'text'){
                         let txtChannel = channel as TextChannel
@@ -132,6 +123,23 @@ export default function lmaoSocket(bot:DiscordBot,server:http.Server) {
                 socket.on('notificationsUpdate', (key:string) => {
                     logger.info(`Setting new channel focus to: ${chalk.yellow(key)}`)
                     handleNotificationsUpdate(key)
+                })
+
+                socket.on('messageEditRequest',(data:string) => {
+                    let {guildID,channelID,messageID,content} = JSON.parse(data);
+                    let guild:Guild = bot.client.guilds.get(guildID)
+                    let targetChannel:TextChannel = guild.channels.get(channelID) as TextChannel
+                    let targetMessage = targetChannel.messages.get(messageID) as Message
+                    targetMessage.edit(content)
+                        .then(
+                            _success=>{
+                                logger.info(`Succeeded in editting message from channel ${targetChannel.name}`)
+                                let newMessage = targetChannel.messages.get(messageID)
+                                handleMessageUpdate(targetMessage,newMessage,socket,startDate)
+                            },
+                            _fail =>
+                                logger.error(`Failed to send message to ${targetChannel.name}.. \n Error: ${_fail.toString()}`)
+                        )
                 })
 
                 socket.on('channelFocus', (key:string) => {

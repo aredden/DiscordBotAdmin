@@ -45,7 +45,7 @@ export function updateEmojiMap(emojis:Map<string,TypeEmoji>,toRemove?:Map<string
             }
         })
     }
-    logger.info(chalk.yellow('UPDATED EMOJIS:')+JSON.stringify(emojis,null,1))
+    logger.info(chalk.yellow('UPDATED EMOJIS:')+JSON.stringify(EMOJIS_MAP,null,1))
     return EMOJIS_MAP;
 }
 

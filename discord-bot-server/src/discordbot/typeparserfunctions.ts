@@ -8,7 +8,8 @@ import { Message, Collection, Guild,
 import getLogger from '../logger';
 import { getEmojiMap } from '../index';
 import { TypeGuild, TypeMessage, TypeGuildMember,
-         TypeRole, TypeTextChannel, TypePresence } from '../types/discord-bot-admin-types';
+         TypeRole, TypeTextChannel, TypePresence,
+         TypeMessageNoEdits } from '../types/discord-bot-admin-types';
 import { isNull } from 'util';
 
 const logger = getLogger('BotParsingFunctions')
@@ -25,7 +26,15 @@ export function parseGuilds(guilds:Collection<string,Guild>):Map<string,TypeGuil
                 emojis:newEmojis,
                 roles:parseRoles(guild.roles),
                 id:guild.id,
-                owner:parseGuildMember(guild.owner)
+                owner:parseGuildMember(guild.owner),
+                ownerID:guild.ownerID,
+                createdAt:guild.createdAt,
+                iconURL:guild.iconURL,
+                icon:guild.icon,
+                available:guild.available,
+                memberCount:guild.memberCount,
+                me:parseGuildMember(guild.me),
+                joinedAt:guild.joinedAt
             });
             guildList[guild.name]=newGuild;
     })
@@ -105,7 +114,9 @@ export function parseNewMessage(message:Message): TypeMessage{
         hit:message.hit,
         nonce:message.nonce,
         newEmojis:undefined,
-        edited:false
+        editedAt:message.editedAt,
+        edits:message.edits.map((_message:Message)=>parseMessage(_message)),
+        editable:message.editable
     })
 }
 
@@ -126,7 +137,30 @@ export function parseMessage(message:Message):TypeMessage{
         hit:message.hit,
         nonce:message.nonce,
         newEmojis:undefined,
-        edited:false,
+        editedAt:message.editedAt,
+        edits:message.edits.map((_message:Message)=>parseMessageNoEdits(_message)),
+        editable:message.editable
+    })
+}
+
+export function parseMessageNoEdits(message:Message):TypeMessageNoEdits{
+    const txtchannel = message.channel as TextChannel;
+    return({
+        member:message.member&&parseGuildMember(message.member),
+        author:parseUser(message.author),
+        channel:txtchannel.name,
+        content:message.content,
+        mentions:parseMentions(message.mentions),
+        guild:txtchannel.guild.name,
+        id:message.id,
+        createdAt:message.createdAt,
+        attachments:parseMessageAttachments(message.attachments),
+        embeds:parseEmbeds(message.embeds),
+        type:message.type,
+        hit:message.hit,
+        nonce:message.nonce,
+        newEmojis:undefined,
+        editedAt:message.editedAt,
     })
 }
 
