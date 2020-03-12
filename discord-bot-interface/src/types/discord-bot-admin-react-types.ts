@@ -1,12 +1,28 @@
-import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild, MemberMap } from "./discord-bot-admin-types";
+import { TypeMessage, TypeEmoji, EmojiMap, TypeGuild, MemberMap, TypeTextChannel } from "./discord-bot-admin-types";
 
 
-export type TypeMessageClass = {
+export type SidebarProps = {
+    notifications:Map<string,number>,
+    ready:boolean,
+    guildList:Map<string,TypeGuild>,
+    guildName:string,
+    guildChannels:Map<string,TypeTextChannel>,
+    onSwitchChannel:(e:React.MouseEvent,newChannelName:string)=>any,
+    onSwitchGuild:(e:React.MouseEvent,newGuild:string)=>any
+}
+
+
+export type MessageListState = {
+    typing:Array<string>,
+    messageEditModalMessage:TypeMessage
+}
+
+export type MessageProps = {
     message:TypeMessage,
     handleMessageEditClick:(e,id)=>any
 }
 
-export type TypeMessageList = {
+export type MessageListProps = {
     messages: Array < TypeMessage >,
     guildName: string,
     channelName: string,
@@ -18,11 +34,11 @@ export type TypeMessageList = {
     sendFunction:(guild:string,channel:string,content:string)=>void
 }
 
-export type TypeUserBar = {
+export type UserBarProps = {
     members: MemberMap
 }
 
-export type TypeInputBox = {
+export type InputBoxProps = {
     sendFunction:(guild:string,channel:string,content:string)=>void,
     channelID:string,
     guildID:string,
@@ -30,7 +46,20 @@ export type TypeInputBox = {
     emojis:EmojiMap
 }
 
-export type TypeDiscordUI = {
+export type InputBoxState = {
+    content:string, 
+    colonMatch:string
+}
+
+export type EmojiAutoCompleteProps={
+    emojis:TypeEmoji[],
+    onChoose:(emojiTag:string)=>any,
+    onClickChoose:(e,emojiTag:string)=>any,
+    colonMatch:string,
+    destroyPopper:()=>any,
+}
+
+export type DiscordUIState = {
     isReady:boolean,
     error:string,
     guildList:Map<string,TypeGuild>,
@@ -40,4 +69,11 @@ export type TypeDiscordUI = {
     emojis:Map<string,TypeEmoji>,
     messageNotifications:Map<string,number>,
     requestedMessages:boolean
+}
+
+export type CommandsState = {
+    mention:string[],
+    contains:Map<string,string[]>,
+    startsWith:Map<string,string[]>
+    origin:string
 }

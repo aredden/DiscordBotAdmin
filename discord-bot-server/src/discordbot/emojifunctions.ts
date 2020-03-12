@@ -60,7 +60,7 @@ function getTypeEmojiFromParsedEmojiWord(name:string,id:string,url:string):TypeE
         id,
         url,
         identifier:`${name}:${id}`,
-        requiresColons:true
+        animated:url.match(/.gif$/g)?true:false
     }
     return emoji;
 }

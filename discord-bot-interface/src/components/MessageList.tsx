@@ -1,8 +1,8 @@
 import React, { Component, useState, useEffect } from 'react'
 import InputBox from './InputBox';
-import { TypeMessageList } from '../types/discord-bot-admin-react-types';
+import { MessageListProps, MessageListState } from '../types/discord-bot-admin-react-types';
 import MessageGroups from './MessageGroups';
-import { TypeMessage } from '../types/discord-bot-admin-types';
+import { TypeMessage, TypingData } from '../types/discord-bot-admin-types';
 import $ from 'jquery';
 
 export const RequestMessageButton = ({requestMessages,channelID,guildID,messages}) => {
@@ -23,23 +23,14 @@ export const RequestMessageButton = ({requestMessages,channelID,guildID,messages
     )
 }
 
-type TypingData = {
-    user:string,
-    id:string,
-    discriminator:string
-} 
 
-type TypeMessageListState = {
-    typing:Array<string>,
-    messageEditModalMessage:TypeMessage
-}
 
 /**
  * @class Container for all Messages in Channel {channelName}
  */
-export default class MessageList extends Component <TypeMessageList,TypeMessageListState> {
+export default class MessageList extends Component <MessageListProps,MessageListState> {
     
-    constructor(props:TypeMessageList) {
+    constructor(props:MessageListProps) {
         super(props)
         this.state = {
             typing:new Array<string>(),
@@ -50,16 +41,18 @@ export default class MessageList extends Component <TypeMessageList,TypeMessageL
         this.handleEditConfirm = this.handleEditConfirm.bind(this);
     }
 
-    componentDidUpdate(prevProps:TypeMessageList){
+    componentDidUpdate(prevProps:MessageListProps){
         if(prevProps.channelID!==this.props.channelID){
             this.setState({typing:new Array<string>()})
         }
     }
 
     componentDidMount(){
-        if (!this.props.socket.hasListeners("typingStart")){
-            this.props.socket.on("typingStart",(data:string)=>{this.setState({typing:this.handleTypingStart(data)})})
-            this.props.socket.on("typingStop",(data:string) =>{this.setState({typing:this.handleTypingStop(data)})})
+        let {socket} = this.props;
+        if (!socket.hasListeners("typingStart")){
+            socket.on("typingStart",(data:string)=>{this.setState({typing:this.handleTypingStart(data)})})
+            socket.on("typingStop",(data:string) =>{this.setState({typing:this.handleTypingStop(data)})})
+
         }
     }
 
@@ -124,7 +117,7 @@ export default class MessageList extends Component <TypeMessageList,TypeMessageL
         return (
             <div className="messagelist-spacing flex-column col-md-8" style={messageListStyles}>
                 {messageEditModalMessage && 
-                    <MessageEditModal message={messageEditModalMessage} 
+                    <MessageDetailsModal message={messageEditModalMessage} 
                                       handleMessageEditCancel={this.handleEditCancel}
                                       handleMessageEditConfirm={this.handleEditConfirm}/>
                 }
@@ -168,7 +161,7 @@ type TypeMessageEditModal = {
     handleMessageEditCancel:(e:React.MouseEvent<HTMLButtonElement,MouseEvent>)=>any
 }
 
-const MessageEditModal = ({message, handleMessageEditConfirm, handleMessageEditCancel}:TypeMessageEditModal) => {
+const MessageDetailsModal = ({message, handleMessageEditConfirm, handleMessageEditCancel}:TypeMessageEditModal) => {
     const [messageText, setMessageText] = useState(null);
     
     useEffect(() => {
@@ -193,11 +186,15 @@ const MessageEditModal = ({message, handleMessageEditConfirm, handleMessageEditC
                     <label  className="col-form-label">Message:</label>
                     <textarea className="form-control" 
                               id="message-edit-text" 
-                              onChange={e=>{setMessageText(e.target.value)}}>
-                                  {messageText?messageText:message.content}
+                              onChange={e=>{setMessageText(e.target.value)}}
+                              defaultValue={messageText?messageText:message.content}>
+                                  
                     </textarea>
                 </div>
                 </form>
+                <div>
+                    {message && JSON.stringify(message.reactions,undefined,2)}
+                </div>
             </div>
             <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-dismiss="modal"

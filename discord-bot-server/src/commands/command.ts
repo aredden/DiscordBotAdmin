@@ -32,7 +32,7 @@ export default class BotControl {
             .then(_json=>this.setCommandsDB(_json))
             .then(_finished=>this.buildCommandRegex())
         this.bot.client.on("message",(message)=>{
-            if(message.member!==null)this.commandsCheck(message)
+            if(message.member!==null)this.commandsCheck(message as Message)
         })
     }
 
@@ -60,7 +60,7 @@ export default class BotControl {
             }
 
             if(messageData.content && messageData.content!==""){
-                handleSendMessage(messageData,this.bot)
+                handleSendMessage(messageData)
             }
         }
     }

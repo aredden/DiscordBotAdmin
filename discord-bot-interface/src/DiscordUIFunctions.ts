@@ -1,12 +1,12 @@
 import { TypeMessage, TypeGuild, TypeTextChannel, EmojiMap, ChannelMap, MemberMap } from "./types/discord-bot-admin-types";
 import moment from "moment";
-import { TypeDiscordUI } from "./types/discord-bot-admin-react-types";
+import { DiscordUIState } from "./types/discord-bot-admin-react-types";
 
 /**
  * Function for preparing data pre-render.
  * @param state state of App.
  */
-export const handleAppRender = (state:TypeDiscordUI) => {
+export const handleAppRender = (state:DiscordUIState) => {
     
     let {guildList , guildName, channelName } = state;
     let guildID:string, channelID:string, 
@@ -36,7 +36,7 @@ export const handleAppRender = (state:TypeDiscordUI) => {
  * @param message 
  * @param state 
  */
-export function onMessageParseMessage(message:string, state:TypeDiscordUI){
+export function onMessageParseMessage(message:string, state:DiscordUIState){
     const msg:TypeMessage = JSON.parse(message) as TypeMessage;
     //console.log(msg);
     let { guildList, messageNotifications, emojis, channelName } =  state;
@@ -66,7 +66,7 @@ export function onMessageParseMessage(message:string, state:TypeDiscordUI){
  * @param data 
  * @param state 
  */
-export const handleBatchMessage = (data:string, state:TypeDiscordUI) => {
+export const handleBatchMessage = (data:string, state:DiscordUIState) => {
     const msgs:TypeMessage[] = JSON.parse(data) as Array<TypeMessage>;
 
     let { guildList, messageNotifications, channelName } =  state;

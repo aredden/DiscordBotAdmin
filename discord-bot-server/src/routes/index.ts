@@ -1,7 +1,7 @@
 import express from 'express';
 import { parseGuilds } from '../discordbot/typeparserfunctions';
 import getLogger from '../logger';
-import bot, { getEmojiMap, getChannelNotification, getFocusKey, getCommands} from '../index';
+import bot, { getEmojiMap, getChannelNotification, getFocusKey, getCommands, getGuildData} from '../index';
 import _chalk from 'chalk';
 
 const router = express.Router();
@@ -12,10 +12,10 @@ router.get('/', (_req, res) => {
   res.send({ response: 'LmaoServer is running.' }).status(200);
 });
 
-router.get('/botguilds', (req,res)=>{
-  logger.info(`Client from ${req.headers.referer} requested route '/botguilds'`);
+router.get('/botguilds', async (req,res)=>{
+  const guildData = await getGuildData();
   let data = {
-    guilds:parseGuilds(bot.client.guilds),
+    guilds: guildData,
     focusKey:getFocusKey(),
     notifications:getChannelNotification()
   }
@@ -30,7 +30,7 @@ router.get('/emojis', (req,res)=>{
 
 router.get('/status', (req,res) => {
   logger.info(`Client from ${req.headers.referer} requested route '/status'`);
-  res.send({status:bot.client.status}).status(200)
+  res.send({status:bot.client.toJSON()}).status(200)
 })
 
 router.get('/botcommands', (_req,res) => {

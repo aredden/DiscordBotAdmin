@@ -1,12 +1,12 @@
 import React, { Component, ChangeEvent, FormEvent, MouseEvent } from 'react'
 import { EmojiMap, TypeEmoji } from '../types/discord-bot-admin-types';
-import { TypeInputBox } from '../types/discord-bot-admin-react-types';
+import { InputBoxProps, InputBoxState, EmojiAutoCompleteProps } from '../types/discord-bot-admin-react-types';
 import { Fade, Popper} from '@material-ui/core';
 import { isNullOrUndefined } from 'util';
 
-export default class InputBox extends Component<TypeInputBox,{content:string, colonMatch:string}> {
+export default class InputBox extends Component<InputBoxProps,InputBoxState> {
 
-    constructor(props:TypeInputBox){
+    constructor(props:InputBoxProps){
         super(props)
         this.state = {
             content:"",
@@ -104,14 +104,6 @@ export default class InputBox extends Component<TypeInputBox,{content:string, co
         )}
         return(<div></div>)
     }
-}
-
-type EmojiAutoCompleteProps={
-    emojis:TypeEmoji[],
-    onChoose:(emojiTag:string)=>any,
-    onClickChoose:(e,emojiTag:string)=>any,
-    colonMatch:string,
-    destroyPopper:()=>any,
 }
 
 class EmojiAutoComplete extends Component<EmojiAutoCompleteProps>{

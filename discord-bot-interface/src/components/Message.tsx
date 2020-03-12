@@ -5,19 +5,19 @@ import  Embed  from './components-message/embed/embed'
 import { parseAllowLinks } from './components-message/markdown'
 import moment from 'moment';
 import Attatchments, { hasAttachment } from './components-message/attatchment/attatchment';
-import { TypeMessageClass } from '../types/discord-bot-admin-react-types';
+import { MessageProps } from '../types/discord-bot-admin-react-types';
 import { parseForNewline } from './components-message/regexfuncs';
 import { hasMentions, parseMentions } from './components-message/mentions';
+import Emoji from './components-message/Emoji';
 
 /**
  * @class Message - instance of message for MessageList box.
  * @returns Parsed message.
  */
-export default class Message extends Component<TypeMessageClass>{
+export default class Message extends Component<MessageProps,{}>{
 
-    constructor(props:TypeMessageClass){
+    constructor(props:MessageProps){
         super(props)
-        document.getElementById(`${this.props.message.id}text`)
     }
 
     render(){
@@ -41,11 +41,26 @@ export default class Message extends Component<TypeMessageClass>{
         embedArray = embeds.map(embed => <Embed {...embed}/>);
         attachmentArray = hasAttachment(message)? Attatchments(attachments) : []
         let messageArray = contentArray.concat(embedArray).concat(attachmentArray);
-        return Row(message,messageArray,timeString,this.props.handleMessageEditClick)
+
+        let rowProps = {
+                message:message,
+                arrays:messageArray,
+                time:timeString,
+                handleMessageEditClick:this.props.handleMessageEditClick
+        }
+
+        return <Row {...rowProps}/>
     }
 }
 
-const Row = (message:TypeMessage,arrays:Array<JSX.Element>,time:string,handleMessageEditClick:(e,id)=>any)=>{
+type RowProps = {
+    message:TypeMessage,
+    arrays:Array<JSX.Element>,
+    time:string,
+    handleMessageEditClick:(e,id)=>any
+}
+
+const Row = ({message,arrays,time,handleMessageEditClick}:RowProps) => {
 
     function handleMouseEnter(e:React.MouseEvent<HTMLDivElement, MouseEvent>){
         let time = document.getElementById(`${message.id}time`);
@@ -64,6 +79,7 @@ const Row = (message:TypeMessage,arrays:Array<JSX.Element>,time:string,handleMes
                 {`edited on ${moment(message.editedAt).format('ddd LT')}`}
             </small>
     }
+    let {reactions} = message;
     return(
             <div className="messagelist-message p-1 btn"
                  style={{textAlign:'start'}}
@@ -78,6 +94,26 @@ const Row = (message:TypeMessage,arrays:Array<JSX.Element>,time:string,handleMes
                         {time}
                     </small>
                 </div>
+                {reactions && reactions.length>0?
+                    <div className="d-flex pl-3">
+                        {
+                            reactions.map(reaction=>{
+                                if(!reaction.emoji.url){
+                                    return (
+                                    <div className='badge badge-secondary pt-1'>
+                                        <text fontSize='20' >{reaction.emoji.name}</text>
+                                    </div>
+                                    )
+                                }
+                                return (
+                                    <div className='badge badge-secondary'>
+                                    {Emoji(reaction.emoji)}
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                :""}
             </div>
     )
 }

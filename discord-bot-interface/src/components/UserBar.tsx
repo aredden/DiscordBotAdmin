@@ -4,15 +4,11 @@ import React, { Component } from 'react'
 import { TypeGuildMember } from '../types/discord-bot-admin-types'
 import moment from 'moment'
 import $ from "jquery"
+import { UserBarProps } from '../types/discord-bot-admin-react-types'
 
-type TypeUserBar = {
-    members:MemberMap
-}
 
-type MemberMap = Map<string,TypeGuildMember>
-
-export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGuildMember}> {
-    constructor(props:TypeUserBar){
+export default class UserBar extends Component<UserBarProps,{selectedUser:TypeGuildMember}> {
+    constructor(props:UserBarProps){
         super(props)
         this.state = {
             selectedUser:undefined
@@ -28,6 +24,7 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
 
     render() {
         const { members } = this.props;
+        const { selectedUser } = this.state;
         let online:TypeGuildMember[] = new Array<TypeGuildMember>();
         let offline:TypeGuildMember[] = new Array<TypeGuildMember>();
         if(members) Object.values(members).forEach((member:TypeGuildMember)=>{
@@ -36,7 +33,7 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
 
         return (
                 <div className="col-md-2" key='userbar-bar'>
-                    <UserModal member={this.state.selectedUser}></UserModal> 
+                    {selectedUser && <UserModal member={selectedUser}></UserModal>}
                 <nav className="userbar d-md-block" style={{borderLeft:"1px solid rgb(0,0,0,.1)", backgroundColor:'#E7E7E7'}}>
                     <div className="userbar-sticky">
                         <ul className="nav flex-column">
@@ -61,10 +58,6 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
                             </li>
                             {
                                 members ? offline
-                                .sort((
-                                    memberA:TypeGuildMember,
-                                    memberB:TypeGuildMember) =>
-                                    memberB.highestRole.position - memberA.highestRole.position)
                                 .map((member:TypeGuildMember) => {
                                     return(Member(member,this.handleSelectUser))
                                 }):"Guild has no members"
@@ -78,19 +71,29 @@ export default class UserBar extends Component<TypeUserBar,{selectedUser:TypeGui
 }
 
 function Member(user:TypeGuildMember,handleUserClick:(e,member:TypeGuildMember)=>any){
-    const presence = PresenceParse(user.presence.status)
+    const presenceStyle = PresenceParse(user.presence.status)
+    const { game } = user.presence;
+    const { avatarURL } = user.user;
+    let pfpURL = avatarURL?avatarURL:`./defaultUserIcon.png`
     return (
-        <li className="nav-link d-flex justify-content-start 
-            align-items-center btn ml-1 userbar-user"
+        <li className="nav-link clearfix btn ml-1 userbar-user"
             data-toggle="modal"
             data-target="#userModal"
+            style={{textAlign:"start"}}
             onClick={(e)=>handleUserClick(e,user)}>
-            <span className={`badge badge-${presence}`} style={{height:"12px"}}>&nbsp;</span>
-            <img className="rounded mx-2" src={user.user.avatarURL} alt={user.user.avatar} style={{maxHeight:"35px"}}></img>
+            <span className={`badge badge-${presenceStyle}`} style={{height:"12px"}}>&nbsp;</span>
+            <img className="rounded mx-2" src={pfpURL} alt={""} style={{maxHeight:"35px"}}></img>
             <strong style={{color:user.displayHexColor}}>
                 {user.nickname? user.nickname : user.displayName}
             </strong>
-
+            { game && game.length > 0 ? 
+                <small className="d-flex">
+                    <div className="ml-3 pr-1" style={{fontWeight:"bold"}}>
+                        {`Playing`}
+                    </div>
+                    {game[0].name}
+                </small>:""
+            }
         </li>
     )
 }
@@ -112,9 +115,12 @@ function PresenceParse(status:String){
 
 class UserModal extends Component<{member:TypeGuildMember}>{
     render(){
-        const {member} = this.props;
-        
-        if(member)return(
+        const { member } = this.props;
+        const { displayName, presence, user, highestRole } = member;
+        const { avatarURL, avatar, id, createdAt } = user;
+        const { clientStatus, status } = presence;
+        const games = presence.game
+        return(
             <div className="modal fade" 
                  id="userModal" 
                  role="dialog" 
@@ -125,11 +131,11 @@ class UserModal extends Component<{member:TypeGuildMember}>{
                     role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                        <img className="rounded" src={member.user.avatarURL} alt={member.user.avatar} style={{maxHeight:"45px"}}></img>
+                        <img className="rounded" src={avatarURL} alt={avatar} style={{maxHeight:"45px"}}></img>
                             <h5 className="modal-title" 
                                 id="userModallabel"
                                 style={{marginLeft:".5rem"}}>
-                                    {member.displayName}'s User Info
+                                    {displayName}'s User Info
                             </h5>
                             <button type="button" 
                                     className="close" 
@@ -142,29 +148,53 @@ class UserModal extends Component<{member:TypeGuildMember}>{
                         </div>
                         <div className="modal-body">
                             <p>
-                                Status: { member.presence.status}
+                                Status: {status}
                             </p>
                             <p>
-                                ID: { member.id}
+                                ID: {id}
                             </p>
                             <p>
-                                Highest Role: { member.highestRole.name}
+                                Highest Role: { highestRole.name }
                             </p>
                             <p>
-                                {`Mention: <@!${ member.user.id}>`}
+                                {`Mention: <@!${ user.id }>`}
+                            </p>
+
+                                {games.map((game)=>{
+                                    return(
+                                    <div key={`gameslist-${game.applicationID}`}>
+                                        {game.name}<br/>
+                                        {game.applicationID?[`ApplicationID: ${game.applicationID}`,<br key="usrmodal-aid"/>]:""}
+                                        {game.assets?<div>
+                                            Assets: {Object.entries(game.assets).map(entry=>{
+                                            let key = entry[0];
+                                            let val = entry[1];
+                                            if(key && val && key.length>0){
+                                                return(
+                                                    [<div style={{marginLeft:'1rem'}} key={`usrmodal-${key}`} >{key}: {val}</div>,<br  key={`usrmodal-asset-${key}`}/>]
+                                                )
+                                            } else return ""
+                                            })}</div>:""}
+                                        {game.details?[`Details: ${game.details}`,<br key="usrmodal-details"/>]:""}
+                                        {game.state?[`State: ${game.state}`,<br key="usrmodal-state"/>]:""}
+                                        {game.timestamps?[`Start Time: ${game.timestamps.start}`,<br key="usrmodal-stime"/>]:""}
+                                        {game.type?[`Game Type: ${game.type}`,<br key="usrmodal-type"/>]:""}
+                                        {game.url?[`Game URL: ${game.url}`,<br key="usrmodal-url"/>]:""}
+                                        <br/>
+                                    </div>)
+                                })}
+                            <p>
+                                {`Discord Birthday: ${moment(createdAt)}`}
                             </p>
                             <p>
-                                {`Current Game: ${member.presence.game?member.presence.game.name:"None"}`}
-                            </p>
-                            <p>
-                                {`Discord Birthday: ${moment(member.user.createdAt)}`}
-                            </p>
-                            <p>
-                                {member.presence.clientStatus?`ClientStatus: \n
-                                    ${member.presence.clientStatus.desktop? "   Desktop -- "+member.presence.clientStatus.desktop+"\n":""}
-                                    ${member.presence.clientStatus.mobile? "    Mobile -- "+member.presence.clientStatus.mobile+"\n":""}
-                                    ${member.presence.clientStatus.web? "   Web -- "+member.presence.clientStatus.web+"\n":""}
+                                {clientStatus?`ClientStatus: \n
+                                    ${clientStatus.desktop? "   Desktop -- "+clientStatus.desktop+"\n":""}
+                                    ${clientStatus.mobile? "    Mobile -- "+clientStatus.mobile+"\n":""}
+                                    ${clientStatus.web? "   Web -- "+clientStatus.web+"\n":""}
                                 `:""}
+                            </p>
+                            <p>
+                                {avatar?`Avatar ID: ${avatar}`:""}
                             </p>
                         </div>
                         <div className="modal-footer">

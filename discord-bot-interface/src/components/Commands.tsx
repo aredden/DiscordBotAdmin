@@ -1,14 +1,9 @@
 import React, { Component } from 'react'
 import Axios from 'axios'
+import { CommandsState } from '../types/discord-bot-admin-react-types'
 
-type TypeCommandsClass ={
-    mention:string[],
-    contains:Map<string,string[]>,
-    startsWith:Map<string,string[]>
-    origin:string
-}
 
-export default class Commands extends Component<{},TypeCommandsClass> {
+export default class Commands extends Component<{},CommandsState> {
 
     constructor(props){
         super(props)

@@ -1,3 +1,5 @@
+import { PermissionString } from "discord.js"
+
 export type TypeMessage = {
     author:TypeUser,
     content:string,
@@ -12,10 +14,28 @@ export type TypeMessage = {
     newEmojis:TypeEmoji[],
     nonce:string,
     type:string,
-    hit:boolean
+    reference:{
+        guildID:string,
+        channelID:string,
+        messageID:string
+    },
+    deleted:boolean,
     edits:TypeMessageNoEdits[],
     editable:boolean,
     editedAt:Date
+    reactions:TypeMessageReaction[]
+}
+
+export type TypeMessageReaction = {
+    count:number,
+    messageID:string,
+    emoji:TypeEmoji,
+    users:TypeUser[],
+    me:boolean,
+    channelName:string,
+    channelID:string,
+    guildName:string,
+    guildID:string
 }
 
 export type TypeMessageNoEdits = {
@@ -32,8 +52,13 @@ export type TypeMessageNoEdits = {
     newEmojis:TypeEmoji[],
     nonce:string,
     type:string,
-    hit:boolean
-    editedAt:Date
+    reference:{
+        guildID:string,
+        channelID:string,
+        messageID:string
+    }
+    editedAt:Date,
+    reactions:TypeMessageReaction[]
 }
 
 export type TypeEmoji = {
@@ -41,7 +66,7 @@ export type TypeEmoji = {
     name:string,
     identifier:string,
     url:string,
-    requiresColons:boolean
+    animated:boolean
 }
 
 export type EmojiMap = Map<string,TypeEmoji>
@@ -83,13 +108,11 @@ export type TypePresence ={
 			start: Date,
 			end: Date
 		},
-		flags: string[],
-		type: number,
+		type: string,
 		url: string,
 		details: string,
 		name: string,
-		streaming: boolean,
-    },
+    }[],
     clientStatus: {
         web?: UserStatus,
         mobile?: UserStatus,
@@ -114,7 +137,8 @@ export type TypeRole = {
     name:string,
     color:number,
     id:string,
-    permissions:number,
+    permissions:PermissionString[],
+    position:number,
     mentionable:boolean,
     hexColor:string
 }

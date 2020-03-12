@@ -1,17 +1,8 @@
 import React, {Component} from 'react'
-import { TypeGuild, TypeTextChannel } from '../types/discord-bot-admin-types';
+import { TypeGuild } from '../types/discord-bot-admin-types';
+import { SidebarProps } from '../types/discord-bot-admin-react-types';
 
-type TypeSidebar = {
-    notifications:Map<string,number>,
-    ready:boolean,
-    guildList:Map<string,TypeGuild>,
-    guildName:string,
-    guildChannels:Map<string,TypeTextChannel>,
-    onSwitchChannel:(e:React.MouseEvent,newChannelName:string)=>any,
-    onSwitchGuild:(e:React.MouseEvent,newGuild:string)=>any
-}
-
-export default class Sidebar extends Component<TypeSidebar,{}> {
+export default class Sidebar extends Component<SidebarProps,{}> {
     render() {
         let { notifications, guildName, guildList, 
               guildChannels, onSwitchChannel, onSwitchGuild, 

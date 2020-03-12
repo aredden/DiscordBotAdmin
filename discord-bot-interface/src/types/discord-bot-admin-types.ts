@@ -13,8 +13,33 @@ export type TypeMessage = {
     newEmojis:Map<string,TypeEmoji>
     editedAt:Date,
     edits:TypeMessage[],
-    editable:boolean
+    deleted:boolean,
+    reference:{
+        guildID:string,
+        channelID:string,
+        messageID:string
+    }
+    editable:boolean,
+    reactions:TypeMessageReaction[]
 }
+
+export type TypeMessageReaction = {
+    count:number,
+    messageID:string,
+    emoji:TypeEmoji,
+    users:TypeUser[],
+    me:boolean,
+    channelName:string,
+    channelID:string,
+    guildName:string,
+    guildID:string
+}
+
+export type TypingData = {
+    user:string,
+    id:string,
+    discriminator:string
+} 
 
 export type MemberMap = Map<string,TypeGuildMember>
 
@@ -68,25 +93,24 @@ export type TypePresence = {
 			start: Date,
 			end: Date
 		},
-		flags: string[],
-		type: number,
+		type: string,
 		url: string,
 		details: string,
-        name: string,
-		streaming: boolean,
-    },
+		name: string,
+    }[],
     clientStatus: {
-        web?:UserStatus,
-        mobile?:UserStatus,
-        desktop?:UserStatus
-    },
-    status: UserStatus,
+        web?: UserStatus,
+        mobile?: UserStatus,
+        desktop?: UserStatus
+    }
+    status: UserStatus
 }
 
 export type UserStatus = 'online' | 'idle' | 'dnd' | 'offline' | 'invisible';
 
 export type TypeUser = {
     name:string,
+    username:string,
     id:string,
     tag:string,
     createdAt:Date,

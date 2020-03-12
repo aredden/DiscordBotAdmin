@@ -10,18 +10,18 @@ import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import { TypeGuild, TypeEmoji, TypeMessage, 
          TypeTextChannel, TypeMessageUpdateData, 
-         GuildMap, TypeGuildMember } from './types/discord-bot-admin-types';
+         GuildMap, TypeGuildMember, TypeMessageReaction } from './types/discord-bot-admin-types';
 import { onMessageParseMessage, handleBatchMessage, 
          handleAppRender, 
          createNewChannelsMap} from './DiscordUIFunctions';
-import { TypeDiscordUI } from './types/discord-bot-admin-react-types';
+import { DiscordUIState } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
          Switch } from 'react-router-dom'
 import Commands from './components/Commands';
 
 
-export default class DiscordUI extends Component<{},TypeDiscordUI> {
+export default class DiscordUI extends Component<{},DiscordUIState> {
   private socket:SocketIOClient.Socket;
   constructor(props:Object) {
         super(props);
@@ -80,10 +80,89 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
             this.onChannelDelete(data)})
         this.socket.on("batchMessages",(messages:string)=>
         this.onBatchMessage(messages))
+        this.socket.on("msgReactionAdd",(jsonData:string)=> {
+            this.onMessageReactionAdd(jsonData)
+        })
+        this.socket.on("msgReactionRemove",(jsonData:string)=> {
+            this.onMessageReactionRemove(jsonData)
+        })
+
 
         axios.get(endpoint+"botguilds")
         .then((response)=>this.onReady(JSON.parse(response.data)))
         .then((_good)=>this.queryEmoji())
+    }
+
+    onMessageReactionAdd(jsonString:string){
+        let reaction:TypeMessageReaction = JSON.parse(jsonString);
+        console.log(JSON.stringify(reaction,null,2)+" added.")
+        let {guildList} = this.state;
+        let {guildName, channelName, messageID} = reaction;
+        if(guildName && guildName!==""){
+            let guild:TypeGuild = guildList[guildName];
+            let channel:TypeTextChannel = guild.channels[channelName];
+            let messages = channel.messages;
+            let targetMessage:TypeMessage;
+            let targetIdx:number;
+            messages.forEach((message,idx)=>{
+                if(message.id===reaction.messageID){
+                    targetMessage = message;
+                    targetIdx = idx;
+                }
+            })
+            if(targetMessage.reactions){
+                let reactions = targetMessage.reactions
+                let newReactions = new Array<TypeMessageReaction>();
+                reactions.forEach(react=>{
+                    if(react.emoji.id===reaction.emoji.id){
+                        newReactions.push(reaction)
+                    }else{
+                        newReactions.push(react)
+                    }
+                })
+                if(newReactions.length === 0){
+                    newReactions.push(reaction)
+                }
+                guildList[guildName].channels[channelName].messages[targetIdx].reactions=newReactions;
+                this.setState({guildList:guildList});
+            }
+        }
+    }
+
+    onMessageReactionRemove(jsonString:string){
+
+        let reaction:TypeMessageReaction = JSON.parse(jsonString);
+        console.log(JSON.stringify(reaction,null,2)+" removed.")
+        let {guildName, channelName, messageID} = reaction;
+        let {guildList} = this.state;
+        if(guildName && guildName!==""){
+            let guild:TypeGuild = guildList[guildName];
+            let channel:TypeTextChannel = guild.channels[channelName];
+            let messages = channel.messages;
+            let targetMessage:TypeMessage;
+            let targetIdx:number;
+            messages.forEach((message,idx)=>{
+                if(message.id===messageID){
+                    targetMessage = message;
+                    targetIdx = idx;
+                }
+            })
+            let {reactions} = targetMessage;
+            let newReactions = new Array<TypeMessageReaction>();
+            if(reactions && reactions.length>0){
+                reactions.forEach(react=>{
+                    if(react.emoji.id===reaction.emoji.id){
+                        if(react.count > 1){
+                            newReactions.push(reaction);
+                        }
+                    }else{
+                        newReactions.push(react)
+                    }
+                })
+                guildList[guildName].channels[channelName].messages[targetIdx].reactions=newReactions;
+                this.setState({guildList:guildList});
+            }
+        }
     }
 
     onChannelDelete(data:string){
@@ -112,7 +191,7 @@ export default class DiscordUI extends Component<{},TypeDiscordUI> {
                 newMemberList[user.displayName]=user
             }
         })
-        userList[memberUpdated.displayName] = memberUpdated;
+        newMemberList[memberUpdated.displayName] = memberUpdated;
         guildList[memberUpdated.guildName].users = newMemberList;
         this.setState({guildList:guildList});
     }

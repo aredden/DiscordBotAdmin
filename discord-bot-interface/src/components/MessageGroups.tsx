@@ -72,10 +72,11 @@ class MessageGroup extends Component<{messages:TypeMessage[],handleMessageEditCl
         }else{
             timeString = moment(messages[0].createdAt).format('ddd LT');
         }
-
+        let avatarURL = messages[0].author.avatarURL
+        let pfpURL = avatarURL?avatarURL:`https://discordapp.com/avatars/${messages[0].author.avatar}`
         return(
             <tr className="media py-1 px-2 mr-2">
-            <img src={messages[0].author.avatarURL} 
+            <img src={pfpURL} 
                  style={{maxHeight:'2.6rem', maxWidth:'2.6rem', borderRadius:'1rem'}} 
                  className="mt-1 mr-3" alt={""}/>
             

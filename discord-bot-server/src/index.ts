@@ -9,10 +9,13 @@ import getLogger from './logger';
 import DiscordBotSocketIo from './socket/botsocket';
 
 import { DiscordBot } from './discordbot/bot';
-import { TypeEmoji, EmojiMap, TypeGuild, TypeTextChannel } from './types/discord-bot-admin-types';
-import { parseEmojis, parseNewMessage, parseGuilds, parseTextChannel } from './discordbot/typeparserfunctions';
+import { TypeEmoji, EmojiMap, TypeGuild,
+         TypeTextChannel } from './types/discord-bot-admin-types';
+import { parseEmojis, parseGuilds,
+         parseTextChannel } from './discordbot/typeparserfunctions';
 import { TextChannel } from 'discord.js';
 import BotControl from './commands/command';
+import { buildSocketFunctions } from './socket/socketfunctions';
 
 
 const app = express();
@@ -29,7 +32,7 @@ let GUILD_DATA:Map<string,TypeGuild> = new Map<string,TypeGuild>();
 let KEY_FOCUS:string = "";
 // Function for updating EmojiMap w/ list of new Emojis.
 
-export function updateEmojiMap(emojis:Map<string,TypeEmoji>,toRemove?:Map<string,TypeEmoji>){
+export function updateEmojiMap(emojis: Map<string,TypeEmoji>, toRemove?: Map<string,TypeEmoji>){
     logger.info(chalk.yellow('ATTEMPTING TO UPDATE EMOJIS:')+JSON.stringify(emojis,null,1))
     if(toRemove){
         toRemove.forEach((_emoji,name)=>{
@@ -57,8 +60,8 @@ export function getEmojiMap(){
 this.getEmojiMap = getEmojiMap.bind(this);
 this.updateEmojiMap = updateEmojiMap.bind(this);
 
-export function getGuildData(){
-    GUILD_DATA = parseGuilds(bot.client.guilds);
+export async function getGuildData(){
+    GUILD_DATA = await parseGuilds(bot.client.guilds);
     return GUILD_DATA;
 }
 
@@ -87,36 +90,32 @@ export function getCommands(){
     return COMMAND.getCommands();
 }
 
-bot.client.once('ready',()=>{
-    logger.info('Parsing emojis..');
-    EMOJIS_MAP = parseEmojis(bot.client.emojis) as Map<string,TypeEmoji>;
-    logger.info('Initializing commands w/ commandsDB.json');
+bot.client.once('ready', async ()=>{
 
-    GUILD_DATA = parseGuilds(bot.client.guilds);
+    logger.info('Parsing emojis..');
+    EMOJIS_MAP = parseEmojis(bot.client.emojis.cache) as Map<string,TypeEmoji>;
+
+    logger.info('Building socket functions..');
+    buildSocketFunctions();
+
+    logger.info('Parsing initial guild data.');
+    GUILD_DATA = await parseGuilds(bot.client.guilds);
     KEY_FOCUS="Zippys Test Servergeneral";
     Object.values(GUILD_DATA).forEach((guild:TypeGuild)=>{
         Object.values(guild.channels).forEach((channel:TypeTextChannel)=>{
             CHANNEL_NOTIFICATIONS[guild.name+channel.name]=0;
         })
     })
-
+    logger.info('Initializing commands w/ commandsDB.json');
     COMMAND = new BotControl(bot);
 })
 
-bot.client.on('message',(message)=>{
-    if(message.member!==null){
+bot.client.on('message', async (message)=>{
+    if(message.member!==null && !message.deleted){
         logger.info('Recieved new message.')
-        const messageParsed = parseNewMessage(message);
-        let newEmojis = messageParsed.newEmojis;
-        if(newEmojis && Object.keys(newEmojis).length>0){
-            Object.keys(newEmojis).forEach((name)=>{
-                if(!EMOJIS_MAP[name]){
-                    EMOJIS_MAP[name]=newEmojis[name];
-                }
-            })
-        }
-        const channel = parseTextChannel(message.channel as TextChannel).name
-        if(message.guild.name+channel !== KEY_FOCUS){
+        const channel = await parseTextChannel(message.channel as TextChannel)
+        const channelName = channel.name
+        if(message.guild.name+channelName !== KEY_FOCUS){
             updateChannelNotifications(message.guild.name+channel,1)
         }
     }
