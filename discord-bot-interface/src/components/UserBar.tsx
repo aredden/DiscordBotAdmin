@@ -5,6 +5,7 @@ import { TypeGuildMember } from '../types/discord-bot-admin-types'
 import moment from 'moment'
 import $ from "jquery"
 import { UserBarProps } from '../types/discord-bot-admin-react-types'
+import { PresenceParse } from './util'
 
 
 export default class UserBar extends Component<UserBarProps,{selectedUser:TypeGuildMember}> {
@@ -70,13 +71,14 @@ export default class UserBar extends Component<UserBarProps,{selectedUser:TypeGu
     }
 }
 
-function Member(user:TypeGuildMember,handleUserClick:(e,member:TypeGuildMember)=>any){
+function Member(user:TypeGuildMember, handleUserClick:(e,member:TypeGuildMember)=>any){
     const presenceStyle = PresenceParse(user.presence.status)
     const { game } = user.presence;
     const { avatarURL } = user.user;
     let pfpURL = avatarURL?avatarURL:`./defaultUserIcon.png`
     return (
         <li className="nav-link clearfix btn ml-1 userbar-user"
+            key={`${user.displayName}-user-${user.id}`}
             data-toggle="modal"
             data-target="#userModal"
             style={{textAlign:"start"}}
@@ -98,20 +100,7 @@ function Member(user:TypeGuildMember,handleUserClick:(e,member:TypeGuildMember)=
     )
 }
 
-function PresenceParse(status:String){
-    switch(status){
-        case "online":
-            return "success"
-        case "offline":
-            return "dark"
-        case "idle" :
-            return "warning"
-        case "dnd":
-            return "danger"
-        default:
-            return "secondary"
-    }
-}
+
 
 class UserModal extends Component<{member:TypeGuildMember}>{
     render(){
@@ -211,8 +200,7 @@ class UserModal extends Component<{member:TypeGuildMember}>{
                     </div>
                 </div>
             </div>
-            )
-            return<div/>
+        )
     }
 }
 

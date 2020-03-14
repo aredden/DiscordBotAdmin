@@ -1,18 +1,14 @@
 import React, { Component } from 'react'
-import { TypeMessage, EmojiMap } from '../types/discord-bot-admin-types';
+import { TypeMessage } from '../../types/discord-bot-admin-types';
 import moment from 'moment';
-import { buildDeadPerson } from './util';
-import ErrorBoundary from './ErrorBoundary';
+import { buildDeadPerson } from '../util';
+import ErrorBoundary from '../ErrorBoundary';
 import Message from './Message';
+import { MessageGroupsProps, MessageGroupProps } from '../../types/discord-bot-admin-react-types';
 
-type TypeMessageGroupsClass = {
-    guildName:string,
-    emojis:EmojiMap,
-    messages:TypeMessage[]
-    handleMessageEditClick:(e,id)=>any
-}
 
-export default class MessageGroups extends Component<TypeMessageGroupsClass,{}> {
+
+export default class MessageGroups extends Component<MessageGroupsProps,{}> {
     
     render() {
         let { messages, guildName } = this.props;
@@ -59,7 +55,8 @@ export default class MessageGroups extends Component<TypeMessageGroupsClass,{}> 
     }
 }
 
-class MessageGroup extends Component<{messages:TypeMessage[],handleMessageEditClick:(e,id)=>any},{}>{
+
+class MessageGroup extends Component<MessageGroupProps,{}>{
 
     render(){
         let {messages} = this.props;
@@ -75,29 +72,30 @@ class MessageGroup extends Component<{messages:TypeMessage[],handleMessageEditCl
         let avatarURL = messages[0].author.avatarURL
         let pfpURL = avatarURL?avatarURL:`https://discordapp.com/avatars/${messages[0].author.avatar}`
         return(
-            <tr className="media py-1 px-2 mr-2">
-            <img src={pfpURL} 
-                 style={{maxHeight:'2.6rem', maxWidth:'2.6rem', borderRadius:'1rem'}} 
-                 className="mt-1 mr-3" alt={""}/>
-            
-            <div className="media-body">
-                <h5 style={{color:messages[0].member.displayHexColor, backgroundColor:'dark'}}>
-                    {messages[0].member.displayName}
-                    {messages[0].member.user.bot?<small className="ml-1 badge badge-secondary">Bot</small>:""}
-                    <small id={messages[0].id+'time-body'} 
-                           className="text-muted font-weight-light pl-2">
-                        {timeString}
-                    </small>
-                </h5>
-                {
-                    messages.map((message:TypeMessage) =>
-                       <div id={message.id+'content'} className="pb-1">
-                           <Message message={message} handleMessageEditClick={this.props.handleMessageEditClick}/>
-                       </div>
-                    )
-                }
-            </div>
-        </tr>
+            <tr className="media mt-2 px-2 mr-2">
+                <td>
+                    <img src={pfpURL} 
+                        style={{maxHeight:'2.6rem', maxWidth:'2.6rem', borderRadius:'1rem'}} 
+                        className="mt-1 mr-3" alt={""}/>
+                </td>
+                <td className="media-body">
+                    <h5 style={{color:messages[0].member.displayHexColor, backgroundColor:'dark'}}>
+                        {messages[0].member.displayName}
+                        {messages[0].member.user.bot?<small className="ml-1 badge badge-secondary">Bot</small>:""}
+                        <small id={messages[0].id+'time-body'} 
+                            className="text-muted font-weight-light pl-2">
+                            {timeString}
+                        </small>
+                    </h5>
+                    {
+                        messages.map((message:TypeMessage, idx) =>
+                        <div id={message.id+'content'}   key={`message-${message.id}-${idx}`}>
+                            <Message message={message} handleMessageEditClick={this.props.handleMessageEditClick}/>
+                        </div>
+                        )
+                    }
+                </td>
+            </tr>
         )
     }
 }

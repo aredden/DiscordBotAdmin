@@ -7,13 +7,13 @@ import Nav from './components/Nav';
 import MessageList from './components/MessageList';
 import SideBar from './components/Sidebar';
 import socketIOClient from 'socket.io-client';
-import axios from 'axios';
-import { TypeGuild, TypeEmoji, TypeMessage, 
-         TypeTextChannel, TypeMessageUpdateData, 
+import { TypeGuild, TypeEmoji, TypeMessage,
+         TypeTextChannel, TypeMessageUpdateData,
          GuildMap, TypeGuildMember, TypeMessageReaction } from './types/discord-bot-admin-types';
 import { onMessageParseMessage, handleBatchMessage, 
          handleAppRender, 
-         createNewChannelsMap} from './DiscordUIFunctions';
+         createNewChannelsMap,
+         setUpDiscordFocus} from './DiscordUIFunctions';
 import { DiscordUIState } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
@@ -25,7 +25,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
   private socket:SocketIOClient.Socket;
   constructor(props:Object) {
         super(props);
-        const endpoint = 'http://localhost:3001/';
+        const endpoint = 'http://192.168.0.183:3001/';
         this.state = {
             isReady: false,
             error: undefined,
@@ -58,7 +58,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     componentDidMount() {
-        const {endpoint, guildList} = this.state;
+        const { guildList} = this.state;
 
         this.socket.on("discordmessage",(message:string)=> 
             this.onMessage(message));
@@ -87,10 +87,14 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
             this.onMessageReactionRemove(jsonData)
         })
 
-
-        axios.get(endpoint+"botguilds")
-        .then((response)=>this.onReady(JSON.parse(response.data)))
-        .then((_good)=>this.queryEmoji())
+        fetch('botguilds',{
+            credentials:"include",
+            mode:"cors"
+        })
+        .then((response:Response)=> response.json())
+        .then((json)=>this.onReady(JSON.parse(json)))
+        .then((_good)=>this.queryEmoji(),
+              (_bad)=>console.log(_bad))
     }
 
     onMessageReactionAdd(jsonString:string){
@@ -105,7 +109,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
             let targetMessage:TypeMessage;
             let targetIdx:number;
             messages.forEach((message,idx)=>{
-                if(message.id===reaction.messageID){
+                if(message.id===messageID){
                     targetMessage = message;
                     targetIdx = idx;
                 }
@@ -197,8 +201,12 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     queryEmoji(){
-            axios.get(this.state.endpoint+"emojis")
-            .then(response=>this.onEmojis(response.data))
+        fetch('emojis',{
+            credentials:"include",
+            mode:"cors"
+        })
+        .then(response=>response.json())
+        .then(emojis=>this.onEmojis(emojis))
     }
 
     onEmojis(emojiData:Map<string,TypeEmoji>) {
@@ -214,26 +222,18 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     onReady = (data:{guilds:GuildMap, focusKey:string, notifications:Map<string,number>}) => {
-            var channelname = "general";
-            var guildname="Zippys Test Server";
-            let msgNotifications = this.state.messageNotifications;
-            Object.values(data.guilds).forEach((guild:TypeGuild)=>{
-                Object.values(guild.channels).forEach((channel:TypeTextChannel)=>{
-                msgNotifications[guild.name+channel.name]=0;
-                if(guild.name+channel.name===data.focusKey){
-                    channelname=channel.name;
-                    guildname=guild.name;
-                }
-            })
-        })
+            let { guilds, focusKey, notifications } = data;
+            let { channelName, guildName } = setUpDiscordFocus(guilds, focusKey)
+
         this.setState({
-            messageNotifications:data.notifications,
+            messageNotifications: notifications,
             isReady: true,
             guildList: data.guilds,
-            channelName: channelname,
-            guildName: guildname,
+            channelName: channelName,
+            guildName: guildName,
         },()=>
-        this.onUpdateChannelFocusForNotifications(guildname+channelname))
+            this.onUpdateChannelFocusForNotifications(guildName + channelName)
+        )
     }
 
     onSwitchChannel = (e:React.MouseEvent,newChannel:string) => {

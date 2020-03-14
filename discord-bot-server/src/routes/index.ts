@@ -1,5 +1,4 @@
 import express from 'express';
-import { parseGuilds } from '../discordbot/typeparserfunctions';
 import getLogger from '../logger';
 import bot, { getEmojiMap, getChannelNotification, getFocusKey, getCommands, getGuildData} from '../index';
 import _chalk from 'chalk';

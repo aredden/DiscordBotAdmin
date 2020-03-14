@@ -131,7 +131,13 @@ const EmbedFields = ({ fields }) => {
     return null;
   }
   let _fields = fields as TypeMessageEmbedField[];
-return <div className='embed-fields'>{_fields.map((field:TypeMessageEmbedField, idx) => <EmbedField key={idx} {...field} />)}</div>;
+return  <div className='embed-fields'>
+          {
+            _fields.map((field:TypeMessageEmbedField, idx) => 
+              <EmbedField key={`embedfield-${field.name}-${idx}`} {...field} />
+            )
+          }
+        </div>;
 };
 
 const Embed = ({

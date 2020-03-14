@@ -85,6 +85,13 @@ function omit(object, excluded) {
   }, {});
 }
 
+let brKeys = 0;
+const brKeyGet = () => {
+  brKeys++;
+  return brKeys
+}
+
+
 // emoji stuff
 
 const getEmoteURL = (emote) => `https://cdn.discordapp.com/emojis/${emote.id}`;
@@ -178,7 +185,7 @@ const baseRules = {
       return {type:"newline", capture};
     },
     react: function(node, recurseOutput, state){
-      return <br/>
+      return <br key={`newLine-${brKeyGet()}`}/>
     }
   },
   paragraph: defaultRules.paragraph,
@@ -270,7 +277,7 @@ const baseRules = {
     },
     react(node, recurseOutput, state) {
       let val = [
-        <br/>,
+        <br key={`br-${state.key}`} />,
         <img
           draggable={false}
           className={`emoji ${node.jumboable ? 'jumboable' : ''}`}

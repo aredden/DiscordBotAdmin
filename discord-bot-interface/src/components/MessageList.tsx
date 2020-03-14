@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react'
 import InputBox from './InputBox';
 import { MessageListProps, MessageListState } from '../types/discord-bot-admin-react-types';
-import MessageGroups from './MessageGroups';
+import MessageGroups from './components-message/MessageGroups';
 import { TypeMessage, TypingData } from '../types/discord-bot-admin-types';
 import $ from 'jquery';
 

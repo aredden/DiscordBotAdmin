@@ -11,6 +11,24 @@ export type SidebarProps = {
     onSwitchGuild:(e:React.MouseEvent,newGuild:string)=>any
 }
 
+export type RowProps = {
+    message:TypeMessage,
+    arrays:Array<JSX.Element>,
+    time:string,
+    handleMessageEditClick:(e,id)=>any
+}
+
+export type MessageGroupProps = {
+    messages:TypeMessage[],
+    handleMessageEditClick:(e,id)=>any
+}
+
+export type MessageGroupsProps = {
+    guildName:string,
+    emojis:EmojiMap,
+    messages:TypeMessage[]
+    handleMessageEditClick:(e,id)=>any
+}
 
 export type MessageListState = {
     typing:Array<string>,

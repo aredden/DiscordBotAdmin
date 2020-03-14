@@ -1,24 +1,18 @@
 import React, { Component } from 'react';
-import { TypeMessage } from '../types/discord-bot-admin-types';
-import { hasContent } from './components-message/content/content';
-import  Embed  from './components-message/embed/embed'
-import { parseAllowLinks } from './components-message/markdown'
+import  Embed  from './embed/embed'
+import { parseAllowLinks } from './markdown'
 import moment from 'moment';
-import Attatchments, { hasAttachment } from './components-message/attatchment/attatchment';
-import { MessageProps } from '../types/discord-bot-admin-react-types';
-import { parseForNewline } from './components-message/regexfuncs';
-import { hasMentions, parseMentions } from './components-message/mentions';
-import Emoji from './components-message/Emoji';
+import Attatchments, { hasAttachment } from './attatchment/attatchment';
+import { MessageProps, RowProps } from '../../types/discord-bot-admin-react-types';
+import { parseForNewline } from './regexfuncs';
+import { hasMentions, parseMentions, hasContent } from '../util';
+import Emoji from './Emoji';
 
 /**
  * @class Message - instance of message for MessageList box.
  * @returns Parsed message.
  */
 export default class Message extends Component<MessageProps,{}>{
-
-    constructor(props:MessageProps){
-        super(props)
-    }
 
     render(){
         let { content, createdAt, attachments, embeds } = this.props.message;
@@ -38,7 +32,7 @@ export default class Message extends Component<MessageProps,{}>{
         }
          
         contentArray = hasContent(content) ? parseAllowLinks(parseForNewline(content)) : [];
-        embedArray = embeds.map(embed => <Embed {...embed}/>);
+        embedArray = embeds.map(embed => <Embed key={`embed-${embed.timestamp}`}{...embed}/>);
         attachmentArray = hasAttachment(message)? Attatchments(attachments) : []
         let messageArray = contentArray.concat(embedArray).concat(attachmentArray);
 
@@ -53,13 +47,11 @@ export default class Message extends Component<MessageProps,{}>{
     }
 }
 
-type RowProps = {
-    message:TypeMessage,
-    arrays:Array<JSX.Element>,
-    time:string,
-    handleMessageEditClick:(e,id)=>any
-}
-
+/**
+ * 
+ * @param type RowProps
+ * @returns Message Row <JSX.Element> 
+ */
 const Row = ({message,arrays,time,handleMessageEditClick}:RowProps) => {
 
     function handleMouseEnter(e:React.MouseEvent<HTMLDivElement, MouseEvent>){
@@ -86,7 +78,7 @@ const Row = ({message,arrays,time,handleMessageEditClick}:RowProps) => {
                  onMouseEnter={e=>handleMouseEnter(e)}
                  onMouseLeave={e=>handleMouseLeave(e)}
                  onClick={e=>handleMessageEditClick(e,message.id)}>
-                <div id={message.id+'content'} className="pb-1">
+                <div id={message.id+'content'}>
                     {arrays}
                     {editText}
                     <small id={message.id+'time'} 
@@ -97,17 +89,17 @@ const Row = ({message,arrays,time,handleMessageEditClick}:RowProps) => {
                 {reactions && reactions.length>0?
                     <div className="d-flex pl-3">
                         {
-                            reactions.map(reaction=>{
+                            reactions.map((reaction,idx)=>{
                                 if(!reaction.emoji.url){
                                     return (
-                                    <div className='badge badge-secondary pt-1'>
+                                    <div className='badge badge-secondary pt-1' key={`reactionBadge-${reaction.messageID}-${idx}`}>
                                         <text fontSize='20' >{reaction.emoji.name}</text>
                                     </div>
                                     )
                                 }
                                 return (
-                                    <div className='badge badge-secondary'>
-                                    {Emoji(reaction.emoji)}
+                                    <div className='badge badge-secondary'  key={`reactionBadge-${reaction.messageID}-${idx}`}>
+                                        {Emoji(reaction.emoji)}
                                     </div>
                                 )
                             })

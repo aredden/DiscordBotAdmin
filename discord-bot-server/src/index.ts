@@ -123,7 +123,7 @@ bot.client.on('message', async (message)=>{
 
 // express.js setup
 app.use(cors({
-    origin:'http://localhost:3000',
+    origin:"http://192.168.0.159:3000/",
     credentials:true
 }));
 app.use(bodyparser.urlencoded({extended: false}));
@@ -132,7 +132,7 @@ app.use(router)
 
 // start frontent socket, server, bot login.
 DiscordBotSocketIo(bot,server);
-server.listen(port,'127.0.0.1')
+server.listen(port,'192.168.0.183')
 bot.login()
 
 export default bot;

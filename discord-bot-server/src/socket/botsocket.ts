@@ -1,5 +1,7 @@
-import { Message, TextChannel, Channel, User, Emoji,
-         GuildMember, MessageReaction, Presence, PartialMessage, GuildEmoji } from 'discord.js';
+import { Message, Channel, User,
+         GuildMember, MessageReaction, Presence,
+         PartialMessage, GuildEmoji, PartialGuildMember,
+         PartialChannel, PartialUser } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { DiscordBot } from '../discordbot/bot'
 import 'discord.js';
@@ -27,13 +29,16 @@ export default function lmaoSocket(bot: DiscordBot, server: http.Server) {
         io.on('connection', (socket: Socket) => {
 
             const messageListener = (msg: Message | PartialMessage) => {
+
                 handleMessage(msg, socket)
             }
 
             const errorListener = (err: Error) => socket.emit('error', JSON.stringify(err));
 
-            const messageUpdateListener = (oldMsg: Message, newMsg: Message) => {
-                handleMessageUpdate(oldMsg, newMsg, socket, startDate)
+            const messageUpdateListener = async (oldMsg: Message, newMsg: Message) => {
+                const newMessage = await newMsg.fetch()
+                const oldMessage = await oldMsg.fetch()
+                handleMessageUpdate(oldMessage, newMessage, socket, startDate)
             }
 
             const presenceUpdateListener = async (_oldPresence: Presence, newPresence: Presence) => {
@@ -41,36 +46,42 @@ export default function lmaoSocket(bot: DiscordBot, server: http.Server) {
                 socket.emit("presenceUpdate", JSON.stringify(pres))
             }
 
-            const typingStartListener = (channel: Channel, user: User) => {
-                handleTypingStart(channel, user, socket)
+            const typingStartListener = async (channel: Channel|PartialChannel, user: User|PartialUser) => {
+                let chan = await channel.fetch();
+                let usr = await user.fetch();
+                handleTypingStart(chan, usr, socket)
             }
 
-            const emojiCreateListener = (emoji: GuildEmoji) => {
+            const emojiCreateListener = async (emoji: GuildEmoji) => {
                 handleEmojiCreate(emoji, socket)
             }
 
-            const emojiUpdateListener = (oldEmoji: GuildEmoji, newEmoji: GuildEmoji) => {
+            const emojiUpdateListener = async (oldEmoji: GuildEmoji, newEmoji: GuildEmoji) => {
                 handleEmojiUpdate(oldEmoji, newEmoji, socket)
             }
 
-            const channelUpdateListener = (_oldChannel: Channel, newChannel: Channel) => {
+            const channelUpdateListener = async (_oldChannel: Channel, newChannel: Channel) => {
                 handleChannelUpdate(newChannel, socket)
             }
 
-            const channelCreateListener = (channel: Channel) => {
-                handleChannelUpdate(channel, socket)
+            const channelCreateListener = async (channel: Channel|PartialChannel) => {
+                let chan = await channel.fetch()
+                handleChannelUpdate(chan, socket)
             }
 
-            const channelDeleteListener = (channel: Channel) => {
-                handleChannelDelete(channel, socket)
+            const channelDeleteListener = async (channel: Channel|PartialChannel) => {
+                let chan = await channel.fetch()
+                handleChannelDelete(chan, socket)
             }
 
-            const guildMemberChangeListener = (member: GuildMember) => {
-                handleMemberUpdate(member, socket)
+            const guildMemberChangeListener = async (member: GuildMember|PartialGuildMember) => {
+                let memb = await member.fetch();
+                handleMemberUpdate(memb, socket)
             }
 
-            const guildMemberUpdateListener = (_oldMember: GuildMember, newMember: GuildMember) => {
-                handleMemberUpdate(newMember, socket)
+            const guildMemberUpdateListener = async (_oldMember: GuildMember|PartialGuildMember, newMember: GuildMember|PartialGuildMember) => {
+                let memb = await newMember.fetch();
+                handleMemberUpdate(memb, socket)
             }
 
             const messageReactionAddListener = (reaction: MessageReaction, user: User) => {

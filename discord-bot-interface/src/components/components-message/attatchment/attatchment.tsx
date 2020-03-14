@@ -34,7 +34,7 @@ const Attachment = (attachment:TypeMessageAttachment) => {
 const Attachments = (attachments:Array<TypeMessageAttachment>) => {
     let attArray = new Array<JSX.Element>();
     attachments.forEach((attachment)=>{
-    attArray.push(<Attachment {...attachment}/>);
+    attArray.push(<Attachment key={`attachment-${attachment.id}`} {...attachment}/>);
     })
     return attArray;
 }

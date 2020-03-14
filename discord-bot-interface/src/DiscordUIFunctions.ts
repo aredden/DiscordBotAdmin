@@ -107,3 +107,34 @@ export function createNewChannelsMap(channels:ChannelMap, id:string, channel?:Ty
     }
     return newChannelMap;
 }
+
+
+/**
+ * Set up guild message notification map & set guildName & channelName for display.
+ * @param guildList
+ * @param focusKey
+ */
+export function setUpDiscordFocus(guildList:Map<string,TypeGuild>, focusKey:string){
+
+
+    let guildArray = Object.values(guildList);
+
+    let channelName = "";
+    let guildName = "";
+    guildArray.forEach((guild:TypeGuild)=>{
+        let channelArray:TypeTextChannel[] = Object.values(guild.channels);
+        channelArray.forEach(channel=>{
+            let channelKey = guild.name + channel.name;
+
+            if(channelKey === focusKey){
+                channelName=channel.name;
+                guildName=guild.name;
+            }
+        })
+    })
+
+    return({
+        channelName:channelName,
+        guildName:guildName
+    })
+}
