@@ -1,40 +1,36 @@
 import { Message, MessageAttachment, MessageEmbed,
          TextChannel, Guild, Channel,
          ChannelLogsQueryOptions, User,
-         GuildMember, MessageReaction, Client,
+         GuildMember, MessageReaction,
          GuildManager, PartialChannel,
-         PartialMessage,
-         GuildEmoji} from "discord.js";
+         PartialMessage, GuildEmoji } from "discord.js";
 import { Socket } from "socket.io";
 import { parseMessage, parseNewMessage, parseMessages,
          parseTextChannel, convertDiscEmojiToTypeEmoji,
         parseMessageReaction } from "../discordbot/typeparserfunctions";
 import { TypeMessageData, TypeMessage,
-         TypeGuild, EmojiMap, TypeEmoji } from "../types/discord-bot-admin-types";
+         EmojiMap, TypeEmoji } from "../types/discord-bot-admin-types";
 import  getLogger  from "../logger";
 import { updateChannelNotifications, getFocusKey,
          getGuildData, updateEmojiMap } from "../index";
 import bot from '../index';
-import e from "express";
 const logger = getLogger("socketfunctions")
 
-let client: Client;
 let clientGuilds: GuildManager;
 
 export function buildSocketFunctions() {
-    client = bot.client;
     clientGuilds = bot.client.guilds;
 }
 
-export async function handleMessage(msg:Message|PartialMessage,socket:Socket){
+export async function handleMessage(msg: Message|PartialMessage,socket: Socket){
     const message = msg.partial ? await msg.fetch() : msg as Message;
     const parsed = await parseMessage(message);
     socket.emit('discordmessage', JSON.stringify(parsed))
 }
 
 export async function handleMessageUpdate(oldMsg: Message | PartialMessage, newMsg: Message | PartialMessage, socket: Socket, _startDate?: number) {
-    const newmessage = (newMsg as PartialMessage).partial ? await newMsg.fetch() : newMsg as Message;
-    const oldmessage = (oldMsg as PartialMessage).partial ? await oldMsg.fetch() : oldMsg as Message;
+    const newmessage = newMsg.partial ? await newMsg.fetch() : newMsg as Message;
+    const oldmessage = oldMsg.partial ? await oldMsg.fetch() : oldMsg as Message;
     const messageUpdateData = {
         old: await parseMessage(oldmessage),
         new: await parseNewMessage(newmessage)
@@ -54,7 +50,7 @@ export async function handleMessagesRequest(guildID: string, channelID: string, 
 
     ((clientGuilds.cache.get(guildID) as Guild)
         .channels.cache.get(channelID) as TextChannel)
-    .messages.fetch(queryOpts)
+        .messages.fetch(queryOpts)
         .then(async (messages) => {
             return await parseMessages(messages)
         }, (_fail) => {
@@ -85,7 +81,7 @@ export function handleTypingStart(channel: Channel, user: User, socket: Socket) 
     }
 }
 
-const sendTypingStop = (user:User, socket:Socket) => {
+const sendTypingStop = (user: User, socket: Socket) => {
     socket.emit("typingStop",
         JSON.stringify({
             user: user.username,
@@ -123,7 +119,7 @@ export async function handleChannelUpdate (channel: Channel | PartialChannel, so
 
 export async function handleChannelDelete(channel: Channel | PartialChannel, sock: Socket) {
 
-    const channelFetched = (channel as PartialChannel).partial ? await channel.fetch() : channel;
+    const channelFetched = await channel.fetch()
 
     if (channelFetched.type === 'text') {
         let txtChannel = channelFetched as TextChannel
@@ -135,13 +131,20 @@ export async function handleChannelDelete(channel: Channel | PartialChannel, soc
 }
 
 export async function handleMemberUpdate(member: GuildMember, sock: Socket) {
-    let guildname = member.guild.name
-    let guildData = await getGuildData()
-    let members = (guildData[guildname] as TypeGuild).users
-    sock.emit('memberUpdate', JSON.stringify({
-        guild: guildname,
-        members
-    }))
+    let name = member.guild.name;
+    if(name){
+        await getGuildData().then(
+            guildParsed=>{
+                let newUsers = guildParsed[name].users;
+                sock.emit('memberUpdate', JSON.stringify({
+                    guild: name,
+                    members: newUsers
+                }))
+            }
+        )
+    } else {
+        logger.error(`{handleMemberUpdate(member,sock)} @member guild name is undefined. ${member.toString()}`)
+    }
 }
 
 export function handleEmojiUpdate(newEmoji: GuildEmoji, oldEmoji: GuildEmoji, sock: Socket) {

@@ -220,3 +220,122 @@ export type TypeMessageData = {
     channel:string,
     content:string
 }
+
+export type MemberUpdateArguments = {
+    guildID:string,
+    memberID:string,
+    requestMember?:string,
+    options:{
+        ban?:{
+            days?: number
+            reason?: string
+        },
+        giveRole?:{
+            roleID:string
+        },
+        removeRole?:{
+            roleID:string
+        },
+        nickName?:string,
+        kick?:{
+            reason?: string
+        }
+    }
+}
+
+export type UpdateMemberResult = {
+    banned?:boolean,
+    nickname?:boolean,
+    gaveRole?:boolean,
+    removedRole?:boolean,
+    kicked?:boolean,
+    manageable?:boolean
+}
+
+export type UpdateChannelArguments = {
+    channelID:string,
+    options:{
+        setNSFW?:{
+            value:boolean
+        }
+        setName?:{
+            name:string,
+            reason:string
+        }
+        setPosition?:{
+            position:number,
+            options?:{
+                relative?:boolean,
+                reason?:string
+            }
+        },
+        setRateLimitPerUser?:{
+            limit:number,
+            reason?:string
+        },
+        setParent?:{
+            channel:string,
+            options?:{
+                lockPermissions?:boolean,
+                reason?:string,
+            }
+        }
+        delete?:{
+            confirm:boolean,
+            reason?:string
+        }
+    }
+}
+
+export type UpdateChannelResult = {
+    setNSFW?:boolean,
+    setName?:boolean,
+    setPosition?:boolean,
+    setRateLimitPerUser?:boolean,
+    setParent?:boolean,
+    delete?:boolean
+}
+
+export type UpdateGuildArguments = {
+    guildID:string,
+    options:{
+        setAFKChannel?:{
+            channelID:string,
+            reason?:string
+        },
+        setAFKTimeout?:{
+            time:number,
+            reason?:string
+        }
+        setOwner?:{
+            memberID:string,
+            reason?:string
+        },
+        setRegion?:{
+            region:string,
+            reason?: string
+        },
+        setSystemChannel?:{
+            channelID: string,
+            reason?: string
+        }
+        setVerificationLevel?:{
+            level: 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH',
+            reason: string
+        },
+        setName?:{
+            name: string,
+            reason?: string
+        }
+    }
+}
+
+export type UpdateGuildResult = {
+    setAFKChannel?:boolean,
+    setAFKTimeout?:boolean,
+    setOwner?:boolean,
+    setRegion?:boolean,
+    setSystemChannel?:boolean,
+    setVerificationLevel?:boolean,
+    setName?:boolean
+}

@@ -5,6 +5,8 @@
         "target": "ESNext",
         "noImplicitAny": false,
         "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": ".",

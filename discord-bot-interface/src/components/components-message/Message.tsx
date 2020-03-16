@@ -81,6 +81,11 @@ const Row = ({message,arrays,time,handleMessageEditClick}:RowProps) => {
                 <div id={message.id+'content'}>
                     {arrays}
                     {editText}
+                    {message.deleted?
+                        <div color="red" style={{fontWeight:"bold"}}>
+                            Deleted
+                        </div>
+                    :""}
                     <small id={message.id+'time'} 
                            className="text-muted font-weight-light pl-2 invisible">
                         {time}

@@ -2,7 +2,6 @@ import { TypeEmoji } from '../types/discord-bot-admin-types';
 import { Emoji, Collection } from 'discord.js';
 import { isNullOrUndefined } from 'util';
 import getLogger from '../logger';
-import chalk from 'chalk';
 
 const logger = getLogger('EmojiParserFunctions')
 
@@ -71,7 +70,7 @@ function getTypeEmojiFromParsedEmojiWord(name:string,id:string,url:string):TypeE
  */
 function getUrlFromIds(ids:string[]):string[]{
     let idArray:string[] = []
-    ids.forEach((id,idx)=>{
+    ids.forEach((id)=>{
         idArray.push(`https://cdn.discordapp.com/emojis/${id}`)
     })
     return idArray;
@@ -96,9 +95,7 @@ function stringSplitter(str:string):string[]{
  */
 export function parseEmojisFromString(emojiString:string,
         emojis:Map<string,TypeEmoji>):Map<string,TypeEmoji>{
-    const chlk = chalk.red;
 
-    // logger.info(chlk(emojiString));
     let typeEmojiMap:Map<string,TypeEmoji> = new Map<string,TypeEmoji>();
     let wordsBeforeParseEmoji:string[] = stringSplitter(emojiString);
     wordsBeforeParseEmoji.forEach((word) => {

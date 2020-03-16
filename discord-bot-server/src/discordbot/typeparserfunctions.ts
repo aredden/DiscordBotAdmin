@@ -8,9 +8,8 @@ import { Message, Collection, Guild,
         GuildManager,
         Presence,
         EmbedField,
-        PartialMessage} from 'discord.js';
-import getLogger from '../logger';
-import bot, { getEmojiMap } from '../index';
+        PartialMessage } from 'discord.js';
+// import getLogger from '../logger';
 import { TypeGuild, TypeMessage,
          TypeGuildMember, TypeRole,
          TypeTextChannel, TypePresence,
@@ -19,7 +18,8 @@ import { TypeGuild, TypeMessage,
          TypeEmoji} from '../types/discord-bot-admin-types';
 import { isNull } from 'util';
 
-const logger = getLogger('BotParsingFunctions')
+
+// const logger = getLogger('BotParsingFunctions')
 
 export async function parseGuilds(guilds:GuildManager):Promise<Map<string,TypeGuild>> {
 
@@ -192,6 +192,7 @@ export async function parseMessage(message:Message):Promise<TypeMessage>{
 
 export async function parseMessageNoEdits(message:Message|PartialMessage):Promise<TypeMessageNoEdits>{
     const txtchannel = message.channel as TextChannel;
+
     return({
         member: message.member&& await parseGuildMember(message.member),
         author: parseUser(message.author),
@@ -236,6 +237,7 @@ export async function parseGuildMembers(members:Collection<string,GuildMember>):
 }
 
 export async function parseGuildMember(member:GuildMember):Promise<TypeGuildMember>{
+
     return({
         nickname:!isNull(member.nickname)?member.nickname:"",
         id:member.id,
@@ -259,7 +261,6 @@ const offlinePresence:()=>TypePresence = ( )  => {
 
 export function parsePresence(presence:Presence):TypePresence{
     let {clientStatus, status, activities } = presence;
-
 
     let parsedActivities = activities.map(activity=>{
         return({
@@ -298,8 +299,9 @@ export function parsePresence(presence:Presence):TypePresence{
  * @returns
  */
 export function parseRoles(roles:Collection<string,Role>):Map<string,TypeRole>{
+
     let rolesMap:Map<string,TypeRole> = new Map<string,TypeRole>();
-    Object.values(roles).forEach((role)=>{
+    Object.values(roles).forEach((role:Role)=>{
         rolesMap[role.name]=parseGuildRole(role)
     })
     return rolesMap;
@@ -332,7 +334,7 @@ export function parseUser(user:User){
 
 export function parseMessageAttachments(attachments:Collection<string,MessageAttachment>){
     let newMessageAttatchments = []
-    attachments.forEach((attachment,key,attmap)=>{
+    attachments.forEach((attachment)=>{
         newMessageAttatchments.push(parseMessageAttachment(attachment))
     })
     return newMessageAttatchments;
@@ -445,5 +447,4 @@ export async function parseMessageReaction(reaction:MessageReaction):Promise<Typ
         users:userArray,
         messageID:message.id
     })
-
 }

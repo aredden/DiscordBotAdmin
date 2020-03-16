@@ -11,7 +11,7 @@ router.get('/', (_req, res) => {
   res.send({ response: 'LmaoServer is running.' }).status(200);
 });
 
-router.get('/botguilds', async (req,res)=>{
+router.get('/botguilds', async (_req,res)=>{
   const guildData = await getGuildData();
   let data = {
     guilds: guildData,

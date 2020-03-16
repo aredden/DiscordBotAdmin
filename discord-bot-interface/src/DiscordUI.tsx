@@ -7,13 +7,13 @@ import Nav from './components/Nav';
 import MessageList from './components/MessageList';
 import SideBar from './components/Sidebar';
 import socketIOClient from 'socket.io-client';
-import { TypeGuild, TypeEmoji, TypeMessage,
-         TypeTextChannel, TypeMessageUpdateData,
-         GuildMap, TypeGuildMember, TypeMessageReaction } from './types/discord-bot-admin-types';
+import { TypeGuild, TypeEmoji, 
+         TypeMessage, GuildMap } from './types/discord-bot-admin-types';
 import { onMessageParseMessage, handleBatchMessage, 
-         handleAppRender, 
-         createNewChannelsMap,
-         setUpDiscordFocus} from './DiscordUIFunctions';
+         handleAppRender, createNewChannelsMap,
+         setUpDiscordFocus, onMessageDeleted,
+         messageReactionAdd, messageReactionRemove,
+         messageUpdate, presenceUpdate} from './DiscordUIFunctions';
 import { DiscordUIState } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
@@ -58,7 +58,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     componentDidMount() {
-        const { guildList} = this.state;
+        const { guildList } = this.state;
 
         this.socket.on("discordmessage",(message:string)=> 
             this.onMessage(message));
@@ -79,12 +79,15 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
         this.socket.on("channelDelete", (data:string) => {
             this.onChannelDelete(data)})
         this.socket.on("batchMessages",(messages:string)=>
-        this.onBatchMessage(messages))
+            this.onBatchMessage(messages))
         this.socket.on("msgReactionAdd",(jsonData:string)=> {
             this.onMessageReactionAdd(jsonData)
         })
         this.socket.on("msgReactionRemove",(jsonData:string)=> {
-            this.onMessageReactionRemove(jsonData)
+            this.onMessageReactionRemove(jsonData);
+        })
+        this.socket.on("messageDeleted", (data:string) => {
+            this.setState({guildList:onMessageDeleted(data, this.state)});
         })
 
         fetch('botguilds',{
@@ -98,74 +101,16 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     onMessageReactionAdd(jsonString:string){
-        let reaction:TypeMessageReaction = JSON.parse(jsonString);
-        console.log(JSON.stringify(reaction,null,2)+" added.")
-        let {guildList} = this.state;
-        let {guildName, channelName, messageID} = reaction;
-        if(guildName && guildName!==""){
-            let guild:TypeGuild = guildList[guildName];
-            let channel:TypeTextChannel = guild.channels[channelName];
-            let messages = channel.messages;
-            let targetMessage:TypeMessage;
-            let targetIdx:number;
-            messages.forEach((message,idx)=>{
-                if(message.id===messageID){
-                    targetMessage = message;
-                    targetIdx = idx;
-                }
-            })
-            if(targetMessage.reactions){
-                let reactions = targetMessage.reactions
-                let newReactions = new Array<TypeMessageReaction>();
-                reactions.forEach(react=>{
-                    if(react.emoji.id===reaction.emoji.id){
-                        newReactions.push(reaction)
-                    }else{
-                        newReactions.push(react)
-                    }
-                })
-                if(newReactions.length === 0){
-                    newReactions.push(reaction)
-                }
-                guildList[guildName].channels[channelName].messages[targetIdx].reactions=newReactions;
-                this.setState({guildList:guildList});
-            }
+        let result = messageReactionAdd(jsonString,this.state)
+        if(result){
+            this.setState({guildList:result as GuildMap})
         }
     }
 
     onMessageReactionRemove(jsonString:string){
-
-        let reaction:TypeMessageReaction = JSON.parse(jsonString);
-        console.log(JSON.stringify(reaction,null,2)+" removed.")
-        let {guildName, channelName, messageID} = reaction;
-        let {guildList} = this.state;
-        if(guildName && guildName!==""){
-            let guild:TypeGuild = guildList[guildName];
-            let channel:TypeTextChannel = guild.channels[channelName];
-            let messages = channel.messages;
-            let targetMessage:TypeMessage;
-            let targetIdx:number;
-            messages.forEach((message,idx)=>{
-                if(message.id===messageID){
-                    targetMessage = message;
-                    targetIdx = idx;
-                }
-            })
-            let {reactions} = targetMessage;
-            let newReactions = new Array<TypeMessageReaction>();
-            if(reactions && reactions.length>0){
-                reactions.forEach(react=>{
-                    if(react.emoji.id===reaction.emoji.id){
-                        if(react.count > 1){
-                            newReactions.push(reaction);
-                        }
-                    }else{
-                        newReactions.push(react)
-                    }
-                })
-                guildList[guildName].channels[channelName].messages[targetIdx].reactions=newReactions;
-                this.setState({guildList:guildList});
-            }
+        let result = messageReactionRemove(jsonString,this.state);
+        if(result){
+            this.setState({guildList:result as GuildMap})
         }
     }
 
@@ -186,18 +131,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     onPresenceUpdate(newMemberData: string) {
-        const memberUpdated = JSON.parse(newMemberData) as TypeGuildMember;
-        let {guildList} = this.state;
-        let userList = (guildList[memberUpdated.guildName] as TypeGuild).users
-        let newMemberList = new Map<string,TypeGuildMember>();
-        Object.values(userList).forEach((user:TypeGuildMember)=>{
-            if(user.id!==memberUpdated.id){
-                newMemberList[user.displayName]=user
-            }
-        })
-        newMemberList[memberUpdated.displayName] = memberUpdated;
-        guildList[memberUpdated.guildName].users = newMemberList;
-        this.setState({guildList:guildList});
+        this.setState({guildList: presenceUpdate(newMemberData,this.state)});
     }
 
     queryEmoji(){
@@ -263,8 +197,7 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     onMessage = (message:string) => {
         let parsed = onMessageParseMessage(message,this.state)
         this.setState({
-            guildList:parsed.guildList,
-            emojis:parsed.emojis
+            guildList:parsed.guildList
         })
         let el = document.getElementById('message-table')
         el.scrollTop = el.scrollHeight;
@@ -288,23 +221,11 @@ export default class DiscordUI extends Component<{},DiscordUIState> {
     }
 
     onMessageUpdate = (data:string) => {
-        console.log(`got message update data`);
-        const msgUpdateData:TypeMessageUpdateData = JSON.parse(data);
-        let {id,guild,channel} = msgUpdateData.old, {guildList} = this.state;
-        let messageArray = guildList[guild].channels[channel].messages;
-        let messageIndex:number;
-        messageArray.forEach((message:TypeMessage,idx:number) => {
-            if(message.id === id){
-                messageIndex=idx;
-            }
+        this.setState({guildList:messageUpdate(data,this.state)}, () => {
+            //scroll to bottom of MessageList
+            let el = document.getElementById('message-table')
+            el.scrollTop = el.scrollHeight;
         });
-        messageArray[messageIndex] = msgUpdateData.new;
-        guildList[guild].channels[channel].messages = messageArray;
-        this.setState({guildList:guildList});
-
-        //scroll to bottom of MessageList
-        let el = document.getElementById('message-table')
-        el.scrollTop = el.scrollHeight;
     }
 
     onRequestMessages = ( e:MouseEvent, channelID:string, guildID:string,
