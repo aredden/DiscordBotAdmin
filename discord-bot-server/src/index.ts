@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyparser from 'body-parser';
 import http from 'http';
 import chalk from 'chalk';
+import dotenv from 'dotenv';
 
 import router from './routes/index';
 import getLogger from './logger';
@@ -17,7 +18,9 @@ import { TextChannel } from 'discord.js';
 import BotControl from './commands/command';
 import { buildSocketFunctions } from './socket/socketfunctions';
 
-
+dotenv.config()
+const HOST = process.env.LOCAL_HOST;
+const INTERFACE_ADDR = process.env.LOCAL_INTERFACE;
 const app = express();
 const port = 3001;
 const server = http.createServer(app);
@@ -123,8 +126,8 @@ bot.client.on('message', async (message)=>{
 
 // express.js setup
 app.use(cors({
-    origin:"http://192.168.0.159:3000/",
-    credentials:true
+    origin: INTERFACE_ADDR,
+    credentials: true
 }));
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
@@ -132,7 +135,7 @@ app.use(router)
 
 // start frontent socket, server, bot login.
 DiscordBotSocketIo(bot,server);
-server.listen(port,'192.168.0.183')
+server.listen(port, HOST)
 bot.login()
 
 export default bot;

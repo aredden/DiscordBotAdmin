@@ -221,7 +221,7 @@ export type TypeMessageData = {
     content:string
 }
 
-export type MemberUpdateArguments = {
+export type UpdateMemberArguments = {
     guildID:string,
     memberID:string,
     requestMember?:string,
@@ -338,4 +338,33 @@ export type UpdateGuildResult = {
     setSystemChannel?:boolean,
     setVerificationLevel?:boolean,
     setName?:boolean
+}
+
+export type UpdateMessageArguments = {
+    channelID:string,
+    messageID:string,
+    options:{
+        pin?:{
+            pin:boolean
+        },
+        mdelete?:{
+            yes:boolean,
+            options?:{
+                timeout?:number,
+                reason?:string,
+            }
+        },
+        react?:{
+            emojiID:string,
+        }
+        suppressEmbeds?:boolean
+    }
+}
+
+export type UpdateMessageResult = {
+    pin?:boolean,
+    unpin?:boolean,
+    mdelete?:boolean,
+    react?:boolean,
+    suppressEmbeds?:boolean
 }

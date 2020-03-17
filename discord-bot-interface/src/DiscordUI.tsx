@@ -19,13 +19,17 @@ import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route,
          Switch } from 'react-router-dom'
 import Commands from './components/Commands';
+import dotenv from 'dotenv';
 
 
 export default class DiscordUI extends Component<{},DiscordUIState> {
   private socket:SocketIOClient.Socket;
   constructor(props:Object) {
+        
         super(props);
-        const endpoint = 'http://192.168.0.183:3001/';
+        dotenv.config()
+        
+        const endpoint = process.env.LOCAL_SERVER;
         this.state = {
             isReady: false,
             error: undefined,

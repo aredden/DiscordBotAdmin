@@ -1,8 +1,7 @@
 import { Message, Channel, User, GuildMember,
          MessageReaction, Presence, PartialMessage,
          GuildEmoji, PartialGuildMember,
-         PartialChannel, PartialUser, Guild,
-         TextChannel } from 'discord.js';
+         PartialChannel, PartialUser } from 'discord.js';
 import socketio, { Socket } from 'socket.io';
 import { DiscordBot } from '../discordbot/bot';
 import 'discord.js';
@@ -10,16 +9,18 @@ import http from 'http';
 import { parseGuildMember,
          parseNewMessage } from '../discordbot/typeparserfunctions';
 import getLogger from '../logger';
-import { TypeMessageData, UpdateGuildArguments, UpdateGuildResult,
-         UpdateChannelArguments, UpdateChannelResult,
-         MemberUpdateArguments, UpdateMemberResult } from '../types/discord-bot-admin-types';
+import { TypeMessageData, UpdateGuildArguments, UpdateChannelArguments,
+         UpdateMemberArguments,
+         UpdateMessageArguments} from '../types/discord-bot-admin-types';
 import { handleMessageUpdate, handleSendMessage,
         handleNotificationsUpdate, handleMessagesRequest,
         handleChannelUpdate, handleMemberUpdate,
         handleEmojiCreate, handleEmojiUpdate,
         handleChannelDelete, handleMessageEditRequest,
         handleMessageReactionAdd, handleMessageReactionRemove,
-        handleTypingStart, handleMessage } from './socketfunctions';
+        handleTypingStart, handleMessage, handleUpdateMemberRequest,
+        handleUpdateChannelRequest, handleUpdateGuildRequest,
+        handleUpdateMessageRequest } from './socketfunctions';
 import { setNewChannelFocus } from '../index';
 import chalk from 'chalk';
 const logger = getLogger('DiscordBotSocket');
@@ -74,7 +75,6 @@ export default function lmaoSocket(bot: DiscordBot, server: http.Server) {
             }
 
             const channelCreateListener = (channel: Channel|PartialChannel) => {
-
                 handleChannelUpdate(channel, socket)
             }
 
@@ -128,153 +128,20 @@ export default function lmaoSocket(bot: DiscordBot, server: http.Server) {
             bot.client.on("messageReactionAdd", messageReactionAddListener)
             bot.client.on("messageReactionRemove", messageReactionRemoveListener)
 
-            /**
-             *  @on 'updateGuild'
-             *  Can only take one UpdateGuildArgument at a time otherwise will not complete
-             *  all update requests.
-             *  @param updateArguments:UpdateGuildArguments
-             */
-            socket.on('updateGuild', async (updateArguments:UpdateGuildArguments)=>{
-                let { guildID, options} = updateArguments;
-                let targetGuild = bot.client.guilds.resolve(guildID)
-                let { setAFKChannel, setAFKTimeout, setName, setOwner, setRegion,
-                        setSystemChannel, setVerificationLevel } = options;
-                let result:UpdateGuildResult;
-                switch(true){
-                    case (setAFKChannel !== undefined):
-                        const {channelID} = setAFKChannel;
-                        await targetGuild.setAFKChannel(channelID,setAFKChannel.reason).then(
-                            _success => result = {setAFKChannel:true},
-                            _fail=> result = {setAFKChannel:false}
-                        )
-                        break;
-                    case (setAFKTimeout !== undefined):
-                        let {time} = setAFKTimeout;
-                        await targetGuild.setAFKTimeout(time,setAFKChannel.reason).then(
-                            _success => result = {setAFKTimeout:true},
-                            _fail => result = {setAFKTimeout:false})
-                        break;
-                    case (setName !== undefined):
-                        let {name} = setName;
-                        await targetGuild.setName(name,setName.reason).then(
-                            _success=> result = {setName:true},
-                            _fail => result = {setName:false})
-                        break;
-                    case (setOwner !== undefined):
-                        await targetGuild.setOwner(setOwner.memberID, setOwner.reason).then(
-                            _success => result = {setOwner:true},
-                            _fail => result = {setOwner:false})
-                        break;
-                    case (setRegion !== undefined):
-                        let {region} = setRegion;
-                        await targetGuild.setRegion(region, setRegion.reason).then(
-                            _success=> result = {setRegion:true},
-                            _fail=> result = {setRegion:false})
-                        break;
-                    case (setSystemChannel !== undefined):
-                        await targetGuild.setSystemChannel(setSystemChannel.channelID, setSystemChannel.reason).then(
-                            _success => result = {setOwner:true},
-                            _fail => result = {setOwner:false})
-                        break;
-                    case (setVerificationLevel !== undefined):
-                        await targetGuild.setVerificationLevel(setVerificationLevel.level, setOwner.reason).then(
-                            _success => result = {setOwner:true},
-                            _fail => result = {setOwner:false})
-                        break;
-                    default:
-                        break;
-                }
-                socket.emit('updateGuildResult', JSON.stringify(result))
+            socket.on('updateGuild', async (updateArguments:string) => {
+                handleUpdateGuildRequest(JSON.parse(updateArguments) as UpdateGuildArguments, socket);
             })
 
-
-            socket.on('updateChannel', async (updateArguments:UpdateChannelArguments) => {
-                let { channelID, options } = updateArguments;
-                let { setNSFW, setName, setParent, setPosition, setRateLimitPerUser } = options;
-                let channel = await bot.client.channels.fetch(channelID, true)
-                let result: UpdateChannelResult;
-                if(channel.type === "text"){
-                    let txtChannel = channel as TextChannel;
-                    switch(true){
-                        case (setNSFW !== undefined):
-                            await txtChannel.setNSFW(setNSFW.value).then(
-                                _success => result = {setNSFW:true},
-                                _fail=> result = {setNSFW:false}
-                            )
-                            break;
-                        case (setName !== undefined):
-                            await txtChannel.setName(setName.name,setName.reason).then(
-                                _success => result = {setName:true},
-                                _fail => result = {setName:false}
-                            )
-                            break;
-                        case (setParent !== undefined):
-                            await txtChannel.setParent(setParent.channel,setParent.options).then(
-                                _success => result = {setParent:true},
-                                _fail => result = {setParent:false}
-                            )
-                            break
-                        case (setPosition !== undefined):
-                            await txtChannel.setPosition(setPosition.position,setPosition.options).then(
-                                _success => result = {setPosition:true},
-                                _fail => result = {setPosition:false}
-                            )
-                            break;
-                        case (setRateLimitPerUser !== undefined):
-                            await txtChannel.setRateLimitPerUser(setRateLimitPerUser.limit,setRateLimitPerUser.reason).then(
-                                _success => result = {setRateLimitPerUser:true},
-                                _fail => result = {setRateLimitPerUser:false}
-                            )
-                            break
-                        default:
-                            break;
-                    }
-                    socket.emit('updateChannelResult',JSON.stringify(result));
-                }
+            socket.on('updateChannel', (updateArguments:string) => {
+                handleUpdateChannelRequest(JSON.parse(updateArguments) as UpdateChannelArguments,socket)
             })
 
-            socket.on('updateMember', async (updateArguments:MemberUpdateArguments) => {
-                let {guildID, memberID, options} = updateArguments;
-                let {ban, kick, giveRole, removeRole, nickName} = options
-                let guild: Guild = bot.client.guilds.cache.get(guildID);
-                let member: GuildMember = guild.members.cache.get(memberID);
-                let result: UpdateMemberResult;
+            socket.on('updateMember', (updateArguments:string) => {
+                handleUpdateMemberRequest(JSON.parse(updateArguments) as UpdateMemberArguments, socket);
+            })
 
-                if (!member.manageable){
-                    socket.emit("updateMemberResult", JSON.stringify({manageable:false}))
-                    return;
-                }
-
-                switch(true){
-                    case (ban !== undefined):
-                        await member.ban(ban).then(
-                            _success => result = {banned:true},
-                            _fail => result = {banned:false})
-                        break;
-                    case (kick !== undefined):
-                        await member.kick(kick.reason).then(
-                            _success => result = {kicked:true},
-                            _fail => result = {kicked:false})
-                        break;
-                    case (giveRole !== undefined):
-                        await member.roles.add(giveRole.roleID).then(
-                            _success => result = {gaveRole:true},
-                            _fail => result = {gaveRole:false})
-                        break;
-                    case (removeRole !== undefined):
-                        await member.roles.remove(removeRole.roleID).then(
-                            _success=> result = {removedRole:true},
-                            _fail => result = {removedRole:false})
-                        break;
-                    case (nickName !== undefined):
-                        await member.setNickname(nickName).then(
-                            _success => result = {nickname:true},
-                            _fail => result = {nickname:false})
-                        break;
-                    default:
-                        break;
-                }
-                socket.emit("updateMemberResult", JSON.stringify(result));
+            socket.on('updateMessage', (updateArguments:string) => {
+                handleUpdateMessageRequest(JSON.parse(updateArguments) as UpdateMessageArguments, socket)
             })
 
             socket.on('sendMessage', (messageData: TypeMessageData) => {

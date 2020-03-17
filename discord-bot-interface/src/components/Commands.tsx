@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import Axios from 'axios'
 import { CommandsState } from '../types/discord-bot-admin-react-types'
 
 
@@ -16,17 +15,7 @@ export default class Commands extends Component<{},CommandsState> {
     }
     
     componentDidMount(){
-        Axios.get(this.state.origin+'/botcommands')
-            .then((response)=>{
-                return response.data
-            })
-            .then(({mention,startsWith,contains})=>{
-                this.setState({
-                    mention:mention,
-                    startsWith:startsWith,
-                    contains:contains
-                })
-            })
+
     }
 
     render() {

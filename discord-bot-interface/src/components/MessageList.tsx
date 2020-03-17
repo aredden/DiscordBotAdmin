@@ -39,6 +39,10 @@ export default class MessageList extends Component <MessageListProps,MessageList
         this.handleMessageEditClick = this.handleMessageEditClick.bind(this);
         this.handleEditCancel = this.handleEditCancel.bind(this);
         this.handleEditConfirm = this.handleEditConfirm.bind(this);
+        this.deleteConfirm = this.deleteConfirm.bind(this);
+        this.pinConfirm = this.pinConfirm.bind(this);
+        this.reactConfirm = this.reactConfirm.bind(this);
+        this.suppressEmbedsConfirm = this.suppressEmbedsConfirm.bind(this);
     }
 
     componentDidUpdate(prevProps:MessageListProps){
@@ -61,6 +65,22 @@ export default class MessageList extends Component <MessageListProps,MessageList
             this.props.socket.removeEventListener("typingStart");
             this.props.socket.removeEventListener("typingStop");
         }
+    }
+
+    suppressEmbedsConfirm = (e) => {
+
+    }
+
+    deleteConfirm = (e) => {
+
+    }
+
+    pinConfirm = (e) => {
+
+    }
+
+    reactConfirm = (e) => {
+
     }
 
     handleMessageEditClick = (_e,id:string) => {
@@ -113,13 +133,21 @@ export default class MessageList extends Component <MessageListProps,MessageList
         let {messages, emojis, guildID, channelID, sendFunction, 
              requestMessages, guildName, channelName} = this.props;
         let { typing, messageEditModalMessage } = this.state;
+        const messageDetailsModalProps:TypeMessageEditModal = {
+            message:messageEditModalMessage,
+            handleMessageDelete:this.deleteConfirm,
+            handleMessagePin:this.pinConfirm,
+            handleSuppressEmbeds:this.suppressEmbedsConfirm,
+            handleMessageEditCancel:this.handleEditCancel,
+            handleMessageEdit:this.handleEditConfirm
+
+        }
+
         let handleMessageEditClick = this.handleMessageEditClick;
         return (
             <div className="messagelist-spacing flex-column col-md-8" style={messageListStyles}>
                 {messageEditModalMessage && 
-                    <MessageDetailsModal message={messageEditModalMessage} 
-                                      handleMessageEditCancel={this.handleEditCancel}
-                                      handleMessageEditConfirm={this.handleEditConfirm}/>
+                    <MessageDetailsModal {...messageDetailsModalProps}/>
                 }
                 <div className="p-3 d-flex align-items-end">
                     <h2 className="ml-3">{guildName}</h2>
@@ -157,17 +185,22 @@ const messageListStyles = {
 
 type TypeMessageEditModal = {
     message:TypeMessage,
-    handleMessageEditConfirm:(e:React.MouseEvent<HTMLButtonElement,MouseEvent>,content:string)=>any,
-    handleMessageEditCancel:(e:React.MouseEvent<HTMLButtonElement,MouseEvent>)=>any
+    handleMessageEdit:(e:React.MouseEvent<HTMLButtonElement,MouseEvent>,content:string)=>void,
+    handleMessageEditCancel:(e:React.MouseEvent<HTMLButtonElement,MouseEvent>)=>void,
+    handleMessageDelete:(e)=>void,
+    handleMessagePin:(e)=>void,
+    handleSuppressEmbeds:(e)=>void
 }
 
-const MessageDetailsModal = ({message, handleMessageEditConfirm, handleMessageEditCancel}:TypeMessageEditModal) => {
+const MessageDetailsModal = (props:TypeMessageEditModal) => {
+    const { handleMessageDelete, handleMessageEditCancel, 
+            handleMessageEdit, handleMessagePin,
+            handleSuppressEmbeds, message } = props;
     const [messageText, setMessageText] = useState(null);
     
     useEffect(() => {
         setMessageText(message && message.content);
     },[message])
-
 
     return(
         <div className="modal fade" id="messageEditModal" tabIndex={-1} role="dialog" 
@@ -181,29 +214,40 @@ const MessageDetailsModal = ({message, handleMessageEditConfirm, handleMessageEd
                 </button>
             </div>
             <div className="modal-body">
-                <form>
-                <div className="form-group">
-                    <label  className="col-form-label">Message:</label>
-                    <textarea className="form-control" 
-                              id="message-edit-text" 
-                              onChange={e=>{setMessageText(e.target.value)}}
-                              defaultValue={messageText?messageText:message.content}>
-                                  
-                    </textarea>
-                </div>
-                </form>
-                <div>
-                    {message && JSON.stringify(message.reactions,undefined,2)}
-                </div>
+                {message && message.editable ? 
+                    <form>
+                        <div className="form-group">
+                            <label  className="col-form-label">Message:</label>
+                            <textarea className="form-control" 
+                                    id="message-edit-text" 
+                                    onChange={e=>{setMessageText(e.target.value)}}
+                                    defaultValue={messageText?messageText:message.content}>
+                            </textarea>
+                        </div>
+                    </form>
+                :""}
             </div>
             <div className="modal-footer">
+                
+                <button type="button" className="btn btn-danger btn-sm"
+                        onClick={e=>{handleMessageDelete(e)}}>
+                    Delete Message
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm"
+                        onClick={e=>{handleMessagePin(e)}}>
+                    Pin Message
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm"
+                        onClick={e=>{handleSuppressEmbeds(e)}}>
+                    React Message
+                </button>
                 <button type="button" className="btn btn-secondary" data-dismiss="modal"
                         onClick={e=>{handleMessageEditCancel(e)}}>
                     Close
                 </button>
                 <button type="button" className="btn btn-primary" data-dismiss="modal"
-                            onClick={e=>{handleMessageEditConfirm(e,messageText)}}>
-                            Send message
+                        onClick={e=>{handleMessageEdit(e,messageText)}}>
+                    Send message
                 </button>
             </div>
             </div>
