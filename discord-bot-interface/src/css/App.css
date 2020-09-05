@@ -1,134 +1,135 @@
+/** @format */
 
 .feather {
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
+	width: 16px;
+	height: 16px;
+	vertical-align: text-bottom;
 }
 
 /*
  * Sidebar
  */
 
- .sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+.sidebar {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 100; /* Behind the navbar */
+	padding: 48px 0 0; /* Height of navbar */
+	box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(98vh - 48px);
-  padding-top: .5rem;
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+	position: relative;
+	top: 0;
+	height: calc(98vh - 48px);
+	padding-top: 0.5rem;
+	overflow-x: hidden;
+	overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: -webkit-sticky;
-    position: sticky;
-  }
+	.sidebar-sticky {
+		position: -webkit-sticky;
+		position: sticky;
+	}
 }
 
 .sidebar .nav-link {
-  font-weight: 500;
-  color: #333;
+	font-weight: 500;
+	color: #333;
 }
 
 .sidebar .nav-link .feather {
-  margin-right: 4px;
-  color: #999;
+	margin-right: 4px;
+	color: #999;
 }
 
 .sidebar .nav-link.active {
-  color: #2f3cb8;
+	color: #2f3cb8;
 }
 
 .sidebar .nav-link:hover .feather,
 .sidebar .nav-link.active .feather {
-  color: inherit;
+	color: inherit;
 }
 
 .sidebar-heading {
-  font-size: .75rem;
-  text-transform: uppercase;
+	font-size: 0.75rem;
+	text-transform: uppercase;
 }
 
 /*
  * UserBar
  */
 
- .userbar {
-  position: relative;
-  top: 0;
-  bottom: 0;
-  z-index: 100; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
-  background-color: #F0F0F0;
-  box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1);
- }
+.userbar {
+	position: relative;
+	top: 0;
+	bottom: 0;
+	z-index: 100; /* Behind the navbar */
+	padding: 48px 0 0; /* Height of navbar */
+	background-color: #f0f0f0;
+	box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.1);
+}
 
- .userbar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(98vh - 48px);
-  padding-top: .5rem;
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+.userbar-sticky {
+	position: relative;
+	top: 0;
+	height: calc(98vh - 48px);
+	padding-top: 0.5rem;
+	overflow-x: hidden;
+	overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
-  .userbar-sticky {
-    position: -webkit-sticky;
-    position: sticky;
-  }
+	.userbar-sticky {
+		position: -webkit-sticky;
+		position: sticky;
+	}
 }
 
 .userbar .nav-link {
-  font-weight: 500;
-  color: #333;
+	font-weight: 500;
+	color: #333;
 }
 
 .userbar .nav-link .feather {
-  margin-left: 4px;
-  color: #999;
+	margin-left: 4px;
+	color: #999;
 }
 
 .userbar .nav-link.active {
-  color: #2f3cb8;
+	color: #2f3cb8;
 }
 
 .userbar-user:hover {
-  background-color: rgb(209, 205, 205);
+	background-color: rgb(209, 205, 205);
 }
 
 .userbar .nav-link:hover .feather,
 .userbar .nav-link.active .feather {
-  color: inherit;
+	color: inherit;
 }
 
 .userbar-heading {
-  font-size: .75rem;
-  text-transform: uppercase;
+	font-size: 0.75rem;
+	text-transform: uppercase;
 }
 
 /*
  * Content
  */
 
-[role="main"] {
-  padding-top: 10px; /* Space for fixed navbar */
+[role='main'] {
+	padding-top: 10px; /* Space for fixed navbar */
 }
 
 @media (min-width: 768px) {
-  [role="main"] {
-    padding-top: 48px; /* Space for fixed navbar */
-  }
+	[role='main'] {
+		padding-top: 48px; /* Space for fixed navbar */
+	}
 }
 
 /*
@@ -136,30 +137,29 @@
  */
 
 .navbar-brand {
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
+	font-size: 1rem;
+	background-color: rgba(0, 0, 0, 0.25);
 }
-
 
 /* 
  * MessaageList
  */
 
 .messagelist-table {
-  height: calc(80vh - 48px);
+	height: calc(80vh - 48px);
 }
 
 .messagelist-spacing {
-  padding-top: 58px;
+	padding-top: 58px;
 }
 
 @media (min-width: 768px) {
-  .messagelist-spacing {
-    padding-top: 58px; /* Space for fixed navbar */
-  }
+	.messagelist-spacing {
+		padding-top: 58px; /* Space for fixed navbar */
+	}
 }
 
 .messagelist-message:hover {
-  border-radius: .25rem;
-  background-color: rgb(209, 205, 205);
+	border-radius: 0.25rem;
+	background-color: rgb(209, 205, 205);
 }
