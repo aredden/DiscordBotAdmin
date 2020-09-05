@@ -9,6 +9,7 @@ import {
 } from '../types/discord-bot-admin-react-types';
 import { Fade, Popper } from '@material-ui/core';
 import { isNullOrUndefined } from 'util';
+import { ArrowRightOutlined, SmileOutlined } from '@ant-design/icons';
 
 export default class InputBox extends Component<InputBoxProps, InputBoxState> {
 	constructor(props: InputBoxProps) {
@@ -107,11 +108,12 @@ export default class InputBox extends Component<InputBoxProps, InputBoxState> {
 				<form className="input-group mb-3" onSubmit={(e) => this.handleSubmit(e)}>
 					<input
 						type="text"
-						className="form-control bg-light"
+						className="form-control bg-dark"
 						placeholder="Message"
 						aria-label="Message"
 						id="input-text-box"
 						aria-describedby="basic-addon1"
+						style={{ color: 'silver', padding: '1rem', height: '3rem' }}
 						value={this.state.content}
 						onKeyDown={this.handleUpPress}
 						onChange={this.handleChange}
@@ -119,8 +121,8 @@ export default class InputBox extends Component<InputBoxProps, InputBoxState> {
 					<EmojiAutoComplete {...autoCompleteData} />
 					<EmojiChooser {...popoverData} />
 					<div className="input-group-append">
-						<button className="btn btn-outline-secondary" type="submit">
-							Send
+						<button className="btn btn-secondary" type="submit">
+							<ArrowRightOutlined color="white" style={{ paddingBottom: '30%' }} />
 						</button>
 					</div>
 				</form>
@@ -268,11 +270,11 @@ function EmojiChooser({ emojis, onChoose }) {
 	return (
 		<div className="input-group-append">
 			<button
-				className="btn btn-outline-dark"
+				className="btn btn-secondary"
 				aria-describedby={id}
 				type="button"
 				onClick={handleClick}>
-				Emojis
+				<SmileOutlined style={{ paddingBottom: '30%', scale: '1.3' }} size={15} />
 			</button>
 			<Popper
 				className="row-sm-1 card bg-secondary p-1"

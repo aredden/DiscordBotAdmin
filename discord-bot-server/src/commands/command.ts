@@ -8,7 +8,6 @@ import { readJSON } from 'fs-extra';
 import chalk from 'chalk';
 import { handleSendMessage } from '../socket/socketfunctions';
 import { parseGuildMembers } from '../discordbot/typeparserfunctions';
-import { exception } from 'console';
 const logger = getLogger('BotControl');
 
 type parsedCommandDB = {

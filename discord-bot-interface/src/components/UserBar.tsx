@@ -6,7 +6,8 @@ import moment from 'moment';
 import $ from 'jquery';
 import { UserBarProps } from '../types/discord-bot-admin-react-types';
 import { PresenceParse } from './util';
-
+import { Badge, Avatar } from 'antd';
+import 'bootstrap';
 export default class UserBar extends Component<
 	UserBarProps,
 	{ selectedUser: TypeGuildMember }
@@ -109,15 +110,27 @@ function Member(
 			data-target="#userModal"
 			style={{ textAlign: 'start' }}
 			onClick={(e) => handleUserClick(e, user)}>
-			<span className={`badge badge-${presenceStyle}`} style={{ height: '12px' }}>
-				&nbsp;
-			</span>
-			<img
+			<Badge
+				count={0}
+				status={presenceStyle}
+				showZero={false}
+				style={{ marginLeft: '.1rem', height: '12px', width: '12px' }}>
+				{/* <span className={`badge badge-${presenceStyle}`} style={{ height: '12px' }}>
+					&nbsp;
+				</span> */}
+				<Avatar
+					shape="square"
+					style={{ borderRadius: '.3rem' }}
+					gap={1}
+					src={pfpURL}
+				/>
+			</Badge>
+			{/* <img
 				className="rounded mx-2"
 				src={pfpURL}
 				alt={''}
-				style={{ maxHeight: '35px' }}></img>
-			<strong style={{ color: user.displayHexColor }}>
+				style={{ maxHeight: '35px' }}></img> */}
+			<strong style={{ color: user.displayHexColor, marginLeft: '.5rem' }}>
 				{user.nickname ? user.nickname : user.displayName}
 			</strong>
 			{game && game.length > 0 ? (
@@ -228,25 +241,9 @@ class UserModal extends Component<{ member: TypeGuildMember }> {
 							<p>
 								{clientStatus
 									? `ClientStatus: \n
-                                    ${
-																																					clientStatus.desktop
-																																						? '   Desktop -- ' +
-																																						  clientStatus.desktop +
-																																						  '\n'
-																																						: ''
-																																				}
-                                    ${
-																																					clientStatus.mobile
-																																						? '    Mobile -- ' +
-																																						  clientStatus.mobile +
-																																						  '\n'
-																																						: ''
-																																				}
-                                    ${
-																																					clientStatus.web
-																																						? '   Web -- ' + clientStatus.web + '\n'
-																																						: ''
-																																				}
+									${clientStatus.desktop ? '   Desktop -- ' + clientStatus.desktop + '\n' : ''}
+									${clientStatus.mobile ? '    Mobile -- ' + clientStatus.mobile + '\n' : ''}
+									${clientStatus.web ? '   Web -- ' + clientStatus.web + '\n' : ''}
                                 `
 									: ''}
 							</p>

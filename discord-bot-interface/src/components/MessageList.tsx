@@ -19,7 +19,7 @@ export const RequestMessageButton = ({
 	return (
 		<button
 			tabIndex={-1}
-			className="ml-3 btn btn-sm btn-outline-primary"
+			className="ml-3 btn btn-sm btn-secondary"
 			style={{ marginBottom: '.4rem' }}
 			onClick={(e) =>
 				requestMessages(
@@ -83,7 +83,9 @@ export default class MessageList extends Component<
 
 	suppressEmbedsConfirm = (e) => {};
 
-	deleteConfirm = (e) => {};
+	deleteConfirm = (e) => {
+		console.log('we tried to delete bro.');
+	};
 
 	pinConfirm = (e) => {};
 
@@ -204,8 +206,8 @@ export default class MessageList extends Component<
 }
 
 const messageListStyles = {
-	msScrollbarBaseColor: '#F0F0F0',
-	backgroundColor: '#F0F0F0',
+	msScrollbarBaseColor: '#36393F',
+	backgroundColor: '#36393F',
 	paddingLeft: '2rem',
 	paddingRight: '1rem',
 };

@@ -44,15 +44,17 @@ export function PresenceParse(status: String) {
 		case 'online':
 			return 'success';
 		case 'offline':
-			return 'dark';
+			return 'warning';
 		case 'idle':
 			return 'warning';
 		case 'dnd':
-			return 'danger';
+			return 'error';
 		default:
-			return 'secondary';
+			return 'default';
 	}
 }
+
+type badgetypes = 'error' | 'default' | 'success' | 'warning' | 'processing';
 
 export function hasMentions(msg: TypeMessage): boolean {
 	return msg.mentions ? msg.mentions.length > 0 : false;

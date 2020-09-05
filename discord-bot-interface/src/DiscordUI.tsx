@@ -1,10 +1,12 @@
 /** @format */
 
 import React, { Component } from 'react';
-import './css/App.css';
+import './css/App.scss';
 import 'jquery';
 import 'popper.js';
-import 'bootstrap';
+
+import './css/scss/bootstrap.scss';
+import 'antd/dist/antd.css';
 import Nav from './components/Nav';
 import MessageList from './components/MessageList';
 import SideBar from './components/Sidebar';
@@ -27,6 +29,7 @@ import {
 	messageUpdate,
 	presenceUpdate,
 } from './DiscordUIFunctions';
+
 import { DiscordUIState } from './types/discord-bot-admin-react-types';
 import UserBar from './components/UserBar';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -334,7 +337,7 @@ export default class DiscordUI extends Component<{}, DiscordUIState> {
 
 		return (
 			<Router>
-				<div className="App" style={{ backgroundColor: '#F0F0F0' }}>
+				<div className="App" style={{ backgroundColor: '#202225 !important' }}>
 					<Nav />
 					<div className="row">
 						<SideBar {...sideBarProps} />

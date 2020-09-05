@@ -166,6 +166,7 @@ function convertSurrogateToName(surrogate, colons = true, n = '') {
 }
 // eslint-disable-next-line
 const escape = (str) =>
+	// eslint-disable-next-line
 	str.replace(/[\-\[\]\/\{}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 
 const replacer = (function () {
